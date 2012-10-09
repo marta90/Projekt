@@ -1,0 +1,8 @@
+Uruchamianie aplikacji w Django:
+Wpisujemy w wierszu polecen
+
+cd c:/Projekt/serwis
+manage.py runserver
+
+Model i widok znajduje sie w c:/Projekt/serwis/serwis/zpi
+Urlsy w c:/Projekt/serwis/serwis
