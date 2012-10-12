@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<script type="text/javascript" src="/static2/jquery172.js"></script>
+		<!-- <script type="text/javascript" src="menu.js"></script> -->
+		<script type="text/javascript" src="/static2/thickbox.js"></script>
+		<link rel="stylesheet" type="text/css" href="/static2/style.css" />
+		<link rel="stylesheet" type="text/css" href="/static2/menu.css" />
+		<link rel="stylesheet" type="text/css" href="/static2/thickbox.css" />
+		<title></title>
+	</head>
+	<body>
+		<noscript>
+		    <div id="no_js">
+		    	Do poprawnego działania serwisu wymagany jest JavaScript.
+		    </div>
+		</noscript>
+		<div style="position: absolute; font-size: 8px; color: #000000; margin-top: 2px; margin-left: 2px; text-align: left;">
+			<a href ="portal.html">Portal 2</a>
+			<br />
+			<a href ="login.html">Logowanie</a>
+		</div>
+		<div id="site">
+			<div id="header">
+				<div id="languages">
+					<a href ="#">PL</a> <a href ="#">EN</a>
+				</div>
+				<div id="login_text">
+					<a href ="#">Zaloguj</a>
+				</div>
+				<div id="login_box">
+					<div id="login_box_left">
+						Login
+						<br />
+						Hasło
+					</div>
+					<form action="/logowanie" method="post" id="form_login">
+						<div id="login_box_right">
+							<input id="fld_login" name="fld_login" type="text" class="boxsizing" value="fld_login" />
+							<br />
+							<input id="fld_pass" name="fld_pass" type="text" class="boxsizing" value="fld_pass" />
+						</div>
+						<br />
+						<input type="checkbox" id="cbox_remember" name="cbox_remember" /> cbox_remember
+						<br />
+						<input type="submit" id="btn_submit2" name="btn_submit2">btn_submit2</input>
+						<!-- <button id="btn_submit" name="btn_submit" type="submit" style="line-height: 15px; ">btn_submit</button> -->
+					</form>
+				</div>
+				<div id="big_menu">
+					<ul id="menu">
+					    <li><a href="index.html"><img src="/static2/ikona2.png"></img><br />Portal</a></li>
+					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Kalendarz</a></li>
+					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Plan zajęć</a></li>
+					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Wykładowcy</a>
+					        <ul>
+					            <li><a href="#">Konsultacje</a></li>
+					            <li><a href="#">Siatka zajęć</a></li>
+					            <li><a href="#">Rozkład zajęć</a></li>
+					        </ul>
+					    </li>
+					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Plan uczelni</a>
+					        <ul>
+					            <li><a href="#">Punkty ksero</a></li>
+					            <li><a href="#">Gastronomia</a></li>
+					            <li><a href="#">Konsultacje</a></li>
+					            <li><a href="#">Zasięg internetu</a></li>
+					        </ul>
+					    </li>
+					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Konto</a></li>
+					</ul>
+					<!-- <a class="box_menu" href ="news.html">
+						<img src="ikona2.png"></img><br />Portal
+					</a>
+					<a class="box_menu" href ="news.html">
+						<img src="ikona2.png"></img><br />Kalendarz
+					</a>
+					<a class="box_menu" href ="news.html">
+						<img src="ikona2.png"></img><br />Plan zajęć
+					</a>
+					<ul id="menu" class="menu">
+						<li>
+							<div class="topmenu"><div style="margin-left: 24px;"><img src="ikona2.png"></img></div><div style="line-height: 26px;">Wykładowcy</div></div>
+							<ul>
+								<li><a href="database.jsp">Konsultacje</a></li>
+								<li><a href="yours.jsp">Siatka/rozkład/grafik zajęć</a></li>
+							</ul>
+						</li>
+					</ul>
+					<ul id="menu" class="menu">
+						<li>
+							<div class="topmenu"><div style="margin-left: 24px;"><img src="ikona2.png"></img></div><div style="line-height: 26px;">Plan uczelni</div></div>
+							<ul>
+								<li><a href="database.jsp">Punkty ksero</a></li>
+								<li><a href="yours.jsp"></a>Punkty gastronomiczne</li>
+								<li><a href="yours.jsp"></a>Konsultacje</li>
+								<li><a href="yours.jsp"></a>Zasięg internetu</li>
+							</ul>
+						</li>
+					</ul>
+					<a class="box_menu" href ="search.html">
+						<img src="ikona2.png"></img><br />Konto
+					</a> -->
+				</div>
+				<!-- <div>
+					<ul class="text_menu">
+						<li><a href="register.jsp">Rejestracja</a></li>
+						<li><a href="reports.jsp">Raporty</a></li>
+						<li><a href="profile.jsp">Twój profil</a></li>
+						<li><a href="users.jsp">Użytkownicy</a></li>
+						<li><a href="stats.jsp">Statystyki</a></li>
+						<li><a href="help.jsp">Pomoc</a></li>
+					</ul>
+				</div> -->
+			</div>
+			<div id="main">
+				<div id="portal-content">
+					<div class="portal-powitanie">
+						<div style="font-size: 18px; font-weight: bold;">Witaj w naszym serwisie!</div>
+						<br />
+						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
+					</div>
+					<div class="portal-lewa-strona">
+						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
+						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
+						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
+					</div>
+					<div class="portal-na-skroty">
+						<div style="font-weight: bold;">Rejestracja</div>
+						<br />
+						<div style="text-align: left; margin-left: 10px;">
+						<form method="post" id="form_register">
+						<div id="login_box_right">
+							<input id="fld_login" name="fld_login" type="text" class="boxsizing" value="fld_login" />
+							<br />
+							<input id="fld_indexNumber" name="fld_indexNumber" type="text" class="boxsizing" value="fld_indexNumber" />
+						</div>
+						<br />
+						<button id="btn_submit" name="btn_submit" type="submit" style="line-height: 15px; ">btn_submit</button>
+					</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				© 2012 | <a class="thickbox" href ="contact.html?height=315&width=450">Kontakt</a> [?] <!-- co ze stopką? i z kontaktem? -->
+			</div>
+		</div>
+		<script type="text/javascript">
+			var menu=new menu.dd("menu");
+			menu.init("menu","menuhover");
+		</script>
+		<script type="text/javascript">
+　　			document.getElementById('site').style.display = 'block' ;
+		</script>
+		<script type="text/javascript">
+	        var login_box = $('#login_box');
+	        var login_text = $('#login_text');
+	        login_text.click(function() {
+	        	login_box.show(); return false;
+	        });
+	        $(document).click(function() {
+	        	login_box.hide();
+	        });
+	        login_box.click(function(e) {
+	            e.stopPropagation();
+	        });
+	    </script>
+	</body>
+</html>
