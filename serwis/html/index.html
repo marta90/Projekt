@@ -3,12 +3,129 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<script type="text/javascript" src="/static2/jquery172.js"></script>
+		<script type="text/javascript" src="/media/jquery172.js"></script>
 		<!-- <script type="text/javascript" src="menu.js"></script> -->
-		<script type="text/javascript" src="/static2/thickbox.js"></script>
-		<link rel="stylesheet" type="text/css" href="/static2/style.css" />
-		<link rel="stylesheet" type="text/css" href="/static2/menu.css" />
-		<link rel="stylesheet" type="text/css" href="/static2/thickbox.css" />
+		<script type="text/javascript" src="/media/thickbox.js"></script>
+		<link rel="stylesheet" type="text/css" href="/media/style.css" />
+		<link rel="stylesheet" type="text/css" href="/media/menu.css" />
+		<link rel="stylesheet" type="text/css" href="/media/thickbox.css" />
+		<script type="text/javascript" src="/media/ajax.js"></script>
+		
+		<script type="text/javascript">
+		window.onload = initPage;
+		nickOk = false;
+		indexOk = false;
+		
+		function initPage() {
+		  document.getElementById("btn_register").disabled = true;
+		  document.getElementById("fld_loginCheck").onkeyup = checkUsername;	  
+		  document.getElementById("fld_indexNumber").onkeyup = checkIndexNumber;	 
+		}
+		
+		function checkBoth() {
+			if (nickOk && indexOk)
+				document.getElementById("btn_register").disabled = false;
+			else
+				document.getElementById("btn_register").disabled = true;
+		}
+				
+		function checkUsername() {
+		
+		//  document.getElementById("obrazek").className = "thinking";
+		  request = createRequest();
+		  if (request == null)
+			alert("Unable to create request");
+		  else {
+			var theName = document.getElementById("fld_loginCheck").value;
+			var nick = escape(theName);
+			var url= "/checkUsername/" + nick;
+			request.onreadystatechange = showUsernameStatus;
+			request.open("GET", url, true);
+			request.send(null);
+		  }
+		}
+		
+		function showUsernameStatus() {
+		  if (request.readyState == 4) {
+			if (request.status == 200) {
+			  if (request.responseText == "okay") {
+			//	document.getElementById("obrazek").className = "approved";
+				nickOk = true;
+				checkBoth();
+			  } else {
+				nickOk = false;
+				checkBoth();
+			//	document.getElementById("obrazek").className = "denied";
+			//	document.getElementById("fld_loginCheck").focus();
+			//	document.getElementById("fld_loginCheck").select();
+			  }
+			}
+		  }
+		}
+		
+		function checkIndexNumber() {
+		
+		//  document.getElementById("obrazek").className = "thinking";
+		  request = createRequest();
+		  if (request == null)
+			alert("Unable to create request");
+		  else {
+			var ind = document.getElementById("fld_indexNumber").value;
+			var index = escape(ind);
+			var url= "/checkIndexNumber/" + index;
+			request.onreadystatechange = showIndexNumberStatus;
+			request.open("GET", url, true);
+			request.send(null);
+		  }
+		}
+		
+		function showIndexNumberStatus() {
+		  if (request.readyState == 4) {
+			if (request.status == 200) {
+			  if (request.responseText == "okay") {
+			//	document.getElementById("obrazek").className = "approved";
+				indexOk = true;
+				checkBoth();
+			  } else {
+				indexOk = false;
+				checkBoth();
+			//	document.getElementById("obrazek").className = "denied";
+			//	document.getElementById("fld_indexNumber").focus();
+			//	document.getElementById("fld_indexNumebr").select();
+			  }
+			}
+		  }
+		}
+
+		function createRequest() {
+		  try {
+			request = new XMLHttpRequest();
+		  } catch (tryMS) {
+			try {
+			  request = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch (otherMS) {
+			  try {
+				request = new ActiveXObject("Microsoft.XMLHTTP");
+			  } catch (failed) {
+				request = null;
+			  }
+			}
+		  }	
+		  return request;
+		}
+		
+		function clearField(id) {
+			document.getElementById(id).value = "";
+			}
+		</script>
+		
+		
+		
+		
+		
+		
+		
+		
 		<title></title>
 	</head>
 	<body>
@@ -31,37 +148,33 @@
 					<a href ="#">Zaloguj</a>
 				</div>
 				<div id="login_box">
-					<div id="login_box_left">
-						Login
-						<br />
-						Hasło
-					</div>
-					<form action="/logowanie" method="post" id="form_login">
+
+					<form action="/logIn" method="post" id="form_login">
 						<div id="login_box_right">
-							<input id="fld_login" name="fld_login" type="text" class="boxsizing" value="fld_login" />
+							<input id="fld_login" name="fld_login" type="text" class="boxsizing" value="login" onclick="clearField(this.id)"/>
 							<br />
-							<input id="fld_pass" name="fld_pass" type="text" class="boxsizing" value="fld_pass" />
+							<input id="fld_pass" name="fld_pass" type="text" class="boxsizing" value="hasło" onclick="clearField(this.id)" />
 						</div>
 						<br />
-						<input type="checkbox" id="cbox_remember" name="cbox_remember" /> cbox_remember
+						<input type="checkbox" id="cbox_remember" name="cbox_remember" /> zapamiętaj mnie
 						<br />
-						<input type="submit" id="btn_submit2" name="btn_submit2">btn_submit2</input>
+						<input type="submit" id="btn_logIn" name="btn_logIn" value = "Zaloguj"></input>
 						<!-- <button id="btn_submit" name="btn_submit" type="submit" style="line-height: 15px; ">btn_submit</button> -->
 					</form>
 				</div>
 				<div id="big_menu">
 					<ul id="menu">
-					    <li><a href="index.html"><img src="/static2/ikona2.png"></img><br />Portal</a></li>
-					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Kalendarz</a></li>
-					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Plan zajęć</a></li>
-					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Wykładowcy</a>
+					    <li><a href="index.html"><img src="/media/ikona2.png"></img><br />Portal</a></li>
+					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Kalendarz</a></li>
+					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Plan zajęć</a></li>
+					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Wykładowcy</a>
 					        <ul>
 					            <li><a href="#">Konsultacje</a></li>
 					            <li><a href="#">Siatka zajęć</a></li>
 					            <li><a href="#">Rozkład zajęć</a></li>
 					        </ul>
 					    </li>
-					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Plan uczelni</a>
+					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Plan uczelni</a>
 					        <ul>
 					            <li><a href="#">Punkty ksero</a></li>
 					            <li><a href="#">Gastronomia</a></li>
@@ -69,7 +182,7 @@
 					            <li><a href="#">Zasięg internetu</a></li>
 					        </ul>
 					    </li>
-					    <li><a href="#"><img src="/static2/ikona2.png"></img><br />Konto</a></li>
+					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Konto</a></li>
 					</ul>
 					<!-- <a class="box_menu" href ="news.html">
 						<img src="ikona2.png"></img><br />Portal
@@ -131,19 +244,20 @@
 						<div style="font-weight: bold;">Rejestracja</div>
 						<br />
 						<div style="text-align: left; margin-left: 10px;">
-						<form method="post" id="form_register">
+						<form method="post" id="form_register" action="rejestracja">
 						<div id="login_box_right">
-							<input id="fld_login" name="fld_login" type="text" class="boxsizing" value="fld_login" />
+							<input id="fld_loginCheck" name="fld_loginCheck" type="text" class="boxsizing" value="login" onclick="clearField(this.id)" />
 							<br />
-							<input id="fld_indexNumber" name="fld_indexNumber" type="text" class="boxsizing" value="fld_indexNumber" />
+							<input id="fld_indexNumber" name="fld_indexNumber" type="text" class="boxsizing" value="nr indeksu" onclick="clearField(this.id)" />
 						</div>
 						<br />
-						<button id="btn_submit" name="btn_submit" type="submit" style="line-height: 15px; ">btn_submit</button>
+		
+						<input type="submit" id="btn_register" name="btn_register" value="Zarejestruj" style="line-height: 15px; "></input>
 					</form>
 						</div>
 					</div>
 				</div>
-			</div>
+			</div
 			<div id="footer">
 				© 2012 | <a class="thickbox" href ="contact.html?height=315&width=450">Kontakt</a> [?] <!-- co ze stopką? i z kontaktem? -->
 			</div>

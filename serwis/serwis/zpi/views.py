@@ -13,7 +13,6 @@ def logowanie(request):
         hasloPost = request.POST['fld_pass']
         models.Uzytkownik.objects
         uz = models.Uzytkownik.objects.filter(nick=nickPost)
-        error = True
         if uz.exists():
             haslo = models.Uzytkownik.objects.get(nick=nickPost).haslo
             true = sha256_crypt.verify(hasloPost, haslo)
@@ -25,3 +24,19 @@ def logowanie(request):
     #elif 'nick' in request.session:
     #    return HttpResponseRedirect('stronaGlowna.html')
     return render_to_response('logowanie.html')
+
+def sprawdzNick(request, nick):
+    uzytkownicy = models.Uzytkownik.objects.all()
+    #time.sleep(2)
+    for uz in uzytkownicy:
+        if nick == uz.nick:
+	    return HttpResponse('denied')
+    return HttpResponse('okay')
+
+def sprawdzIndeks(request, indeks):
+    studenci = models.Student.objects.all()
+    #time.sleep(2)
+    for st in studenci:
+        if indeks == st.indeks:
+	    return HttpResponse('denied')
+    return HttpResponse('okay')

@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Wydzial(models.Model):
-    nazwa = models.CharField(max_length = 240)
+    nazwa = models.CharField(max_length = 250)
     def __unicode__(self):
         return self.kodgrupy
     class Meta:
@@ -11,7 +11,7 @@ class Wydzial(models.Model):
         verbose_name_plural = 'Wydzialy'
 
 class Kierunek(models.Model):
-    nazwa = models.CharField(max_length = 240)
+    nazwa = models.CharField(max_length = 250)
     wydzial = models.ForeignKey(Wydzial)
     liczbaSemestrowInz = models.IntegerField()
     liczbaSemestrowMgr = models.IntegerField()
@@ -22,11 +22,11 @@ class Kierunek(models.Model):
         verbose_name_plural = 'Kierunki'
 
 class Uzytkownik(models.Model):
-    nick = models.CharField(max_length = 60)
-    imie = models.CharField(max_length = 60)
-    nazwisko = models.CharField(max_length = 80)
-    haslo = models.CharField(max_length = 128)
-    mail = models.CharField(max_length = 200)
+    nick = models.CharField(max_length = 250)
+    imie = models.CharField(max_length = 250)
+    nazwisko = models.CharField(max_length = 250)
+    haslo = models.CharField(max_length = 250)
+    mail = models.CharField(max_length = 250)
     ktoWprowadzil = models.ForeignKey('self', related_name = 'uzytkownik_wprowadzil')
     dataUtworzenia = models.DateTimeField(auto_now_add = True)
     dataOstLogowania = models.DateTimeField()
@@ -42,9 +42,9 @@ class Uzytkownik(models.Model):
         verbose_name_plural = 'Uzytkownicy'
  
 class Prowadzacy(models.Model):
-    imie = models.CharField(max_length = 50)
-    nazwisko = models.CharField(max_length = 80)
-    tytul = models.CharField(max_length = 50)
+    imie = models.CharField(max_length = 250)
+    nazwisko = models.CharField(max_length = 250)
+    tytul = models.CharField(max_length = 250)
     ktoWprowadzil = models.ForeignKey(Uzytkownik, related_name = 'prowadzacy_wprowadzil')
     dataUtworzenia = models.DateTimeField(auto_now_add = True)
     dataOstZmianyDanych = models.DateTimeField()
@@ -57,7 +57,7 @@ class Prowadzacy(models.Model):
         verbose_name_plural = 'Prowadzacy'
 
 class Kurs(models.Model):
-    nazwa = models.CharField(max_length = 240)
+    nazwa = models.CharField(max_length = 250)
     rodzaj = models.CharField(max_length = 1)
     ects = models.IntegerField()
     def __unicode__(self):
@@ -73,7 +73,7 @@ class Grupa(models.Model):
     parzystosc = models.CharField(max_length = 2)
     godzinaOd = models.TimeField(null = True)
     godzinaDo = models.TimeField(null = True)
-    miejsce = models.CharField(max_length = 20)
+    miejsce = models.CharField(max_length = 250)
     kurs = models.ForeignKey(Kurs)
     def __unicode__(self):
         return self.kodGrupy
@@ -83,7 +83,7 @@ class Grupa(models.Model):
 
 class Student(models.Model):
     uzytkownik = models.ForeignKey(Uzytkownik)
-    indeks = models.CharField(max_length = 10)
+    indeks = models.CharField(max_length = 6)
     grupa = models.ManyToManyField(Grupa, through='Plan')
     kierunek = models.ManyToManyField(Kierunek, through='KierunkiStudenta')
     czyAktywowano = models.BooleanField(default=False)
@@ -98,7 +98,7 @@ class Plan(models.Model):
     student = models.ForeignKey(Student)
     grupa = models.ForeignKey(Grupa)
     class Meta:
-        db_table = u'Plan'
+        db_table = u'GrupyStudentow'
         verbose_name_plural = 'Plany'
 
 class KierunkiStudenta(models.Model):
@@ -112,7 +112,7 @@ class KierunkiStudenta(models.Model):
 
 class Shoutbox(models.Model):
     uzytkownik = models.ForeignKey(Uzytkownik)
-    tresc = models.CharField(max_length = 240)
+    tresc = models.CharField(max_length = 250)
     data = models.DateTimeField(auto_now_add = True)
     czyWazne = models.BooleanField(default = False)
     def __unicode__(self):
@@ -122,8 +122,8 @@ class Shoutbox(models.Model):
         verbose_name_plural = 'Shoutbox'
 
 class Wydarzenie(models.Model):
-    nazwa = models.CharField(max_length = 240)
-    opis = models.CharField(max_length = 240)
+    nazwa = models.CharField(max_length = 250)
+    opis = models.CharField(max_length = 250)
     dataWydarzenia = models.DateField()
     godzinaOd = models.TimeField(null = True)
     godzinaDo = models.TimeField(null = True)
@@ -147,7 +147,7 @@ class AktualneWydarzenie(models.Model):
 
 class NotatkaDoWydarzenia(models.Model):
     wydarzenie = models.ForeignKey(Wydarzenie)
-    notatka = models.CharField(max_length = 240)
+    notatka = models.CharField(max_length = 250)
     class Meta:
         db_table = u'NotatkaDoWydarzenia'
         verbose_name_plural = 'Notatki do wydarzen'  
@@ -155,13 +155,13 @@ class NotatkaDoWydarzenia(models.Model):
 class Kalendarz(models.Model):
     uzytkownik = models.ForeignKey(Uzytkownik)
     wydarzenie = models.ForeignKey(Wydarzenie)
-    opis = models.CharField(max_length = 240)
+    opis = models.CharField(max_length = 250)
     class Meta:
         db_table = u'Kalendarz'
         verbose_name_plural = 'Kalendarze'       
 
 class KategoriaMiejsca(models.Model):
-    nazwa = models.CharField(max_length = 20)
+    nazwa = models.CharField(max_length = 250)
     def __unicode__(self):
         return self.nazwa
     class Meta:
@@ -170,12 +170,12 @@ class KategoriaMiejsca(models.Model):
 
 class Miejsce(models.Model):
     kategoria = models.ForeignKey(KategoriaMiejsca)
-    nazwa = models.CharField(max_length = 40)
-    adres = models.CharField(max_length = 80)
-    godzinyOtwarcia = models.CharField(max_length = 180)
-    telefon = models.CharField(max_length = 40)
-    x = models.CharField(max_length = 40)
-    y = models.CharField(max_length = 40)
+    nazwa = models.CharField(max_length = 250)
+    adres = models.CharField(max_length = 250)
+    godzinyOtwarcia = models.CharField(max_length = 250)
+    telefon = models.CharField(max_length = 250)
+    x = models.CharField(max_length = 250)
+    y = models.CharField(max_length = 250)
     def __unicode__(self):
         return self.nazwa
     class Meta:
@@ -189,8 +189,8 @@ class Konsultacje(models.Model):
     godzinaOd = models.TimeField()
     godzinaDo = models.TimeField()
     budynek = models.ForeignKey(Miejsce)
-    sala = models.CharField(max_length = 10)
-    inneInformacje = models.CharField(max_length = 200)
+    sala = models.CharField(max_length = 250)
+    inneInformacje = models.CharField(max_length = 250)
     dataOstZmianyDanych = models.DateTimeField()
     ktoZmienilDane = models.ForeignKey(Uzytkownik)
     def __unicode__(self):
@@ -224,7 +224,7 @@ class ZmianaDat(models.Model):
 class NotatkaDoPlanu(models.Model):
     grupa = models.ForeignKey(Grupa)
     tydzien = models.ForeignKey(Tydzien)
-    notatka = models.CharField(max_length = 240)                
+    notatka = models.CharField(max_length = 250)                
     class Meta:
         db_table = u'NotatkaDoPlanu'
         verbose_name_plural = 'Notatki do planu'
