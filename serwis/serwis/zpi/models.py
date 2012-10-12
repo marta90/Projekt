@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 from django.db import models
 
 # Create your models here.
-=======
-﻿from django.db import models
 
 class Wydzial(models.Model):
     nazwa = models.CharField(max_length = 240)
@@ -36,7 +33,7 @@ class Uzytkownik(models.Model):
     dataOstZmianyHasla = models.DateTimeField()
     dataOstZmianyDanych = models.DateTimeField()
     ktoZmienilDane = models.ForeignKey('self', related_name = 'uzytkownik_zmienil')
-    ileMoichWydarzen = models.IntegerField(default = 7) #z ilu dni wprzód pokazywać
+    ileMoichWydarzen = models.IntegerField(default = 7) #z ilu dni wprzod pokazywac
     poziomDostepu = models.IntegerField(default = 0)
     def __unicode__(self):
         return self.nick
@@ -231,4 +228,3 @@ class NotatkaDoPlanu(models.Model):
     class Meta:
         db_table = u'NotatkaDoPlanu'
         verbose_name_plural = 'Notatki do planu'
->>>>>>> Stworzono model oraz sql do generowania tabel
