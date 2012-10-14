@@ -1,237 +1,56 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<script type="text/javascript" src="/media/jquery172.js"></script>
-		<!-- <script type="text/javascript" src="menu.js"></script> -->
-		<script type="text/javascript" src="/media/thickbox.js"></script>
-		<link rel="stylesheet" type="text/css" href="/media/style.css" />
-		<link rel="stylesheet" type="text/css" href="/media/menu.css" />
-		<link rel="stylesheet" type="text/css" href="/media/thickbox.css" />
-		<script type="text/javascript" src="/media/ajax.js"></script>
-		
-		<script type="text/javascript">
-		window.onload = initPage;
-		nickOk = false;
-		indexOk = false;
-		
-		function initPage() {
-		  document.getElementById("btn_register").disabled = true;
-		  document.getElementById("fld_loginCheck").onkeyup = checkUsername;	  
-		  document.getElementById("fld_indexNumber").onkeyup = checkIndexNumber;	 
-		}
-		
-		function checkBoth() {
-			if (nickOk && indexOk)
-				document.getElementById("btn_register").disabled = false;
-			else
-				document.getElementById("btn_register").disabled = true;
-		}
-				
-		function checkUsername() {
-		
-		//  document.getElementById("obrazek").className = "thinking";
-		  request = createRequest();
-		  if (request == null)
-			alert("Unable to create request");
-		  else {
-			var theName = document.getElementById("fld_loginCheck").value;
-			var nick = escape(theName);
-			var url= "/checkUsername/" + nick;
-			request.onreadystatechange = showUsernameStatus;
-			request.open("GET", url, true);
-			request.send(null);
-		  }
-		}
-		
-		function showUsernameStatus() {
-		  if (request.readyState == 4) {
-			if (request.status == 200) {
-			  if (request.responseText == "okay") {
-			//	document.getElementById("obrazek").className = "approved";
-				nickOk = true;
-				checkBoth();
-			  } else {
-				nickOk = false;
-				checkBoth();
-			//	document.getElementById("obrazek").className = "denied";
-			//	document.getElementById("fld_loginCheck").focus();
-			//	document.getElementById("fld_loginCheck").select();
-			  }
-			}
-		  }
-		}
-		
-		function checkIndexNumber() {
-		
-		//  document.getElementById("obrazek").className = "thinking";
-		  request = createRequest();
-		  if (request == null)
-			alert("Unable to create request");
-		  else {
-			var ind = document.getElementById("fld_indexNumber").value;
-			var index = escape(ind);
-			var url= "/checkIndexNumber/" + index;
-			request.onreadystatechange = showIndexNumberStatus;
-			request.open("GET", url, true);
-			request.send(null);
-		  }
-		}
-		
-		function showIndexNumberStatus() {
-		  if (request.readyState == 4) {
-			if (request.status == 200) {
-			  if (request.responseText == "okay") {
-			//	document.getElementById("obrazek").className = "approved";
-				indexOk = true;
-				checkBoth();
-			  } else {
-				indexOk = false;
-				checkBoth();
-			//	document.getElementById("obrazek").className = "denied";
-			//	document.getElementById("fld_indexNumber").focus();
-			//	document.getElementById("fld_indexNumebr").select();
-			  }
-			}
-		  }
-		}
-
-		function createRequest() {
-		  try {
-			request = new XMLHttpRequest();
-		  } catch (tryMS) {
-			try {
-			  request = new ActiveXObject("Msxml2.XMLHTTP");
-			} catch (otherMS) {
-			  try {
-				request = new ActiveXObject("Microsoft.XMLHTTP");
-			  } catch (failed) {
-				request = null;
-			  }
-			}
-		  }	
-		  return request;
-		}
-		
-		function clearField(id) {
-			document.getElementById(id).value = "";
-			}
-		</script>
-		
-		<title></title>
+		<link rel="stylesheet" type="text/css" href="static/css/default.css" />
+		<!-- <script type="text/javascript" src="static/js/.js"></script> -->
+		<title>PWrTracker.pl</title>
 	</head>
 	<body>
-		<noscript>
-		    <div id="no_js">
-		    	Do poprawnego działania serwisu wymagany jest JavaScript a jaaaaak.
-		    </div>
-		</noscript>
-		<div style="position: absolute; font-size: 8px; color: #000000; margin-top: 2px; margin-left: 2px; text-align: left;">
-			<a href ="portal.html">Portal 2</a>
-			<br />
-			<a href ="login.html">Logowanie</a>
-		</div>
-		<div id="site">
-			<div id="header">
-				<div id="languages">
-					<a href ="#">PL</a> <a href ="#">EN</a>
+		<div id="header">
+			<div id="header-logo">
+				<div style="display: inline; font-family: monospace; font-size: 40px; line-height: 50px;">PWr</div><div style="font-weight: bold; display: inline; font-family: monospace; font-size: 40px;line-height: 50px;">Tracker</div>
+			</div>
+			<div id="header-login-form">
+				Zaloguj
+			</div>
+			<div id="header-logged-in-menu">
+				<div id="header-account">
+					<a href="account.html">Konto</a>
 				</div>
-				<div id="login_text">
-					<a href ="#">Zaloguj</a>
-				</div>
-				<div id="login_box">
-
-					<form action="/logIn" method="post" id="form_login">
-						<div id="login_box_right">
-							<input id="fld_login" name="fld_login" type="text" class="boxsizing" value="login" onclick="clearField(this.id)"/>
-							<br />
-							<input id="fld_pass" name="fld_pass" type="text" class="boxsizing" value="hasło" onclick="clearField(this.id)" />
-						</div>
-						<br />
-						<input type="checkbox" id="cbox_remember" name="cbox_remember" /> zapamiętaj mnie
-						<br />
-						<input type="submit" id="btn_logIn" name="btn_logIn" value = "Zaloguj"></input>
-						<!-- <button id="btn_submit" name="btn_submit" type="submit" style="line-height: 15px; ">btn_submit</button> -->
-					</form>
-				</div>
-				<div id="big_menu">
-					<ul id="menu">
-					    <li><a href="index.html"><img src="/media/ikona2.png"></img><br />Portal</a></li>
-					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Kalendarz</a></li>
-					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Plan zajęć</a></li>
-					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Wykładowcy</a>
-					        <ul>
-					            <li><a href="#">Konsultacje</a></li>
-					            <li><a href="#">Siatka zajęć</a></li>
-					            <li><a href="#">Rozkład zajęć</a></li>
-					        </ul>
-					    </li>
-					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Plan uczelni</a>
-					        <ul>
-					            <li><a href="#">Punkty ksero</a></li>
-					            <li><a href="#">Gastronomia</a></li>
-					            <li><a href="#">Konsultacje</a></li>
-					            <li><a href="#">Zasięg internetu</a></li>
-					        </ul>
-					    </li>
-					    <li><a href="#"><img src="/media/ikona2.png"></img><br />Konto</a></li>
-					</ul>
+				
+				<div id="header-logout">
+					<a href="#">Wyloguj</a>
 				</div>
 			</div>
-			<div id="main">
-				<div id="portal-content">
-					<div class="portal-powitanie">
-						<div style="font-size: 18px; font-weight: bold;">Witaj w naszym serwisie!</div>
-						<br />
-						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
-					</div>
-					<div class="portal-lewa-strona">
-						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
-						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
-						Corpus omne perseverare in statu suo quiescendi vel movendi uniformiter in directum, nisi quatenus illud a viribus impressis cogitum statum suum mutare. Mutationem motus proportionalem esse vi motrici impressae.
-					</div>
-					<div class="portal-na-skroty">
-						<div style="font-weight: bold;">Rejestracja</div>
-						<br />
-						<div style="text-align: left; margin-left: 10px;">
-						<form method="post" id="form_register" action="rejestracja">
-						<div id="login_box_right">
-							<input id="fld_loginCheck" name="fld_loginCheck" type="text" class="boxsizing" value="login" onclick="clearField(this.id)" />
-							<br />
-							<input id="fld_indexNumber" name="fld_indexNumber" type="text" class="boxsizing" value="nr indeksu" onclick="clearField(this.id)" />
-						</div>
-						<br />
-		
-						<input type="submit" id="btn_register" name="btn_register" value="Zarejestruj" style="line-height: 15px; "></input>
-					</form>
-						</div>
-					</div>
-				</div>
-			</div
-			<div id="footer">
-				© 2012 | <a class="thickbox" href ="contact.html?height=315&width=450">Kontakt</a> [?] <!-- co ze stopką? i z kontaktem? -->
+			<div id="header-menu">
+				<img src="static/img/1.png" alt="" width="50" height="50" />
+				<a href="portal.html">Portal</a>
+				<img src="static/img/2-3.png" alt="" width="50" height="50" />
+				<a href="timetable.html">Plan zajęć</a>
+				<img src="static/img/2-3.png" alt="" width="50" height="50" />
+				<a href="calendar.html">Kalendarz</a>
+				<img src="static/img/4.png" alt="" width="50" height="50" />
+				<a href="teachers.html">Wykładowcy</a>
+				<img src="static/img/5.png" alt="" width="50" height="50" />
+				<a href="map.html">Plan uczelni</a>
 			</div>
 		</div>
-		<script type="text/javascript">
-			var menu=new menu.dd("menu");
-			menu.init("menu","menuhover");
-		</script>
-		<script type="text/javascript">
-　　			document.getElementById('site').style.display = 'block' ;
-		</script>
-		<script type="text/javascript">
-	        var login_box = $('#login_box');
-	        var login_text = $('#login_text');
-	        login_text.click(function() {
-	        	login_box.show(); return false;
-	        });
-	        $(document).click(function() {
-	        	login_box.hide();
-	        });
-	        login_box.click(function(e) {
-	            e.stopPropagation();
-	        });
-	    </script>
+		<div id="main">
+			<div id="header-skipper"></div>
+			<div id="main-content">
+				<!-- <div id="main-content"> -->
+					<div style="">TEN DIV BĘDZIE WYPEŁNIANY<br />Na najświeższych przeglądarkach strona wygląda lepiej. Na starsze potem poprawię (potrzeba ff 16 póki co, reszty nie wiem)<br /><div style="color: #777777">co mi zostało w indexie: zmienić nazwy obrazków menu, rozmieścić menu, sprawdzić rzeczy ze stopki, ułożyć logowanie, zrobić diva na środek i podstrony, dodać rejestrację w 'portalu',
+					dodać komunikat o braku obsługi js, dodać sugestię korzystania z appki na telefon dla odwiedzających przez komórkę</div></div>
+					<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+					<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+				<!-- </div> -->
+			</div>
+		</div>
+		<div id="footer">
+			<a href="#">PWrTracker Mobile</a> | <a href="#">Pomoc</a> | <a href="#">Regulamin</a> | <a href="#">Polityka prywatności</a>
+			<br />&#169; 2012 <a href="#">PWrTracker Team</a>
+		</div>
 	</body>
 </html>
