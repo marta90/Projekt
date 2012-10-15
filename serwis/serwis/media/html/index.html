@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" type="text/css" href="/media/html/css/default.css" />
+		<!-- <script type="text/javascript" src="static/js/.js"></script> -->
+		<script type="text/javascript" src="/media/js/ajax.js"></script>
+		<script type="text/javascript" src="/media/js/jQuery.js"></script>
+		<script type="text/javascript" src="/media/js/myJS.js"></script>
+		<script type="text/javascript">
+			window.onload = initPage;
+			nickOk = false;
+			indexOk = false;
+				
+			function initPage() {
+				document.getElementById("btn_register").disabled = true;
+				document.getElementById("fld_loginCheck").onkeyup = checkUsername;	  
+				document.getElementById("fld_indexNumber").onkeyup = checkIndexNumber;	 
+			}
+		</script>
+		<title>PWrTracker.pl</title>
+	</head>
+	<body>
+		<div id="header">
+			<div id="header-logo">
+				<div style="display: inline; font-family: monospace; font-size: 40px; line-height: 50px;">PWr</div><div style="font-weight: bold; display: inline; font-family: monospace; font-size: 40px;line-height: 50px;">Tracker</div>
+			</div>
+			<div id="header-login-form">
+				Zaloguj
+			</div>
+			<div id="header-logged-in-menu">
+				<div id="header-account">
+					<a href="account.html">Konto</a>
+				</div>
+				
+				<div id="header-logout">
+					<a href="#">Wyloguj</a>
+				</div>
+			</div>
+			<div id="header-menu">
+				<img id="portal" onclick="loadContent(this.id)" src="media/html/img/1.png" alt="" width="50" height="50" />
+				<a href="portal.html">Portal</a>
+				<img id="timetable" onclick="loadContent(this.id)" src="media/html/img/2-3.png" alt="" width="50" height="50" />
+				<a href="timetable.html">Plan zajęć</a>
+				<img id="calendar" onclick="loadContent(this.id)" src="media/html/img/2-3.png" alt="" width="50" height="50" />
+				<a href="calendar.html">Kalendarz</a>
+				<img id="teachers" onclick="loadContent(this.id)" src="media/html/img/4.png" alt="" width="50" height="50" />
+				<a href="teachers.html">Wykładowcy</a>
+				<img id="map" onclick="loadContent(this.id)" src="media/html/img/5.png" alt="" width="50" height="50" />
+				<a href="map.html">Plan uczelni</a>
+			</div>
+		</div>
+		<div id="main">
+			<div id="header-skipper"></div>
+			<div id="main-content">
+				
+				<!-- <div id="main-content"> -->
+				<div id="inside" style=""><br />
+					LOGOWANIE <br />
+					<form action="/logIn" method="post" id="form_login">
+						<input id="fld_login" name="fld_login" type="text" value="login" onclick="clearField(this.id)"/></br>
+						<input id="fld_pass" name="fld_pass" type="text" value="hasło" onclick="clearField(this.id)" /></br>
+						<input type="checkbox" id="cbox_remember" name="cbox_remember" /> zapamiętaj mnie</br>
+						<input type="submit" id="btn_logIn" name="btn_logIn" value = "Zaloguj"></input></br>
+					</form>
+					<br /><br /><br /><br />
+					REJESTRACJA <br />
+					<form action="/registration" method="post" id="form_register">
+						<input id="fld_loginCheck" name="fld_loginCheck" type="text" value="login" onclick="clearField(this.id)" /><br />
+						<input id="fld_indexNumber" name="fld_indexNumber" type="text" value="nr indeksu" onclick="clearField(this.id)" /><br />
+						<input type="submit" id="btn_register" name="btn_register" value="Zarejestruj" style="line-height: 15px; "></input>
+					</form>
+					
+					
+				</div>
+					<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+					<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+				<!-- </div> -->
+			</div>
+		</div>
+		<div id="footer">
+			<a href="#">PWrTracker Mobile</a> | <a href="#">Pomoc</a> | <a href="#">Regulamin</a> | <a href="#">Polityka prywatności</a>
+			<br />&#169; 2012 <a href="#">PWrTracker Team</a>
+		</div>
+	</body>
+</html>

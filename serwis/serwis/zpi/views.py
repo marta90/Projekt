@@ -30,13 +30,28 @@ def sprawdzNick(request, nick):
     #time.sleep(2)
     for uz in uzytkownicy:
         if nick == uz.nick:
-	    return HttpResponse('denied')
-    return HttpResponse('okay')
+			return HttpResponse('denied')
+	return HttpResponse('okay')
 
 def sprawdzIndeks(request, indeks):
     studenci = models.Student.objects.all()
     #time.sleep(2)
     for st in studenci:
-        if indeks == st.indeks:
-	    return HttpResponse('denied')
-    return HttpResponse('okay')
+	if indeks == st.indeks:
+			return HttpResponse('denied')
+	return HttpResponse('okay')
+
+def zaladujPortal(request):
+	return render_to_response('teachers.html')
+
+def zaladujPlan(request):
+	return render_to_response('timetable.html')
+
+def zaladujKalendarz(request):
+	return render_to_response('calendar.html')
+
+def zaladujWykladowcow(request):
+	return render_to_response('teachers.html')
+
+def zaladujMape(request):
+	return render_to_response('map.html')
