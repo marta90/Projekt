@@ -1,4 +1,4 @@
-# Django settings for serwis project.
+﻿# Django settings for serwis project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -123,6 +123,13 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+
+EMAIL_HOST = 'student.pwr.wroc.pl'  #dla VPSów jasio.megivps.pl
+EMAIL_HOST_USER = '179298@student.pwr.wroc.pl'  
+EMAIL_HOST_PASSWORD = 'zpi2012'
+DEFAULT_FROM_EMAIL = '179298@student.pwr.wroc.pl' 
+SERVER_EMAIL = '179298@student.pwr.wroc.pl' #to ustawienie odpowiada za nadawcę maili z błędami z aplikacji 
+EMAIL_USE_TLS = True
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

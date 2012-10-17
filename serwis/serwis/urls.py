@@ -8,9 +8,16 @@ import os.path
 
 urlpatterns = patterns('',
     (r'^$', views.glowna),
+    #(r'^$', views.rejestruj),
+    (r'^x$', views.wygenerujAktywator),
     (r'^logIn$', views.logowanie),
     (r'^checkUsername/(.*)$', views.sprawdzNick),
     (r'^checkIndexNumber/(.*)$', views.sprawdzIndeks),
+    (r'^sendEmail$', views.wyslijEmail),
+    (r'^registration$', views.rejestruj),
+    (r'^register$', views.zarejestruj),
+    (r'^rememberPassword$', views.przypomnijHaslo),
+    (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),
     
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),     

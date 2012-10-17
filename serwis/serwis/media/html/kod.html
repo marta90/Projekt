@@ -1,0 +1,63 @@
+				KONTAKT (contact.html)<br /><br />
+				
+				<form method="post" action="/sendEmail" id ="form_contact">
+					<div class="CLASS">
+						E-mail<input class="CLASS" type="text" name="fld_email" id="fld_email" />
+						<br />
+						Temat<input class="CLASS" type="text" name="fld_topic" id="fld_topic" />
+						<br />
+						<textarea class="CLASS" name="fld_text" id="fld_text" rows="2" cols="10"></textarea>
+						<br />
+						Weryfikacja<input class="CLASS" type="text" name="fld_antibot" id="fld_antibot" />
+						<br />
+						<input class="CLASS" type="submit" name="btn_submit" id="btn_submit" value="Wyślij" />
+					</div>
+				</form>
+				
+				<br /><br />REJESTRACJA (registration.html)<br /><br />
+				
+				<form method="post" action="/register" id ="form_register"><!-- na różnych stronach mogą być te same nazwy action i id chyba nie? -->
+					<div class="CLASS">
+						Nick<input class="CLASS" type="text" name="fld_nick" id="fld_nick" value={{ nick }} readonly/>
+						<br />
+						Nr indeksu<input class="CLASS" type="text" name="fld_index" id="fld_index" value={{ index }} readonly />
+						<br />
+						Hasło<input class="CLASS" type="password" name="fld_pass" id="fld_pass" />
+						<br />
+						Powtórnie hasło<input class="CLASS" type="password" name="fld_passRepeat" id="fld_passRepeat" />
+						<br />
+						Imię<input class="CLASS" type="text" name="fld_name" id="fld_name"/>
+						<br />
+						Nazwisko<input class="CLASS" type="text" name="fld_lastName" id="fld_lastName" />
+						<br />
+						Kierunek studiów<input class="CLASS" type="text" name="fld_specialization" id="fld_specialization" />
+						<br />
+						Wydział<input class="CLASS" type="text" name="fld_department" id="fld_department" />
+						<br />
+						Nr semestru<input class="CLASS" type="text" name="fld_semester" id="fld_semester" />
+						<br />
+						Rodzaj studiów
+						<select class="CLASS" name="select_type" id="select_type">
+							<option value="1">I-go stopnia</option>
+							<option value="2">II-go stopnia</option>
+						</select> 
+						<br />
+						<input class="CLASS" type="checkbox" name="cbox_rules" id="cbox_rules" />Regulamin
+						<br />
+						<input class="CLASS" type="checkbox" name="cbox_permission" id="cbox_permission" />Zgoda na przetwarzanie danych osobowych (ma to być w końcu czy nie?)
+						<br />
+						<input class="CLASS" type="submit" name="btn_submit" id="btn_submit" value="Zarejestruj" />
+					</div>
+				</form>
+				
+				<br /><br />ZAPOMNIANE HASŁO (lostpassword.html)<br /><br />
+				
+				<form method="post" action="/rememberPassword" id ="form_lostpassword">
+					<div class="CLASS">
+						Nr indeksu<input class="CLASS" type="text" name="fld_indexNumber" id="fld_indexNumber" />
+						<br />
+						Weryfikacja<input class="CLASS" type="text" name="fld_antibot" id="fld_antibot" />
+						<br />
+						<input class="CLASS" type="submit" name="btn_submit" id="btn_submit" value="Przypomnij" />
+					</div>
+				</form>

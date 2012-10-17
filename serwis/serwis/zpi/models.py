@@ -27,12 +27,12 @@ class Uzytkownik(models.Model):
     nazwisko = models.CharField(max_length = 250)
     haslo = models.CharField(max_length = 250)
     mail = models.CharField(max_length = 250)
-    ktoWprowadzil = models.ForeignKey('self', related_name = 'uzytkownik_wprowadzil')
+    ktoWprowadzil = models.ForeignKey('self', related_name = 'uzytkownik_wprowadzil', null = True)
     dataUtworzenia = models.DateTimeField(auto_now_add = True)
-    dataOstLogowania = models.DateTimeField()
-    dataOstZmianyHasla = models.DateTimeField()
-    dataOstZmianyDanych = models.DateTimeField()
-    ktoZmienilDane = models.ForeignKey('self', related_name = 'uzytkownik_zmienil')
+    dataOstLogowania = models.DateTimeField(null = True)
+    dataOstZmianyHasla = models.DateTimeField(null = True)
+    dataOstZmianyDanych = models.DateTimeField(null = True)
+    ktoZmienilDane = models.ForeignKey('self', related_name = 'uzytkownik_zmienil', null = True)
     ileMoichWydarzen = models.IntegerField(default = 7) #z ilu dni wprzod pokazywac
     poziomDostepu = models.IntegerField(default = 0)
     def __unicode__(self):
@@ -87,7 +87,7 @@ class Student(models.Model):
     grupa = models.ManyToManyField(Grupa, through='Plan')
     kierunek = models.ManyToManyField(Kierunek, through='KierunkiStudenta')
     czyAktywowano = models.BooleanField(default=False)
-    rodzajStudiow = models.IntegerField() #1 - inz/lic, 2 - mgr
+    aktywator = models.CharField(max_length = 250, null = True)
     def __unicode__(self):
         return self.indeks
     class Meta:
@@ -105,6 +105,7 @@ class KierunkiStudenta(models.Model):
     student = models.ForeignKey(Student)
     kierunek = models.ForeignKey(Kierunek)
     semestr = models.IntegerField()
+    rodzajStudiow = models.IntegerField() #1 - inz/lic, 2 - mgr
     uprawnienia = models.IntegerField(default = 0)
     class Meta:
         db_table = u'KierunkiStudenta'
