@@ -12,17 +12,22 @@ import re
 
 # Wyswietlenie strony glownej
 def glowna(request):
-	if ('nick' in request.session) & ('idUz' in request.session):
-		return render_to_response('index.html') #DODAC WYSWIETLANIE ZALOGOWANEGO UZYTKOWNIKA
+	if jestSesja(request):
+		nick = request.session['nick']
+		return render_to_response('index.html', {'nick':nick, 'wyloguj':"wyloguj"}) #DODAC WYSWIETLANIE ZALOGOWANEGO UZYTKOWNIKA
 	else:
-		return render_to_response('index.html') #TU MA BYC NA STRONIE MENU Z LOGOWANIEM
+		return render_to_response('index.html', {'logowanie':True}) #TU MA BYC NA STRONIE MENU Z LOGOWANIEM
+
+# Sprawdzenie czy sesja jest otwarta
+def jestSesja(request):
+	return ('nick' in request.session) & ('idUz' in request.session)
 
 # Wyswietlenie rejestracji
 def rejestruj(request):
 	if request.method == 'POST':
 		nick = request.POST['fld_loginCheck']
 		indeks = request.POST['fld_indexNumber']
-		return render_to_response('kod.html', {'nick': nick, 'index': indeks})
+		return render_to_response('registration.html', {'nick': nick, 'index': indeks})
 	else:
 		return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.")
 
@@ -31,7 +36,7 @@ def rejestruj(request):
 def zarejestruj(request):
 	nick = request.POST['fld_nick']
 	indeks = request.POST['fld_index']
-	haslo = request.POST['fld_pass']
+	haslo = sha256_crypt.encrypt(request.POST['fld_pass'])
 	imie = request.POST['fld_name']
 	nazwisko = request.POST['fld_lastName']
 	semestr = request.POST['fld_semester']
@@ -52,7 +57,7 @@ def zarejestruj(request):
 	kierunki = models.KierunkiStudenta(student = student, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
 	kierunki.save()
 	wyslijPotwierdzenie(student)
-	return HttpResponse("Wyslano aktywator")
+	return render_to_response('index.html', {'alert': "Na Twojego maila studenckiego został wysłany link z aktywacją konta."})
 
 # Generacja kodu do aktywacji konta
 def wygenerujAktywator():
@@ -69,7 +74,7 @@ def przypomnijHaslo(request):
 def wyslijPotwierdzenie(student):
 	tytul = "PwrTracker - potwierdzenie rejestracji"
 	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
-	tresc = tresc + "http://127.0.0.1:8000/confirm/" + str(student.aktywator) + "/" + student.indeks
+	tresc = tresc + "http://127.0.0.1:8000/confirm/" + student.aktywator + "/" + student.indeks.encode('utf-8')
 	send_mail(tytul, tresc, '179298@student.pwr.wroc.pl', [student.indeks + "@student.pwr.wroc.pl"], fail_silently=False)
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
@@ -82,24 +87,68 @@ def potwierdzRejestracje(request, aktywator, indeks):
 			student.save()
 			return HttpResponse("Udało się aktywować")
 	return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
-			
+	
+def jestStudentem(uzytkownik):
+	st = models.Student.objects.filter(uzytkownik=uzytkownik)
+	odp = st.exists()
+	return odp
+
+def czyZmienicHaslo(uzytkownik):
+	dzisiaj = datetime.date.today()
+	dataZmianyHasla = uzytkownik.dataOstZmianyHasla.date()
+	dni = (dzisiaj - dataZmianyHasla)
+	if(dni.days) > 29:
+		return True
+	else:
+		return False
+
 # Logowanie	
-def logowanie(request):
+def logowanie(request):  #Dodaj sprawdzanie aktywacje i sprawdzanie hasla > 30 dni
 	if request.method == 'POST':
+		zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
+		bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
+		zmienHaslo = 'Coś ze zmianą hasła'
 		nickPost = request.POST['fld_login']
 		hasloPost = request.POST['fld_pass']
 		uz = models.Uzytkownik.objects.filter(nick=nickPost)
 		if uz.exists():
-			haslo = models.Uzytkownik.objects.get(nick=nickPost).haslo
+			uzytkownik = models.Uzytkownik.objects.get(nick=nickPost)
+			haslo = uzytkownik.haslo
 			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
 			if(zgodnosc):
-				request.session['nick'] = nickPost # SESJA
-				request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
-				return HttpResponse(zgodnosc)
+				if jestStudentem(uzytkownik):
+					student = models.Student.objects.get(uzytkownik=uzytkownik)
+					if student.czyAktywowano:
+						if czyZmienicHaslo(uzytkownik):
+							return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
+						else:
+							request.session['nick'] = nickPost # SESJA
+							request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
+							return HttpResponseRedirect('/')
+					else:
+						return HttpResponse('Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link')
+				else:
+					if czyZmienicHaslo(uzytkownik):
+						return HttpResponse('Trzeba zmienić hasło')
+					else:
+						request.session['nick'] = nickPost # SESJA
+						request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
+						return HttpResponseRedirect('/')
 			else:
-				return HttpResponse('NIE OK')
+				return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
 		else:
-			return HttpResponse('NIE OK')
+			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
+			#return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
+	else:
+		return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
+
+def wylogowanie(request):
+	try:
+		for elemSesji in request.session.keys():
+			del request.session[elemSesji]
+	except KeyError:
+		pass
+	return HttpResponseRedirect('/')
 
 # Sprawdzanie nicku - dozwolne znaki oraz unikatowość w bazie danych
 def sprawdzNick(request, nick):
@@ -131,11 +180,17 @@ def zaladujPortal(request):
 
 # Zaladowanie strony timetable.html do diva na stronie glownej
 def zaladujPlan(request):
-	return render_to_response('timetable.html')
+	if jestSesja(request):
+		return render_to_response('timetable.html')
+	else:
+		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
 # Zaladowanie strony calendar.html do diva na stronie glownej
 def zaladujKalendarz(request):
-	return render_to_response('calendar.html')
+	if jestSesja(request):
+		return render_to_response('calendar.html')
+	else:
+		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
 # Zaladowanie strony teachers.html do diva na stronie glownej
 def zaladujWykladowcow(request):

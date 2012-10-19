@@ -13,8 +13,9 @@ class Wydzial(models.Model):
 class Kierunek(models.Model):
     nazwa = models.CharField(max_length = 250)
     wydzial = models.ForeignKey(Wydzial)
-    liczbaSemestrowInz = models.IntegerField()
-    liczbaSemestrowMgr = models.IntegerField()
+    liczbaSemestrow1st = models.IntegerField()
+    liczbaSemestrow2stPoInz = models.IntegerField()
+    liczbaSemestrow2stPoLic = models.IntegerField()
     def __unicode__(self):
         return self.nazwa
     class Meta:

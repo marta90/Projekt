@@ -95,7 +95,7 @@ function clearField(id) {
 }
 
 function loadContent(name) {
-    $("#inside").load("/media/html/"+name+".html");
+    $("#main-content").load("/media/html/"+name+".html");
     return false;
 }
 
