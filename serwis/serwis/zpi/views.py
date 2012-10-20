@@ -34,30 +34,31 @@ def rejestruj(request):
 # Rejestracja użytkownika - trzeba się jeszcze pobawić ze sprawdzaniem danych (regex)
 @transaction.commit_on_success
 def zarejestruj(request):
-	nick = request.POST['fld_nick']
-	indeks = request.POST['fld_index']
-	haslo = sha256_crypt.encrypt(request.POST['fld_pass'])
-	imie = request.POST['fld_name']
-	nazwisko = request.POST['fld_lastName']
-	semestr = request.POST['fld_semester']
-	kierunek = models.Kierunek.objects.get(id = request.POST['fld_specialization'])
-	stopienStudiow = request.POST['select_type']
-	uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl")
-	uzytkownik.save()
-	uzytkownik.ktoWprowadzil = models.Uzytkownik.objects.get(id = uzytkownik.id)
-	uzytkownik.ktoZmienilDane = models.Uzytkownik.objects.get(id = uzytkownik.id)
-	uzytkownik.dataOstLogowania = datetime.date.today()
-	uzytkownik.dataOstZmianyHasla = datetime.date.today()
-	uzytkownik.dataOstZmianyDanych = datetime.date.today()
-	uzytkownik.save()
-	student = models.Student(uzytkownik = models.Uzytkownik.objects.get(id = uzytkownik.id), indeks = indeks)
-	student.save()
-	student.aktywator = wygenerujAktywator()
-	student.save()
-	kierunki = models.KierunkiStudenta(student = student, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
-	kierunki.save()
-	wyslijPotwierdzenie(student)
-	return render_to_response('index.html', {'alert': "Na Twojego maila studenckiego został wysłany link z aktywacją konta."})
+        if request.method == 'POST':
+            nick = request.POST['fld_nick']
+            indeks = request.POST['fld_index']
+            haslo = sha256_crypt.encrypt(request.POST['fld_pass'])
+            imie = request.POST['fld_name']
+            nazwisko = request.POST['fld_lastName']
+            semestr = request.POST['fld_semester']
+            kierunek = models.Kierunek.objects.get(id = request.POST['fld_specialization'])
+            stopienStudiow = request.POST['select_type']
+            uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl")
+            uzytkownik.save()
+            uzytkownik.ktoWprowadzil = models.Uzytkownik.objects.get(id = uzytkownik.id)
+            uzytkownik.ktoZmienilDane = models.Uzytkownik.objects.get(id = uzytkownik.id)
+            uzytkownik.dataOstLogowania = datetime.date.today()
+            uzytkownik.dataOstZmianyHasla = datetime.date.today()
+            uzytkownik.dataOstZmianyDanych = datetime.date.today()
+            uzytkownik.save()
+            student = models.Student(uzytkownik = models.Uzytkownik.objects.get(id = uzytkownik.id), indeks = indeks)
+            student.save()
+            student.aktywator = wygenerujAktywator()
+            student.save()
+            kierunki = models.KierunkiStudenta(student = student, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
+            kierunki.save()
+            wyslijPotwierdzenie(student)
+            return render_to_response('index.html', {'alert': "Na Twojego maila studenckiego został wysłany link z aktywacją konta."})
 
 # Generacja kodu do aktywacji konta
 def wygenerujAktywator():
