@@ -103,7 +103,7 @@ ROOT_URLCONF = 'serwis.urls'
 WSGI_APPLICATION = 'serwis.wsgi.application'
 
 TEMPLATE_DIRS = (
-	'C:/Projekt/serwis/serwis/media/html',
+    'C:/Projekt/serwis/serwis/media/html',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -117,18 +117,18 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'serwis.zpi',
-	
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
 
-EMAIL_HOST = 'student.pwr.wroc.pl'  #dla VPSów jasio.megivps.pl
-EMAIL_HOST_USER = '179298@student.pwr.wroc.pl'  
-EMAIL_HOST_PASSWORD = 'zpi2012'
-DEFAULT_FROM_EMAIL = '179298@student.pwr.wroc.pl' 
-SERVER_EMAIL = '179298@student.pwr.wroc.pl' #to ustawienie odpowiada za nadawcę maili z błędami z aplikacji 
+EMAIL_HOST = 'smtp.gmail.com'  #dla VPSów jasio.megivps.pl
+EMAIL_HOST_USER = 'pwrtracker@gmail.com'  
+EMAIL_HOST_PASSWORD = 'adminPWRTracker'
+EMAIL_PORT = 587
+#DEFAULT_FROM_EMAIL = '179298@student.pwr.wroc.pl' 
+#SERVER_EMAIL = '179298@student.pwr.wroc.pl' #to ustawienie odpowiada za nadawcę maili z błędami z aplikacji 
 EMAIL_USE_TLS = True
 
 # A sample logging configuration. The only tangible logging

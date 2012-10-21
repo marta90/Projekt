@@ -5,7 +5,7 @@ from django.db import models
 class Wydzial(models.Model):
     nazwa = models.CharField(max_length = 250)
     def __unicode__(self):
-        return self.kodgrupy
+        return self.nazwa
     class Meta:
         db_table = u'Wydzial'
         verbose_name_plural = 'Wydzialy'

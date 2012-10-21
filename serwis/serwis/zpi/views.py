@@ -24,41 +24,43 @@ def jestSesja(request):
 
 # Wyswietlenie rejestracji
 def rejestruj(request):
-	if request.method == 'POST':
-		nick = request.POST['fld_loginCheck']
-		indeks = request.POST['fld_indexNumber']
-		return render_to_response('registration.html', {'nick': nick, 'index': indeks})
-	else:
-		return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.")
+    if request.method == 'POST':
+        nick = request.POST['fld_loginCheck']
+        indeks = request.POST['fld_indexNumber']
+        wydz = models.Wydzial.objects.all()
+        kier = models.Kierunek.objects.all()
+        return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz, 'kierunki': kier})
+    else:
+        return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.")
 
 # Rejestracja użytkownika - trzeba się jeszcze pobawić ze sprawdzaniem danych (regex)
 @transaction.commit_on_success
 def zarejestruj(request):
-        if request.method == 'POST':
-            nick = request.POST['fld_nick']
-            indeks = request.POST['fld_index']
-            haslo = sha256_crypt.encrypt(request.POST['fld_pass'])
-            imie = request.POST['fld_name']
-            nazwisko = request.POST['fld_lastName']
-            semestr = request.POST['fld_semester']
-            kierunek = models.Kierunek.objects.get(id = request.POST['fld_specialization'])
-            stopienStudiow = request.POST['select_type']
-            uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl")
-            uzytkownik.save()
-            uzytkownik.ktoWprowadzil = models.Uzytkownik.objects.get(id = uzytkownik.id)
-            uzytkownik.ktoZmienilDane = models.Uzytkownik.objects.get(id = uzytkownik.id)
-            uzytkownik.dataOstLogowania = datetime.date.today()
-            uzytkownik.dataOstZmianyHasla = datetime.date.today()
-            uzytkownik.dataOstZmianyDanych = datetime.date.today()
-            uzytkownik.save()
-            student = models.Student(uzytkownik = models.Uzytkownik.objects.get(id = uzytkownik.id), indeks = indeks)
-            student.save()
-            student.aktywator = wygenerujAktywator()
-            student.save()
-            kierunki = models.KierunkiStudenta(student = student, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
-            kierunki.save()
-            wyslijPotwierdzenie(student)
-            return render_to_response('index.html', {'alert': "Na Twojego maila studenckiego został wysłany link z aktywacją konta."})
+    if request.method == 'POST':
+        nick = request.POST['fld_nick']
+        indeks = request.POST['fld_index']
+        haslo = sha256_crypt.encrypt(request.POST['fld_pass'])
+        imie = request.POST['fld_name']
+        nazwisko = request.POST['fld_lastName']
+        semestr = request.POST['fld_semester']
+        kierunek = models.Kierunek.objects.get(id = request.POST['select_faculty'])
+        stopienStudiow = request.POST['select_type']
+        uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl")
+        uzytkownik.save()
+        uzytkownik.ktoWprowadzil = models.Uzytkownik.objects.get(id = uzytkownik.id)
+        uzytkownik.ktoZmienilDane = models.Uzytkownik.objects.get(id = uzytkownik.id)
+        uzytkownik.dataOstLogowania = datetime.date.today()
+        uzytkownik.dataOstZmianyHasla = datetime.date.today()
+        uzytkownik.dataOstZmianyDanych = datetime.date.today()
+        uzytkownik.save()
+        student = models.Student(uzytkownik = models.Uzytkownik.objects.get(id = uzytkownik.id), indeks = indeks)
+        student.save()
+        student.aktywator = wygenerujAktywator()
+        student.save()
+        kierunki = models.KierunkiStudenta(student = student, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
+        kierunki.save()
+        wyslijPotwierdzenie(student)
+        return render_to_response('index.html', {'alert': "Na Twojego maila studenckiego został wysłany link z aktywacją konta."})
 
 # Generacja kodu do aktywacji konta
 def wygenerujAktywator():
@@ -76,7 +78,7 @@ def wyslijPotwierdzenie(student):
 	tytul = "PwrTracker - potwierdzenie rejestracji"
 	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
 	tresc = tresc + "http://127.0.0.1:8000/confirm/" + student.aktywator + "/" + student.indeks.encode('utf-8')
-	send_mail(tytul, tresc, '179298@student.pwr.wroc.pl', [student.indeks + "@student.pwr.wroc.pl"], fail_silently=False)
+	send_mail(tytul, tresc, 'pwrtracker@gmail.com', [student.indeks + "@student.pwr.wroc.pl"], fail_silently=False)
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
 def potwierdzRejestracje(request, aktywator, indeks):
@@ -105,43 +107,43 @@ def czyZmienicHaslo(uzytkownik):
 
 # Logowanie	
 def logowanie(request):  #Dodaj sprawdzanie aktywacje i sprawdzanie hasla > 30 dni
-	if request.method == 'POST':
-		zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
-		bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
-		zmienHaslo = 'Coś ze zmianą hasła'
-		nickPost = request.POST['fld_login']
-		hasloPost = request.POST['fld_pass']
-		uz = models.Uzytkownik.objects.filter(nick=nickPost)
-		if uz.exists():
-			uzytkownik = models.Uzytkownik.objects.get(nick=nickPost)
-			haslo = uzytkownik.haslo
-			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
-			if(zgodnosc):
-				if jestStudentem(uzytkownik):
-					student = models.Student.objects.get(uzytkownik=uzytkownik)
-					if student.czyAktywowano:
-						if czyZmienicHaslo(uzytkownik):
-							return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
-						else:
-							request.session['nick'] = nickPost # SESJA
-							request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
-							return HttpResponseRedirect('/')
-					else:
-						return HttpResponse('Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link')
-				else:
-					if czyZmienicHaslo(uzytkownik):
-						return HttpResponse('Trzeba zmienić hasło')
-					else:
-						request.session['nick'] = nickPost # SESJA
-						request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
-						return HttpResponseRedirect('/')
-			else:
-				return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
-		else:
-			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
-			#return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
-	else:
-		return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
+    if request.method == 'POST':
+        zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
+        bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
+        zmienHaslo = 'Coś ze zmianą hasła'
+        nickPost = request.POST['fld_login']
+        hasloPost = request.POST['fld_pass']
+        uz = models.Uzytkownik.objects.filter(nick=nickPost)
+        if uz.exists():
+            uzytkownik = models.Uzytkownik.objects.get(nick=nickPost)
+            haslo = uzytkownik.haslo
+            zgodnosc = sha256_crypt.verify(hasloPost, haslo)
+            if(zgodnosc):
+                if jestStudentem(uzytkownik):
+                    student = models.Student.objects.get(uzytkownik=uzytkownik)
+                    if student.czyAktywowano:
+                        if czyZmienicHaslo(uzytkownik):
+                            return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
+                        else:
+                            request.session['nick'] = nickPost # SESJA
+                            request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
+                            return HttpResponseRedirect('/')
+                    else:
+                        return HttpResponse('Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link')
+                else:
+                    if czyZmienicHaslo(uzytkownik):
+                        return HttpResponse('Trzeba zmienić hasło')
+                    else:
+                        request.session['nick'] = nickPost # SESJA
+                        request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
+                        return HttpResponseRedirect('/')
+            else:
+                    return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
+        else:
+                return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
+                #return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
+    else:
+            return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 
 def wylogowanie(request):
 	try:
@@ -174,6 +176,14 @@ def sprawdzIndeks(request, indeks):
 		if indeks == st.indeks:
 			return HttpResponse('denied')
 	return HttpResponse('okay')
+
+#Pobranie kierunków dla okreslonych wydzialow. Potrzebne przy rejestracji
+def pobierzKierunki(request, idWydz):
+    kierunki = models.Kierunek.objects.filter(wydzial__id=idWydz)
+    odp = ""
+    for k in kierunki:
+        odp = odp + 'obj.options[obj.options.length] = new Option(\''+ k.nazwa +'\' , \'' + str(k.id) + '\'); '
+    return HttpResponse(odp)
 
 # Zaladowanie strony portal.html do diva na stronie glownej
 def zaladujPortal(request):
