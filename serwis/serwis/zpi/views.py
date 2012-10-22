@@ -181,7 +181,8 @@ def pobierzKierunki(request, idWydz):
     kierunki = models.Kierunek.objects.filter(wydzial__id=idWydz)
     odp = ""
     for k in kierunki:
-        odp = odp + 'obj.options[obj.options.length] = new Option(\''+ k.nazwa +'\' , \'' + str(k.id) + '\'); '
+        #odp = odp + 'obj.options[obj.options.length] = new Option(\''+ k.nazwa +'\' , \'' + str(k.id) + '\'); '
+        odp = odp + '<option value=\'' + str(k.id) +'\'>' + k.nazwa + '</option>'
     return HttpResponse(odp)
 
 # Zaladowanie strony portal.html do diva na stronie glownej

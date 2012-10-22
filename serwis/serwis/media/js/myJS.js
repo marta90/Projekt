@@ -1,10 +1,11 @@
-var ajax = new sack();
+//var ajax = new sack();
 
 function loadContent(name) {
     $("#main-content").load("/media/html/"+name+".html");
     return false;
 }
 
+   
 function createRequest() {
     try {
         request = new XMLHttpRequest();
@@ -18,7 +19,8 @@ function createRequest() {
                 request = null;
             }
         }
-    }	
+    }
+    
     return request;
 }
 
@@ -87,15 +89,11 @@ function showIndexNumberStatus() {
     if (request.readyState == 4) {
         if (request.status == 200) {
             if (request.responseText == "okay") {
-                //	document.getElementById("obrazek").className = "approved";
                 indexOk = true;
                 checkBoth();
             } else {
                 indexOk = false;
                 checkBoth();
-                //	document.getElementById("obrazek").className = "denied";
-                //	document.getElementById("fld_indexNumber").focus();
-                //	document.getElementById("fld_indexNumebr").select();
             }
         }
     }
@@ -115,16 +113,39 @@ function giveSpec(faculty){
 function findSpec(faculties){
     document.getElementById('select_specialization').options.length = 0;
     if(faculties.length>0){
-	ajax.requestFile = "/giveSpecialization/" + faculties;
-	ajax.onCompletion = makeSpec;
-	ajax.runAJAX();
+        request = createRequest();
+        if (request == null)
+            alert("Unable to create request");
+        else {
+            var url= "/giveSpecialization/" + faculties;
+            request.onreadystatechange = makeSpec;
+            request.open("GET", url, true);
+            request.send(null);
+        }
+            
     }
+    
 }
 
 function makeSpec(){
-    var obj = document.getElementById('select_specialization');
-    eval(ajax.response);
+    if (request.readyState == 4) {
+        if (request.status == 200) {
+            var obj = document.getElementById('select_specialization');
+            var iexplorer = navigator.appName == "Microsoft Internet Explorer" ? true : false ; //Verifiy explorer
+            //alert(iexplorer);
+            if (iexplorer) {
+                str2 = 'x' + request.responseText; // Super very very important
+                xparent = obj.parentElement;
+                obj.innerHTML = '';
+                obj.innerHTML = str2;
+                xparent.innerHTML = obj.outerHTML;
+            } else {
+                obj.innerHTML = '' + request.responseText;
+            }
+        }
+    }
 }
+
 
 function checkName(){
     document.getElementById('fld_name').value

@@ -1,35 +1,10 @@
 ﻿<script type="text/javascript" src="media/js/ajax.js"></script>
+<!--[if lt IE 8]>
+<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE8.js"></script>
+<![endif]-->
 <script type="text/javascript" src="media/js/jquery-1.8.2.js"></script>
-<script type="text/javascript" src="media/js/jquery.validate.js" ></script>
 <script type="text/javascript" src="media/js/myJS.js"></script>
 <link rel="stylesheet" type="text/css" href="css/default.css" />
-
-<script type="text/javascript">
-	jQuery(document).ready(function(){
-		jQuery("#form_register").validate({
-			messages: {
-				imie: {
-					required: "Proszę uzupełnić pole Imię.",
-					minlength: jQuery.format("Musi być minimum {0} znaków.")
-				},
-				email: {
-					required: "Proszę uzupełnić pole Adres e-mail.",
-					email: "Prosze podać prawidłowy adres e-mail, w formacie xxxx@xxxx.xx."
-				},
-				phone: {
-					number: "Proszę podać numer telefonu składający z samych cyfr bez spacji."
-				},
-				www: {
-					url: "Prosze wprowadzić prawidłowy adres strony WWW, w formacie http://www.adres.com"
-				},
-				content: {
-					required: "Proszę uzupełnić pole Treść wiadomości.",
-					minlength: jQuery.format("Musi być minimum {0} znaków.")
-				}
-			}
-		});
-	});
-</script>
 
 <br /><br />REJESTRACJA (registration.html)<br /><br />
 	
@@ -46,10 +21,10 @@
 			<div class="height_10"> </div>
 			
 			<label for="fld_name">Imię:</label>
-			<div><input class="required" type="text" name="imie" id="imie" minlength="3"/></div>
+			<div><input class="required" type="text" name="fld_name" id="fld_name" minlength="3"/></div>
 			<div class="height_10"> </div>
 			
-			<label for="fld_name">Nazwisko:</label>
+			<label for="fld_lastName">Nazwisko:</label>
 			<div><input class="required" type="text" name="fld_lastName" id="fld_lastName" minlength="3"/></div>
 			<div class="height_10"> </div>
 			
@@ -57,19 +32,19 @@
 			<div><input class="required" type="password" name="fld_pass" id="fld_pass" minlength="3"/></div>
 			<div class="height_10"> </div>
  
-			<label for="fld_pass">Powtórz hasło:</label>
+			<label for="fld_passRepeat">Powtórz hasło:</label>
 			<div><input class="required" type="password" name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></div>
 			<div class="height_10"> </div>
 
 			<label for="select_faculty">Wydział:</label>
-			<div>
+			
 				<select class="CLASS" name="select_faculty" id="select_faculty" onchange='giveSpec(this)'>
 					<option value='0'>Wybierz wydział...</option>
 						{% for wydz in wydzialy %}
 							<option value={{ wydz.id }}>{{ wydz.nazwa }}</option>
 						{% endfor %}
 				</select> 
-			</div>
+			
 			<div class="height_10"> </div>
 			
 			<label for="select_specialization">Kierunek studiów:</label>
