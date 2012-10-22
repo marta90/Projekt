@@ -1,49 +1,106 @@
 ﻿<script type="text/javascript" src="media/js/ajax.js"></script>
-<script type="text/javascript" src="media/js/jQuery.js"></script>
+<script type="text/javascript" src="media/js/jquery-1.8.2.js"></script>
+<script type="text/javascript" src="media/js/jquery.validate.js" ></script>
 <script type="text/javascript" src="media/js/myJS.js"></script>
+<link rel="stylesheet" type="text/css" href="css/default.css" />
+
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+		jQuery("#form_register").validate({
+			messages: {
+				imie: {
+					required: "Proszę uzupełnić pole Imię.",
+					minlength: jQuery.format("Musi być minimum {0} znaków.")
+				},
+				email: {
+					required: "Proszę uzupełnić pole Adres e-mail.",
+					email: "Prosze podać prawidłowy adres e-mail, w formacie xxxx@xxxx.xx."
+				},
+				phone: {
+					number: "Proszę podać numer telefonu składający z samych cyfr bez spacji."
+				},
+				www: {
+					url: "Prosze wprowadzić prawidłowy adres strony WWW, w formacie http://www.adres.com"
+				},
+				content: {
+					required: "Proszę uzupełnić pole Treść wiadomości.",
+					minlength: jQuery.format("Musi być minimum {0} znaków.")
+				}
+			}
+		});
+	});
+</script>
 
 <br /><br />REJESTRACJA (registration.html)<br /><br />
-	<form method="post" action="/register" id ="form_register">
-		<div class="CLASS">
-			Nick<input class="CLASS" type="text" name="fld_nick" id="fld_nick" value={{ nick }} readonly=true/>
-			<br />
-			Indeks: <input class="CLASS" type="text" name="fld_index" id="fld_index" value={{ index }} readonly=true/>
-			<br />
-			Hasło<input class="CLASS" type="password" name="fld_pass" id="fld_pass" />
-			<br />
-			Powtórnie hasło<input class="CLASS" type="password" name="fld_passRepeat" id="fld_passRepeat" />
-			<br />
-			Imię<input class="CLASS" type="text" name="fld_name" id="fld_name" />
-			<br />
-			Nazwisko<input class="CLASS" type="text" name="fld_lastName" id="fld_lastName" />
-			<br />
-			Wydział
-			<select class="CLASS" name="select_faculty" id="select_faculty" onchange='giveSpec(this)'>
-				<option value='0'>Wybierz wydział...</option>
-				{% for wydz in wydzialy %}
-					<option value={{ wydz.id }}>{{ wydz.nazwa }}</option>
-				{% endfor %}
-			</select> 
-			<br />
-			Kierunek studiów
-			<select class="CLASS" name="select_specialization" id="select_specialization" disabled=false style=width:200px>
-				<!-- Uzupełni JavaScript -->
-			</select> 
-			<br />
-			Rodzaj studiów
-			<select class="CLASS" name="select_type" id="select_type">
-				<option value="1">I-go stopnia</option>
-				<option value="2">II-go stopnia</option>
-			</select> 
-			<br />
-			Nr semestru<input class="CLASS" type="text" name="fld_semester" id="fld_semester" />
-			<br />
-			<input class="CLASS" type="checkbox" name="cbox_rules" id="cbox_rules" />Regulamin
-			<br />
-			<input class="CLASS" type="checkbox" name="cbox_permission" id="cbox_permission" />Zgoda na przetwarzanie danych osobowych (ma to być w końcu czy nie?)
-			<br />
-			<input class="CLASS" type="submit" name="btn_submit" id="btn_submit" value="Zarejestruj" />
-		</div>
+	
+	<form method="post" action="/register" id ="form_register" class="formRegister">
+		<fieldset>
+			<legend>Formularz</legend>
+			
+			<label for="fld_nick">Nick:</label>
+			<div><input class="CLASS" type="text" name="fld_nick" id="fld_nick" value={{ nick }} readonly=true/></div>
+			<div class="height_10"> </div>
+			
+			<label for="fld_index">Indeks:</label>
+			<div><input class="CLASS" type="text" name="fld_index" id="fld_index" value={{ index }} readonly=true/></div>
+			<div class="height_10"> </div>
+			
+			<label for="fld_name">Imię:</label>
+			<div><input class="required" type="text" name="imie" id="imie" minlength="3"/></div>
+			<div class="height_10"> </div>
+			
+			<label for="fld_name">Nazwisko:</label>
+			<div><input class="required" type="text" name="fld_lastName" id="fld_lastName" minlength="3"/></div>
+			<div class="height_10"> </div>
+			
+			<label for="fld_pass">Hasło:</label>
+			<div><input class="required" type="password" name="fld_pass" id="fld_pass" minlength="3"/></div>
+			<div class="height_10"> </div>
+ 
+			<label for="fld_pass">Powtórz hasło:</label>
+			<div><input class="required" type="password" name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></div>
+			<div class="height_10"> </div>
+
+			<label for="select_faculty">Wydział:</label>
+			<div>
+				<select class="CLASS" name="select_faculty" id="select_faculty" onchange='giveSpec(this)'>
+					<option value='0'>Wybierz wydział...</option>
+						{% for wydz in wydzialy %}
+							<option value={{ wydz.id }}>{{ wydz.nazwa }}</option>
+						{% endfor %}
+				</select> 
+			</div>
+			<div class="height_10"> </div>
+			
+			<label for="select_specialization">Kierunek studiów:</label>
+			<div>
+				<select class="CLASS" name="select_specialization" id="select_specialization" disabled=false style=width:200px>
+					<!-- Uzupełni JavaScript -->
+				</select> 
+			</div>
+			<div class="height_10"> </div>
+			
+			<label for="select_type">Rodzaj studiów:</label>
+			<div>
+				<select class="CLASS" name="select_type" id="select_type">
+					<option value="1">I-go stopnia</option>
+					<option value="2">II-go stopnia</option>
+				</select>
+			</div>
+			<div class="height_10"> </div>
+			
+			<label for="fld_semester">Nr semestru:</label>
+			<div><input class="CLASS" type="text" name="fld_semester" id="fld_semester" /></div>
+			<div class="height_10"> </div>
+			
+			<div><input class="checkbox" type="checkbox" name="cbox_rules" id="cbox_rules" /><label for="cbox_rules">Regulamin</label></div>
+			<div class="height_10"> </div>
+			
+			<div><input class="checkbox" type="checkbox" name="cbox_permission" id="cbox_permission" /><label for="cbox_permission">Zgoda na przetwarzanie danych osobowych</label></div>
+			<div class="height_10"> </div>
+ 
+			<input class="submit" type="submit" name="btn_submit" id="btn_submit" value="Zarejestruj" />
+		</fieldset>
 	</form>
 
 	<!-- po wyslaniu formularza wraca na index.html z portal.html w srodku -->

@@ -1,5 +1,31 @@
 var ajax = new sack();
 
+function loadContent(name) {
+    $("#main-content").load("/media/html/"+name+".html");
+    return false;
+}
+
+function createRequest() {
+    try {
+        request = new XMLHttpRequest();
+    } catch (tryMS) {
+        try {
+            request = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (otherMS) {
+            try {
+                request = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (failed) {
+                request = null;
+            }
+        }
+    }	
+    return request;
+}
+
+function clearField(id) {
+    document.getElementById(id).value = "";
+}
+
 function checkBoth() {
     if (nickOk && indexOk)
         document.getElementById("btn_register").disabled = false;
@@ -100,33 +126,9 @@ function makeSpec(){
     eval(ajax.response);
 }
 
-function createRequest() {
-    try {
-        request = new XMLHttpRequest();
-    } catch (tryMS) {
-        try {
-            request = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (otherMS) {
-            try {
-                request = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (failed) {
-                request = null;
-            }
-        }
-    }	
-    return request;
+function checkName(){
+    document.getElementById('fld_name').value
 }
-
-function clearField(id) {
-    document.getElementById(id).value = "";
-}
-
-function loadContent(name) {
-    $("#main-content").load("/media/html/"+name+".html");
-    return false;
-}
-
-
 
 
 

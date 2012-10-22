@@ -28,8 +28,7 @@ def rejestruj(request):
         nick = request.POST['fld_loginCheck']
         indeks = request.POST['fld_indexNumber']
         wydz = models.Wydzial.objects.all()
-        kier = models.Kierunek.objects.all()
-        return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz, 'kierunki': kier})
+        return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz})
     else:
         return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.")
 
