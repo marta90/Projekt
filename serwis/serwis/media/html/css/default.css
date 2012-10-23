@@ -254,7 +254,7 @@ img {
 	border-radius: 10px 10px;
 }
 
-.formRegister {text-align: left;}
+/*.formRegister {text-align: left;}
 .formRegister DIV.height_10 {height: 10px}
 .formRegister INPUT.checkbox {width: 50px; height:12px;}
 .formRegister FIELDSET { border: none; }
@@ -268,4 +268,4 @@ img {
 .formRegister INPUT:focus,
 .formRegister TEXTAREA:focus { border: 1px solid #53777A; }
  
-.formRegister INPUT[type=submit] { background: #53777A; border: 1px solid #542437; color: #ffffff; cursor: pointer; font-weight: bold; width: 300px; }
+.formRegister INPUT[type=submit] { background: #53777A; border: 1px solid #542437; color: #ffffff; cursor: pointer; font-weight: bold; width: 300px; }*/

@@ -1,4 +1,4 @@
-//var ajax = new sack();
+﻿//var ajax = new sack();
 
 function loadContent(name) {
     $("#main-content").load("/media/html/"+name+".html");
@@ -148,7 +148,30 @@ function makeSpec(){
 
 
 function checkName(){
-    document.getElementById('fld_name').value
+    var name = document.getElementById('name')
+    var fldName = name.getElementsByClassName('CLASS')[0]
+    var errors = name.getElementsByClassName('error')
+    var imie = fldName.value.toString()
+    if (errors.length != 0 ){
+        for (i = 0; i < errors.length; i++){
+            alert(errors[i]);
+            name.removeChild(errors[i]);
+        }
+    } else {
+        if (imie.length < 3){
+            div = document.createElement("div");
+            div.setAttribute("class", "error");
+            div.setAttribute("id", "shortError");
+            div.innerHTML = "Podane imię jest za krótkie";
+            fldName.parentNode.insertBefore(div, fldName.nextSibling);
+        } else{
+            
+        }
+    }
+}
+
+Node.prototype.insertAfter = function(newNode) {
+    this.parentNode.insertBefore(newNode, this.nextSibling ? this.nextSibling : null)
 }
 
 

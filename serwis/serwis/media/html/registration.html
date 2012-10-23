@@ -12,68 +12,78 @@
 		<fieldset>
 			<legend>Formularz</legend>
 			
-			<label for="fld_nick">Nick:</label>
-			<div><input class="CLASS" type="text" name="fld_nick" id="fld_nick" value={{ nick }} readonly=true/></div>
-			<div class="height_10"> </div>
+			<div id="nick">
+				<label for="fld_nick">Nick:</label>
+				<div><input class="CLASS" type="text" name="fld_nick" id="fld_nick" value={{ nick }} readonly=true/></div>
+			</div>
 			
-			<label for="fld_index">Indeks:</label>
-			<div><input class="CLASS" type="text" name="fld_index" id="fld_index" value={{ index }} readonly=true/></div>
-			<div class="height_10"> </div>
+			<div id="index">
+				<label for="fld_index">Indeks:</label>
+				<div><input class="CLASS" type="text" name="fld_index" id="fld_index" value={{ index }} readonly=true/></div>
+			</div>
 			
-			<label for="fld_name">Imię:</label>
-			<div><input class="required" type="text" name="fld_name" id="fld_name" minlength="3"/></div>
-			<div class="height_10"> </div>
+			<div id="name">
+				<label for="fld_name">Imię:</label>
+				<div><input class="CLASS" type="text" name="fld_name" id="fld_name" minlength="3" onkeyup='checkName()'/></div>
+			</div>
 			
-			<label for="fld_lastName">Nazwisko:</label>
-			<div><input class="required" type="text" name="fld_lastName" id="fld_lastName" minlength="3"/></div>
-			<div class="height_10"> </div>
+			<div id="lastName">
+				<label for="fld_lastName">Nazwisko:</label>
+				<div><input class="required" type="text" name="fld_lastName" id="fld_lastName"/></div>
+			</div>
 			
-			<label for="fld_pass">Hasło:</label>
-			<div><input class="required" type="password" name="fld_pass" id="fld_pass" minlength="3"/></div>
-			<div class="height_10"> </div>
- 
-			<label for="fld_passRepeat">Powtórz hasło:</label>
-			<div><input class="required" type="password" name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></div>
-			<div class="height_10"> </div>
-
-			<label for="select_faculty">Wydział:</label>
+			<div id="pass">
+				<label for="fld_pass">Hasło:</label>
+				<div><input class="required" type="password" name="fld_pass" id="fld_pass" minlength="3"/></div>
+			</div>
 			
+			<div id="passRepeat">
+				<label for="fld_passRepeat">Powtórz hasło:</label>
+				<div><input class="required" type="password" name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></div>
+			</div>
+			
+			<div id="faculty">
+				<label for="select_faculty">Wydział:</label>
 				<select class="CLASS" name="select_faculty" id="select_faculty" onchange='giveSpec(this)'>
 					<option value='0'>Wybierz wydział...</option>
 						{% for wydz in wydzialy %}
 							<option value={{ wydz.id }}>{{ wydz.nazwa }}</option>
 						{% endfor %}
 				</select> 
-			
-			<div class="height_10"> </div>
-			
-			<label for="select_specialization">Kierunek studiów:</label>
-			<div>
-				<select class="CLASS" name="select_specialization" id="select_specialization" disabled=false style=width:200px>
-					<!-- Uzupełni JavaScript -->
-				</select> 
 			</div>
-			<div class="height_10"> </div>
 			
-			<label for="select_type">Rodzaj studiów:</label>
-			<div>
-				<select class="CLASS" name="select_type" id="select_type">
-					<option value="1">I-go stopnia</option>
-					<option value="2">II-go stopnia</option>
-				</select>
+			<div id="specialization">
+				<label for="select_specialization">Kierunek studiów:</label>
+				<div>
+					<select class="CLASS" name="select_specialization" id="select_specialization" disabled=false style=width:200px>
+						<!-- Uzupełni JavaScript -->
+					</select> 
+				</div>
 			</div>
-			<div class="height_10"> </div>
 			
-			<label for="fld_semester">Nr semestru:</label>
-			<div><input class="CLASS" type="text" name="fld_semester" id="fld_semester" /></div>
-			<div class="height_10"> </div>
+			<div id="type">
+				<label for="select_type">Rodzaj studiów:</label>
+				<div>
+					<select class="CLASS" name="select_type" id="select_type">
+						<option value="1">I-go stopnia</option>
+						<option value="2">II-go stopnia</option>
+					</select>
+				</div>
+			</div>
 			
-			<div><input class="checkbox" type="checkbox" name="cbox_rules" id="cbox_rules" /><label for="cbox_rules">Regulamin</label></div>
-			<div class="height_10"> </div>
+			<div id="semester">
+				<label for="fld_semester">Nr semestru:</label>
+				<div><input class="CLASS" type="text" name="fld_semester" id="fld_semester" /></div>
+			</div>
 			
-			<div><input class="checkbox" type="checkbox" name="cbox_permission" id="cbox_permission" /><label for="cbox_permission">Zgoda na przetwarzanie danych osobowych</label></div>
-			<div class="height_10"> </div>
- 
+			<div id="rules">
+					<div><input class="checkbox" type="checkbox" name="cbox_rules" id="cbox_rules" /><label for="cbox_rules">Regulamin</label></div>
+			</div>
+			
+			<div id="permission">
+				<div><input class="checkbox" type="checkbox" name="cbox_permission" id="cbox_permission" /><label for="cbox_permission">Zgoda na przetwarzanie danych osobowych</label></div>
+			</div>
+			
 			<input class="submit" type="submit" name="btn_submit" id="btn_submit" value="Zarejestruj" />
 		</fieldset>
 	</form>

@@ -147,13 +147,6 @@ class AktualneWydarzenie(models.Model):
         db_table = u'AktualneWydarzenie'
         verbose_name_plural = 'Aktualne wydarzenia'
 
-class NotatkaDoWydarzenia(models.Model):
-    wydarzenie = models.ForeignKey(Wydarzenie)
-    notatka = models.CharField(max_length = 250)
-    class Meta:
-        db_table = u'NotatkaDoWydarzenia'
-        verbose_name_plural = 'Notatki do wydarzen'  
-
 class Kalendarz(models.Model):
     uzytkownik = models.ForeignKey(Uzytkownik)
     wydarzenie = models.ForeignKey(Wydarzenie)
