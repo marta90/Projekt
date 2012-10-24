@@ -146,28 +146,48 @@ function makeSpec(){
     }
 }
 
+//
+//function checkName(){
+//    var name = document.getElementById('name');
+//    var fldName = getElementsByClassName('CLASS', name)[0];
+//    var errors = getElementsByClassName('error', name);
+//    var imie = fldName.value.toString();
+//    if (errors.length != 0 ){
+//        //alert("jest");
+//        for (i = 0; i < errors.length; i++){
+//            errors[i].parentNode.removeChild(errors[i]);
+//        }
+//    } 
+//    if (imie.length < 3){
+//        div = document.createElement("div");
+//        div.setAttribute("class", "error");
+//        div.setAttribute("id", "shortError");
+//        div.innerHTML = "Podane imię jest za krótkie";
+//        fldName.parentNode.insertBefore(div, fldName.nextSibling);
+//    } else{
+//        
+//    }
+//}
 
-function checkName(){
-    var name = document.getElementById('name')
-    var fldName = name.getElementsByClassName('CLASS')[0]
-    var errors = name.getElementsByClassName('error')
-    var imie = fldName.value.toString()
-    if (errors.length != 0 ){
-        for (i = 0; i < errors.length; i++){
-            alert(errors[i]);
-            name.removeChild(errors[i]);
-        }
-    } else {
-        if (imie.length < 3){
-            div = document.createElement("div");
-            div.setAttribute("class", "error");
-            div.setAttribute("id", "shortError");
-            div.innerHTML = "Podane imię jest za krótkie";
-            fldName.parentNode.insertBefore(div, fldName.nextSibling);
-        } else{
-            
-        }
+
+
+
+function getElementsByClassName(findClass, parent) {
+
+  parent = parent || document;
+  var elements = parent.getElementsByTagName('*');
+  var matching = [];
+
+  for(var i = 0, elementsLength = elements.length; i < elementsLength; i++){
+
+    if ((' ' + elements[i].className + ' ').indexOf(findClass) > -1) {
+      matching.push(elements[i]);
     }
+
+  }
+
+  return matching;
+
 }
 
 Node.prototype.insertAfter = function(newNode) {

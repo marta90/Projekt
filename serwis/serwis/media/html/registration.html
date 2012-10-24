@@ -1,13 +1,16 @@
 ﻿<script type="text/javascript" src="media/js/ajax.js"></script>
-<!--[if lt IE 8]>
-<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE8.js"></script>
-<![endif]-->
+<!--<!--[if lt IE 8]>-->
+<!--<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE8.js"></script>-->
+<!--<![endif]-->
 <script type="text/javascript" src="media/js/jquery-1.8.2.js"></script>
 <script type="text/javascript" src="media/js/myJS.js"></script>
+<script type="text/javascript" src="media/js/myValidate.js"></script>
 <link rel="stylesheet" type="text/css" href="css/default.css" />
-
 <br /><br />REJESTRACJA (registration.html)<br /><br />
+<script type="text/javascript">	
 	
+</script>
+
 	<form method="post" action="/register" id ="form_register" class="formRegister">
 		<fieldset>
 			<legend>Formularz</legend>
@@ -24,7 +27,7 @@
 			
 			<div id="name">
 				<label for="fld_name">Imię:</label>
-				<div><input class="CLASS" type="text" name="fld_name" id="fld_name" minlength="3" onkeyup='checkName()'/></div>
+				<input class="CLASS" type="text" name="fld_name" id="fld_name"/>
 			</div>
 			
 			<div id="lastName">
@@ -34,12 +37,12 @@
 			
 			<div id="pass">
 				<label for="fld_pass">Hasło:</label>
-				<div><input class="required" type="password" name="fld_pass" id="fld_pass" minlength="3"/></div>
+				<div><input class="CLASS" type="password" name="fld_pass" id="fld_pass" minlength="3"/></div>
 			</div>
 			
 			<div id="passRepeat">
 				<label for="fld_passRepeat">Powtórz hasło:</label>
-				<div><input class="required" type="password" name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></div>
+				<div><input class="CLASS" type="password" name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></div>
 			</div>
 			
 			<div id="faculty">
