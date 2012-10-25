@@ -9,15 +9,16 @@ import os.path
 urlpatterns = patterns('',
     (r'^$', views.glowna),
     (r'^/$', views.glowna),
-    (r'^logIn$', views.logowanie),
-    (r'^logOut$', views.wylogowanie),
-    (r'^checkUsername/(.*)$', views.sprawdzNick),
-    (r'^checkIndexNumber/(.*)$', views.sprawdzIndeks),
-    (r'^giveSpecialization/(.*)$', views.pobierzKierunki),
-    (r'^sendEmail$', views.wyslijEmail),
-    (r'^registration$', views.rejestruj),
-    (r'^register$', views.zarejestruj),
-    (r'^rememberPassword$', views.przypomnijHaslo),
+    (r'^logIn$', views.logowanie),                              #widok obslugujacy logowanie
+    (r'^logOut$', views.wylogowanie),                           #widok obslugujacy wylogowywanie
+    (r'^checkUsername/(.*)$', views.sprawdzNick),               #zapytanie do serwera czy dany login jest juz w systemie
+    (r'^checkIndexNumber/(.*)$', views.sprawdzIndeks),          #zapytanie do serwera czy dany indeks jest juz w systemie
+    (r'^giveSpecialization/(.*)$', views.pobierzKierunki),      #zapytanie do serwera o kierunki jakie sa na danym wydziale
+    (r'^giveSemester/(.*)/(.*)$', views.pobierzSemestry),       #zapytanie do serwera o semestry jakie sa na danym kierunku i rodzaju studiow
+    (r'^sendEmail$', views.wyslijEmail),                        #widok obslugujacy wysylanie maila do admina
+    (r'^registration$', views.rejestruj),                       #widok obslugujacy przejscie do strony "registration.html"
+    (r'^register$', views.zarejestruj),                         #widok obslugujacy transakcje rejestrowania
+    (r'^rememberPassword$', views.przypomnijHaslo),             
     (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),
 #    (r'sprawdz/(.*)$', views.sprawdz),
     

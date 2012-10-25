@@ -96,13 +96,13 @@ def jestStudentem(uzytkownik):
 	return odp
 
 def czyZmienicHaslo(uzytkownik):
-	dzisiaj = datetime.date.today()
-	dataZmianyHasla = uzytkownik.dataOstZmianyHasla.date()
-	dni = (dzisiaj - dataZmianyHasla)
-	if(dni.days) > 29:
-		return True
-	else:
-		return False
+    dzisiaj = datetime.date.today()
+    dataZmianyHasla = uzytkownik.dataOstZmianyHasla.date()
+    dni = (dzisiaj - dataZmianyHasla)
+    if(dni.days) > 29:
+        return True
+    else:
+        return False
 
 # Logowanie	
 def logowanie(request):  #Dodaj sprawdzanie aktywacje i sprawdzanie hasla > 30 dni
@@ -179,10 +179,22 @@ def sprawdzIndeks(request, indeks):
 #Pobranie kierunków dla okreslonych wydzialow. Potrzebne przy rejestracji
 def pobierzKierunki(request, idWydz):
     kierunki = models.Kierunek.objects.filter(wydzial__id=idWydz)
-    odp = ""
+    odp = '<option value=0>Wybierz kierunek...</option>'
     for k in kierunki:
         #odp = odp + 'obj.options[obj.options.length] = new Option(\''+ k.nazwa +'\' , \'' + str(k.id) + '\'); '
         odp = odp + '<option value=\'' + str(k.id) +'\'>' + k.nazwa + '</option>'
+    return HttpResponse(odp)
+
+#Pobieranie Semestrów dla poszczególnych kierunków i typu studiów. Potrzebne przy rejestracji
+def pobierzSemestry(request, idSpec, idTyp):
+    k = models.Kierunek.objects.get(id=idSpec)
+    odp = ""
+    if idTyp == "1":
+        for i in range(1, k.liczbaSemestrow1st + 1):
+            odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
+    if idTyp == "2":
+        for i in range(1, k.liczbaSemestrow2stPoInz + 1):
+            odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
     return HttpResponse(odp)
 
 # Zaladowanie strony portal.html do diva na stronie glownej

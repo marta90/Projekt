@@ -254,6 +254,10 @@ img {
 	border-radius: 10px 10px;
 }
 
+.error {
+	color: #FF0000;
+}
+
 /*.formRegister {text-align: left;}
 .formRegister DIV.height_10 {height: 10px}
 .formRegister INPUT.checkbox {width: 50px; height:12px;}

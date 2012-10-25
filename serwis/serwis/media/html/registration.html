@@ -27,7 +27,7 @@
 			
 			<div id="name">
 				<label for="fld_name">Imię:</label>
-				<input class="CLASS" type="text" name="fld_name" id="fld_name"/>
+				<div><input class="CLASS" type="text" name="fld_name" id="fld_name"/></div>
 			</div>
 			
 			<div id="lastName">
@@ -58,7 +58,7 @@
 			<div id="specialization">
 				<label for="select_specialization">Kierunek studiów:</label>
 				<div>
-					<select class="CLASS" name="select_specialization" id="select_specialization" disabled=false style=width:200px>
+					<select class="CLASS" name="select_specialization" id="select_specialization" disabled=false style=width:200px onchange='findSem()'>
 						<!-- Uzupełni JavaScript -->
 					</select> 
 				</div>
@@ -67,7 +67,7 @@
 			<div id="type">
 				<label for="select_type">Rodzaj studiów:</label>
 				<div>
-					<select class="CLASS" name="select_type" id="select_type">
+					<select class="CLASS" name="select_type" id="select_type" disabled=false onchange='findSem()'>
 						<option value="1">I-go stopnia</option>
 						<option value="2">II-go stopnia</option>
 					</select>
@@ -76,7 +76,11 @@
 			
 			<div id="semester">
 				<label for="fld_semester">Nr semestru:</label>
-				<div><input class="CLASS" type="text" name="fld_semester" id="fld_semester" /></div>
+				<div>
+					<select class="CLASS" name="select_semester" id="select_semester" disabled=false style=width:200px >
+						<!-- Uzupełni JavaScript -->
+					</select> 
+				</div>
 			</div>
 			
 			<div id="rules">

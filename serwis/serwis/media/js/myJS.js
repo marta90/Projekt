@@ -5,7 +5,6 @@ function loadContent(name) {
     return false;
 }
 
-   
 function createRequest() {
     try {
         request = new XMLHttpRequest();
@@ -20,7 +19,6 @@ function createRequest() {
             }
         }
     }
-    
     return request;
 }
 
@@ -29,20 +27,26 @@ function clearField(id) {
 }
 
 function checkBoth() {
-    if (nickOk && indexOk)
+    if ($('#btn_register').parent().find('.error').length > 0){
+	$('#btn_register').parent().find('.error').remove();
+    }
+    if (nickOk && indexOk){
         document.getElementById("btn_register").disabled = false;
-    else
+    }
+    else{
+        $('#btn_register').after("<div class='error' id='shortError'>Użytkownik istnieje już w systemie.</div>");
         document.getElementById("btn_register").disabled = true;
+    }
 }
-        
-function checkUsername() {
 
+// Pobranie kierunków z okreslonego wydziału - funkcja wysyłająca zapytanie do serwera
+function checkUsername() {
+    var theName = document.getElementById("fld_loginCheck").value;
 //  document.getElementById("obrazek").className = "thinking";
     request = createRequest();
     if (request == null)
         alert("Unable to create request");
     else {
-        var theName = document.getElementById("fld_loginCheck").value;
         var nick = escape(theName);
         var url= "/checkUsername/" + nick;
         request.onreadystatechange = showUsernameStatus;
@@ -50,7 +54,7 @@ function checkUsername() {
         request.send(null);
     }
 }
-
+// Sprawdzanie czy istnieje użytkownik o takim loginie w systemie - odebranie odpowiedzi od serwera
 function showUsernameStatus() {
     if (request.readyState == 4) {
         if (request.status == 200) {
@@ -69,8 +73,8 @@ function showUsernameStatus() {
     }
 }
 
+// Sprawdzanie czy istnieje użytkownik o takim indeksie w systemie - wyslanie zapytania do serwera
 function checkIndexNumber() {
-
 //  document.getElementById("obrazek").className = "thinking";
     request = createRequest();
     if (request == null)
@@ -85,6 +89,7 @@ function checkIndexNumber() {
     }
 }
 
+// Sprawdzanie czy istnieje użytkownik o takim indeksie w systemie - odebranie odpowiedzi od serwera
 function showIndexNumberStatus() {
     if (request.readyState == 4) {
         if (request.status == 200) {
@@ -99,19 +104,26 @@ function showIndexNumberStatus() {
     }
 }
 
+// Pobranie kierunków z okreslonego wydziału - pobranie i uruchomienie funkcji szukania
 function giveSpec(faculty){
-    if (document.getElementById('select_faculty').value=='0'){
+    document.getElementById('select_semester').disabled=true;
+    if (faculty.value=='0'){
         document.getElementById('select_specialization').disabled=true;
+        document.getElementById('select_type').disabled=true;
     }
     else {
         document.getElementById('select_specialization').disabled=false;
+        document.getElementById('select_type').disabled=false;
         var faculties = faculty.options[faculty.selectedIndex].value;
         findSpec(faculties);
+        findSem();      // szukanie liczby semestrów
     }
 }
 
+// Pobranie kierunków z okreslonego wydziału - funkcja wysyłająca zapytanie do serwera
 function findSpec(faculties){
     document.getElementById('select_specialization').options.length = 0;
+    document.getElementById('select_semester').options.length = 0;
     if(faculties.length>0){
         request = createRequest();
         if (request == null)
@@ -121,18 +133,16 @@ function findSpec(faculties){
             request.onreadystatechange = makeSpec;
             request.open("GET", url, true);
             request.send(null);
-        }
-            
+        }   
     }
-    
 }
 
+// Pobranie kierunków z okreslonego wydziału - odebranie odpowiedzi i utworzenie obiektu SELECT
 function makeSpec(){
     if (request.readyState == 4) {
         if (request.status == 200) {
             var obj = document.getElementById('select_specialization');
             var iexplorer = navigator.appName == "Microsoft Internet Explorer" ? true : false ; //Verifiy explorer
-            //alert(iexplorer);
             if (iexplorer) {
                 str2 = 'x' + request.responseText; // Super very very important
                 xparent = obj.parentElement;
@@ -146,53 +156,47 @@ function makeSpec(){
     }
 }
 
-//
-//function checkName(){
-//    var name = document.getElementById('name');
-//    var fldName = getElementsByClassName('CLASS', name)[0];
-//    var errors = getElementsByClassName('error', name);
-//    var imie = fldName.value.toString();
-//    if (errors.length != 0 ){
-//        //alert("jest");
-//        for (i = 0; i < errors.length; i++){
-//            errors[i].parentNode.removeChild(errors[i]);
-//        }
-//    } 
-//    if (imie.length < 3){
-//        div = document.createElement("div");
-//        div.setAttribute("class", "error");
-//        div.setAttribute("id", "shortError");
-//        div.innerHTML = "Podane imię jest za krótkie";
-//        fldName.parentNode.insertBefore(div, fldName.nextSibling);
-//    } else{
-//        
-//    }
-//}
+// Pobranie liczby semestrów z danego wydzialu - wyslanie zapytania do serwera
+function findSem(){
+    var spec = document.getElementById('select_specialization');
+    var type = document.getElementById('select_type');
+    
+    var specialization = spec.options[spec.selectedIndex].value;
+    var types = type.options[type.selectedIndex].value;
 
-
-
-
-function getElementsByClassName(findClass, parent) {
-
-  parent = parent || document;
-  var elements = parent.getElementsByTagName('*');
-  var matching = [];
-
-  for(var i = 0, elementsLength = elements.length; i < elementsLength; i++){
-
-    if ((' ' + elements[i].className + ' ').indexOf(findClass) > -1) {
-      matching.push(elements[i]);
+    document.getElementById('select_semester').options.length = 0;
+    if (specialization != 0){
+        document.getElementById('select_semester').disabled=false;
+        if(specialization.length>0 && types.length>0){
+            request = createRequest();
+            if (request == null)
+                alert("Unable to create request");
+            else {
+                var url= "/giveSemester/" + specialization + "/" + types;
+                request.onreadystatechange = makeSem;
+                request.open("GET", url, true);
+                request.send(null);
+            }  
+        }
+    } else {
+        document.getElementById('select_semester').disabled=true;
     }
-
-  }
-
-  return matching;
-
 }
-
-Node.prototype.insertAfter = function(newNode) {
-    this.parentNode.insertBefore(newNode, this.nextSibling ? this.nextSibling : null)
+// Pobranie liczby semestrów z danego wydzialu - odebranie zapytania od serwera
+function makeSem(){
+    if (request.readyState == 4) {
+        if (request.status == 200) {
+            var obj = document.getElementById('select_semester');
+            var iexplorer = navigator.appName == "Microsoft Internet Explorer" ? true : false ; //Verifiy explorer
+            if (iexplorer) {
+                str2 = 'x' + request.responseText; // Super very very important
+                xparent = obj.parentElement;
+                obj.innerHTML = '';
+                obj.innerHTML = str2;
+                xparent.innerHTML = obj.outerHTML;
+            } else {
+                obj.innerHTML = '' + request.responseText;
+            }
+        }
+    }
 }
-
-
-

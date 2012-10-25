@@ -1,12 +1,55 @@
+<script type="text/javascript" src="media/js/jquery-1.8.2.js"></script>
+<script type="text/javascript">
+	// WALIDACJA NICKU I INDEXU
+	$(document).ready(function(){
+		// Zdarzenie nastepujace po nacisnieciu klawisz dla pola "Imię"
+		$('#fld_loginCheck').focusout(function() {
+			if ($(this).parent().find('.error').length > 0){
+				$(this).parent().find('.error').remove();
+			}
+			var reg = /^[a-zA-Z][a-zA-Z0-9-_]{3,32}$/;
+			if(reg.test($(this).val()) == false){
+				$(this).after("<div class='error' id='shortError'>Login powinien mieć od 3 do 32 znaków i nie zawierać znaków specjalnych.</div>");
+			} else {
+				checkUsername();	//jesli pasuje login to sprawdzamy czy isnieje juz taki w bazie
+			}
+		});
+		// Sprawdzanie na bierzaco czy pierwszy znak jest cyfra
+		$('#fld_loginCheck').keyup(function() {
+			if ($(this).parent().find('.error').length > 0){
+				$(this).parent().find('.error').remove();
+			}
+			var reg = /^[a-zA-Z].*$/;
+			if(reg.test($(this).val()) == false){
+				$(this).after("<div class='error' id='shortError'>Login nie powinien zaczynać się od cyfry.</div>");
+			}
+		});
+		// Sprawdzanie na bierzaco czy indeks sklada sie z 6 cyfr
+		$('#fld_indexNumber').keyup(function() {
+			if ($(this).parent().find('.error').length > 0){
+				$(this).parent().find('.error').remove();
+			}
+			var reg = /^[0-9]{6}$/;
+			if(reg.test($(this).val()) == false){
+				$(this).after("<div class='error' id='shortError'>Indeks musi składać się z 6 cyfr.</div>");
+			} else {
+				checkIndexNumber();		//jesli pasuje indeks to sprawdzamy czy isnieje juz taki w bazie
+			}
+		});
+	});
+</script>
+
 <br /><br />PORTAL PRED ZALOGOWANIEM (portal.html)<br /><br />
 				
 				<form method="post" action="/registration" id ="form_register">
 					<div class="CLASS">
-						<input class="CLASS" type="text" name="fld_loginCheck" id="fld_loginCheck" value="Nick" onkeyup='checkUsername()'/>
+						<label for="fld_loginCheck">Nazwa użytkownika:</label>
+						<div><input class="CLASS" type="text" name="fld_loginCheck" id="fld_loginCheck"/></div>
 						<br />
-						<input class="CLASS" type="text" name="fld_indexNumber" id="fld_indexNumber" value="Nr indeksu" onkeyup='checkIndexNumber()'/>
+						<label for="fld_indexNumber">Indeks:</label>
+						<div><input class="CLASS" type="text" name="fld_indexNumber" id="fld_indexNumber"/></div>
 						<br />
-						<input class="CLASS" type="submit" name="btn_register" id="btn_register" value="Zarejestruj" />
+						<input class="CLASS" type="submit" name="btn_register" id="btn_register" value="Zarejestruj" disabled=true/>
 						<br />
 						<a href="activation.html" class="CLASS">Nie doszedł mail aktywacyjny?</a>
 					</div>

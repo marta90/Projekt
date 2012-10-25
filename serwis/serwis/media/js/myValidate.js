@@ -1,6 +1,6 @@
 ﻿$(document).ready(function(){
     // Zdarzenie nastepujace po nacisnieciu klawisz dla pola "Imię"
-    $('#fld_name').keypress(function() {
+    $('#fld_name').keyup(function() {
         if ($(this).parent().find('.error').length > 0){
             $(this).parent().find('.error').remove();
         }
@@ -11,10 +11,9 @@
         if(reg.test($(this).val()) == false){
             $(this).after("<div class='error' id='shortError'>Wprowadź imię poprawnie!</div>");
         }
-        
     });
     // Zdarzenie nastepujace po nacisnieciu klawisz dla pola "Nazwisko"
-    $('#fld_lastName').keypress(function() {
+    $('#fld_lastName').keyup(function() {
         if ($(this).parent().find('.error').length > 0){
             $(this).parent().find('.error').remove();
         }
@@ -29,12 +28,10 @@
     });
     // Zdarzenie nastepujace po nacisnieciu klawisz dla pola "Hasło"
     $('#fld_pass').keyup(function() {
+        // usuwanie errorsow
         if ($(this).parent().find('.error').length > 0){
             $(this).parent().find('.error').remove();
         }
-
-
-
         var threeRepeatChars = /^(?!.*(.)\1{3}).*$/ //trzy takie same znaki pod rząd
         var numbSpecChar = /^((?=.*[\d])|(?=.*[^\w\d\s])).*$/ //numery i specjalne znaki
         var longChars = /^(?=.*[A-Z]).*$/ //duze znaki
@@ -49,7 +46,7 @@
                 $(this).after("<div class='error' id='shortError'>W haśle występują pod rząd trzy takie same znaki</div>");
             }
             if(numbSpecChar.test($(this).val()) == false){
-                $(this).after("<div class='error' id='shortError'>Hasło powinno zawierać specjalne znaki</div>");
+                $(this).after("<div class='error' id='shortError'>Hasło powinno zawierać cyfry lub specjalne znaki</div>");
             }
             if(longChars.test($(this).val()) == false){
                 $(this).after("<div class='error' id='shortError'>Hasło powinno zawierać duże znaki</div>");
@@ -62,6 +59,14 @@
             }
             //$(this).after("<div class='error' id='shortError'>Hasło powinno zawierać małe i wielkie litery oraz cyfry lub znaki specjalne!</div>");
         }
-        
+    });
+    // Zdarzenie nastepujace po straceniu focusa dla pola "Powtórz hasło"
+    $('#fld_passRepeat').focusout(function() {
+        if ($(this).parent().find('.error').length > 0){
+            $(this).parent().find('.error').remove();
+        }
+        if($(this).val() != $('#fld_pass').val()){
+            $(this).after("<div class='error' id='shortError'>Powtórzone hasło nie jest poprawne.</div>");
+        }
     });
 });
