@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     (r'^register$', views.zarejestruj),                         #widok obslugujacy transakcje rejestrowania
     (r'^rememberPassword$', views.przypomnijHaslo),             
     (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),
-    (r'^generujPlan$', views.generujPlan),                      #widok wczytujacy kod z Edu i generujacy plan.
+    (r'^generujPlan$', include('pwrParser.urls')),                      #widok wczytujacy kod z Edu i generujacy plan.
 #    (r'sprawdz/(.*)$', views.sprawdz),
     
     # MEDIA
