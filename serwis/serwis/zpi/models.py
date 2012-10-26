@@ -58,8 +58,9 @@ class Prowadzacy(models.Model):
 
 class Kurs(models.Model):
     nazwa = models.CharField(max_length = 250)
-    rodzaj = models.CharField(max_length = 1)
+    rodzaj = models.CharField(max_length = 1)       # L, W, S, P
     ects = models.IntegerField()
+    kodKursu = models.CharField(max_length = 250)
     def __unicode__(self):
         return self.nazwa
     class Meta:

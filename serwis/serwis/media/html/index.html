@@ -54,7 +54,7 @@
 			{% else %}
 			<div id="header-logged-in-menu">
 				<div id="header-account">
-					<a href="account.html">{{ nick }}</a>
+					<a id="account" onclick="loadContent(this.id)">{{ nick }}</a>
 				</div>
 				<div id="header-logout">
 					<a href="logOut">{{ wyloguj }}</a>
