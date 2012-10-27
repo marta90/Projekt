@@ -7,8 +7,8 @@ import os.path
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^$', views.glowna),
-    (r'^/$', views.glowna),
+    (r'^$', views.glowna),                                      #widok strony glownej
+    (r'^/$', views.glowna),                                     #widok strony glownej
     (r'^logIn$', views.logowanie),                              #widok obslugujacy logowanie
     (r'^logOut$', views.wylogowanie),                           #widok obslugujacy wylogowywanie
     (r'^checkUsername/(.*)$', views.sprawdzNick),               #zapytanie do serwera czy dany login jest juz w systemie
@@ -19,9 +19,14 @@ urlpatterns = patterns('',
     (r'^registration$', views.rejestruj),                       #widok obslugujacy przejscie do strony "registration.html"
     (r'^register$', views.zarejestruj),                         #widok obslugujacy transakcje rejestrowania
     (r'^rememberPassword$', views.przypomnijHaslo),             
-    (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),
-    (r'^generujPlan$', include('pwrParser.urls')),                      #widok wczytujacy kod z Edu i generujacy plan.
-#    (r'sprawdz/(.*)$', views.sprawdz),
+    (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),    #potwierdzenie rejestracji poprzez link aktywacyjny
+    (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
+    
+    #ANDROID
+    (r'^test$', views.test),                                    #klasa do testow
+    (r'^getEventsAndroid$', views.mojeWydarzeniaAND),           #przeslanie do And. zblizajacych sie wydarzen
+    (r'^getLastEventsAndroid$', views.ostatnieWydarzeniaAND),   #przeslanie do And. ostatnio dodanych wydarzen
+    (r'^shout$', views.dodajWShoutboxieAND),                    #zapisanie wiadomosci z And. w bazie - Jeszcze nie obslugiwane
     
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),     

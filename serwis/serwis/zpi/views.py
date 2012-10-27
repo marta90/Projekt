@@ -4,11 +4,16 @@ from django.http import HttpResponse, HttpResponseRedirect
 from passlib.hash import sha256_crypt
 from django.core.mail import send_mail
 from django.db import transaction
+from django.core import serializers
 import time, datetime
 import os
 import string
 import random
 import re
+import json
+import urllib
+import urllib2
+from collections import defaultdict
 
 # Wyswietlenie strony glownej
 def glowna(request):
@@ -89,12 +94,14 @@ def potwierdzRejestracje(request, aktywator, indeks):
 			student.save()
 			return HttpResponse("Udało się aktywować")
 	return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
-	
+
+# Sprawdzenie czy dany uzytkownik jest studentem	
 def jestStudentem(uzytkownik):
 	st = models.Student.objects.filter(uzytkownik=uzytkownik)
 	odp = st.exists()
 	return odp
 
+# Sprawdzenie czy dany uzytkownik musi zmienić hasło (mineło 30 dni)
 def czyZmienicHaslo(uzytkownik):
     dzisiaj = datetime.date.today()
     dataZmianyHasla = uzytkownik.dataOstZmianyHasla.date()
@@ -144,6 +151,7 @@ def logowanie(request):  #Dodaj sprawdzanie aktywacje i sprawdzanie hasla > 30 d
     else:
             return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 
+# Wylogowanie z serwisu - usunięcie sesji
 def wylogowanie(request):
 	try:
 		for elemSesji in request.session.keys():
@@ -246,3 +254,55 @@ def wyslijEmail(request):
 		send_mail("PwrTracker - wysłano wiadomość: " + tytul, "Wysłałeś wiadomość o następującej treści:\n\n" + tresc, od, [mailZwrotny], fail_silently=False)
 		return HttpResponse('Wysłano wiadomości')
 
+# Android - klasa do testow
+def test(request):
+	if True:
+		nick = "nick1"
+		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+		wydarzenia = models.Wydarzenie.objects.all()
+		wydarzeniaUz = uzytkownik.wydarzenie_set.all()
+		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
+		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+# Android - Dodanie wiadomosci z shoutboxa do bazy danych
+def dodajWShoutboxieAND(request):
+	if request.method == 'POST':
+		nick = request.POST['nick']
+		wiadomosc = request.POST['message']
+		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+		if wiadomosc != "":
+			shout = models.Shoutbox(uzytkownik = uzytkownik, tresc = wiadomosc, data = datetime.datetime.now())
+			shout.save()
+			return HttpResponse("Zapisalo")
+	return HttpResponse("Nie zapisało")
+
+# Android - Wyslanie na androida zblizajacych sie wydarzen
+def mojeWydarzeniaAND(request):
+	if request.method == 'POST':
+		nick = request.POST['nick']
+		dzisiaj = datetime.date.today() - datetime.timedelta(days=1)
+		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+		ileWydarzen = uzytkownik.ileMoichWydarzen
+		wydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = dzisiaj).order_by('dataWydarzenia')[:ileWydarzen]
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+# Android - Wyslanie na androida ostatnio dodanych wydarzen
+def ostatnieWydarzeniaAND(request):
+	if request.method == 'POST':
+		nick = request.POST['nick']
+		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+		wydarzenia = models.Wydarzenie.objects.all()
+		wydarzeniaUz = uzytkownik.wydarzenie_set.all()
+		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
+		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
