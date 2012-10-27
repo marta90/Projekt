@@ -203,10 +203,17 @@ def zaladujPortal(request):
 
 # Zaladowanie strony timetable.html do diva na stronie glownej
 def zaladujPlan(request):
-	if jestSesja(request):
-		return render_to_response('timetable.html')
-	else:
-		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
+    if jestSesja(request):
+        st = models.Student.objects.get(uzytkownik = request.session['idUz'])
+        planPn = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'pn').order_by('grupa__godzinaOd')
+        planWt = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'wt').order_by('grupa__godzinaOd')
+        planSr = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
+        planCzw = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'cz').order_by('grupa__godzinaOd')
+        planPi = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'pt').order_by('grupa__godzinaOd')
+        #return HttpResponse()
+        return render_to_response('timetable.html', {'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
+    else:
+        return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
 # Zaladowanie strony calendar.html do diva na stronie glownej
 def zaladujKalendarz(request):
