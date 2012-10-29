@@ -4,6 +4,11 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 import time, datetime
 import re
+from django.db import transaction
+from django.db.models.signals import post_save
+
+from serwis.zpi import views
+
 
 # Create your views here.
 def generujPlan(request):
@@ -21,12 +26,13 @@ def generujPlan(request):
                 zapisyAdministracyjne(request, i, tabelaB[0])
     else:
         text = 'Nic nie ma'
-    return HttpResponse("____+++GIIIIIIIT!")
+    views.content = 'timetable'
+    return HttpResponseRedirect('/')
 
 def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
-        czyKursZaoczny = False;
-        czyKursZapisany = False;
-        czyProwadzacyZapisany = False;
+        czyKursZaoczny = False
+        czyKursZapisany = None
+        czyProwadzacyZapisany = None
         k = models.Kurs()          # obiekt bazy tabeli Kurs
         g = models.Grupa()         # obiekt bazy tabeli Grupa
         p = models.Prowadzacy()    # obiekt bazy tabeli Prowadzacy
@@ -53,8 +59,12 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
             'Projekt': 'P',
             'Ćwiczenia': 'Ć'
         }[rodzajKursuTxt]           # Co sprawdzamy w Case
-        punktyECTS = dzieciprowadzacyIPkt[len(dzieciprowadzacyIPkt)-1].string.strip()
-        punktyECTS = punktyECTS[:punktyECTS.index(',')]         # Czasami te punkty sa zapisane jako np. 3,00 więc pozbywamy się tej reszty :D
+        if(dzieciprowadzacyIPkt[len(dzieciprowadzacyIPkt)-1].string.strip() != ''): #Czasmi nie ma punktów ECTS
+            punktyECTS = dzieciprowadzacyIPkt[len(dzieciprowadzacyIPkt)-1].string.strip()
+            if punktyECTS.find(',') != -1:
+                punktyECTS = punktyECTS[:punktyECTS.index(',')]         # Czasami te punkty sa zapisane jako np. 3,00 więc pozbywamy się tej reszty :D
+        else:
+            punktyECTS = '0'    # W przypadku kiedy nie ma podane ECTS
         #zapis do bazy Kursu
         czyJestKurs = models.Kurs.objects.filter(nazwa = nazwaKursuTxt, rodzaj = rodzajKursuTxtKrotki, ects = punktyECTS, kodKursu = kodKursuTxt)
         if (not (czyJestKurs.exists())):
@@ -62,8 +72,7 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
             k.rodzaj = rodzajKursuTxtKrotki
             k.ects = punktyECTS
             k.kodKursu = kodKursuTxt
-            k.save()
-            czyKursZapisany = True;
+            czyKursZapisany = k.save()
         
         # PROWADZACY
         prow  = dzieciprowadzacyIPkt[0]
@@ -73,8 +82,8 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
         for i in range(0, dlLisProw-3):     # Odczytanie tytulu
             tytulProw += imieNazwProw[i] + " "
         tytulProw += imieNazwProw[dlLisProw-3]
-        imieProw = imieNazwProw[dlLisProw-1]        #Odczytanie imienia
-        nazwiskoProw = imieNazwProw[dlLisProw-2]    #Odczytanie nazwiska
+        imieProw = imieNazwProw[dlLisProw-2]        #Odczytanie imienia
+        nazwiskoProw = imieNazwProw[dlLisProw-1]    #Odczytanie nazwiska
         coProw = prow.findNextSibling('td')
         #zapis do bazy Prowadzacego
         czyJestProw = models.Prowadzacy.objects.filter(imie = imieProw, nazwisko = nazwiskoProw, tytul = tytulProw)
@@ -85,8 +94,7 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
             p.ktoWprowadzil = uz
             p.dataOstZmianyDanych =  datetime.date.today()
             p.ktoZmienilDane = uz
-            p.save()
-            czyProwadzacyZapisany = True;
+            czyProwadzacyZapisany = p.save()
         
         # GODZINY I MIEJSCE
         prowadzacyGrupy = models.Prowadzacy.objects.get(imie = imieProw, nazwisko = nazwiskoProw, tytul = tytulProw)
@@ -96,6 +104,7 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
         
         for dm in dataMiejsce:
             g = models.Grupa()         # obiekt bazy tabeli Grupa
+            pl = models.Plan()         # obiekt bazy tabeli Plan - GrupyStudentow
             miejsce = ""
             dzien = ""
             parz = ""
@@ -144,21 +153,23 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
                     g.kurs = kursGrupy
                     g.save()
         
-        if not(czyKursZaoczny):
-            # ZAPISANIE TYCH GRUP DO STUDENTA
-            student = models.Student.objects.get(uzytkownik = uz)
-            grupy = models.Grupa.objects.filter(kodGrupy = kodGrupyTxt, prowadzacy = prowadzacyGrupy, kurs = kursGrupy)
-            for g in grupy:
+            if not(czyKursZaoczny):
+                # ZAPISANIE TYCH GRUP DO STUDENTA
+                student = models.Student.objects.get(uzytkownik = uz)
+                g = models.Grupa.objects.get(kodGrupy = kodGrupyTxt, prowadzacy = prowadzacyGrupy, dzienTygodnia = dzien, parzystosc = parz,
+                                                           godzinaOd = godzR, godzinaDo = godzZ, miejsce=miejsce, kurs = kursGrupy)
                 if not(models.Plan.objects.filter(student = student, grupa = g).exists()):
                     pl.student = student
                     pl.grupa = g
                     pl.save()
-        else:
-            if (czyKursZapisany):
-                kursGrupy.delete()
-            if (czyProwadzacyZapisany):
-                prowadzacyGrupy.delete()
+            else:
+                if (czyKursZapisany):
+                    czyKursZapisany.delete()
+                if (czyProwadzacyZapisany):
+                    czyProwadzacyZapisany.delete()
 
+
+@transaction.commit_on_success
 def zapisyNormalne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
         k = models.Kurs()          # obiekt bazy tabeli Kurs
         g = models.Grupa()         # obiekt bazy tabeli Grupa
@@ -186,7 +197,13 @@ def zapisyNormalne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
             'Projekt': 'P',
             'Ćwiczenia': 'Ć'
         }[rodzajKursuTxt]           # Co sprawdzamy w Case
-        punktyECTS = dzieciprowadzacyIPkt[len(dzieciprowadzacyIPkt)-1].string.strip()
+        #print 'TOJESTTO' + dzieciprowadzacyIPkt[len(dzieciprowadzacyIPkt)-1].string.strip() + 'TAAK'
+        if(dzieciprowadzacyIPkt[len(dzieciprowadzacyIPkt)-1].string.strip() != ''):
+            punktyECTS = dzieciprowadzacyIPkt[len(dzieciprowadzacyIPkt)-1].string.strip()
+            if punktyECTS.find(',') != -1:
+                punktyECTS = punktyECTS[:punktyECTS.index(',')]         # Czasami te punkty sa zapisane jako np. 3,00 więc pozbywamy się tej reszty :D
+        else:
+            punktyECTS = '0'    # W przypadku kiedy nie ma podane ECTS
         #zapis do bazy Kursu
         czyJestKurs = models.Kurs.objects.filter(nazwa = nazwaKursuTxt, rodzaj = rodzajKursuTxtKrotki, ects = punktyECTS, kodKursu = kodKursuTxt)
         if (not (czyJestKurs.exists())):
@@ -195,6 +212,7 @@ def zapisyNormalne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
             k.ects = punktyECTS
             k.kodKursu = kodKursuTxt
             k.save()
+
         
         # PROWADZACY
         prow  = dzieciprowadzacyIPkt[0]
@@ -204,8 +222,8 @@ def zapisyNormalne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
         for i in range(0, dlLisProw-3):     # Odczytanie tytulu
             tytulProw += imieNazwProw[i] + " "
         tytulProw += imieNazwProw[dlLisProw-3]
-        imieProw = imieNazwProw[dlLisProw-1]        #Odczytanie imienia
-        nazwiskoProw = imieNazwProw[dlLisProw-2]    #Odczytanie nazwiska
+        imieProw = imieNazwProw[dlLisProw-2]        #Odczytanie imienia
+        nazwiskoProw = imieNazwProw[dlLisProw-1]    #Odczytanie nazwiska
         coProw = prow.findNextSibling('td')
         #zapis do bazy Prowadzacego
         czyJestProw = models.Prowadzacy.objects.filter(imie = imieProw, nazwisko = nazwiskoProw, tytul = tytulProw)
@@ -232,6 +250,7 @@ def zapisyNormalne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
             godzR = None
             godzZ = None
             g = models.Grupa()         # obiekt bazy tabeli Grupa
+            pl = models.Plan()         # obiekt bazy tabeli Plan - GrupyStudentow
             listaDM = dm.string.split(',', 1)   # oddzielenie daty od miejsca
             if listaDM[0].strip() != "bez terminu":
                 miejsce = listaDM[1][1:]            # pobranie miejsca
@@ -270,11 +289,13 @@ def zapisyNormalne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
                     g.kurs = kursGrupy
                     g.save()
                     
-        # ZAPISANIE TYCH GRUP DO STUDENTA
-        student = models.Student.objects.get(uzytkownik = uz)
-        grupy = models.Grupa.objects.filter(kodGrupy = kodGrupyTxt, prowadzacy = prowadzacyGrupy, kurs = kursGrupy)
-        for g in grupy:
+            # ZAPISANIE TYCH GRUP DO STUDENTA
+            student = models.Student.objects.get(uzytkownik = uz)
+            g = models.Grupa.objects.get(kodGrupy = kodGrupyTxt, prowadzacy = prowadzacyGrupy, dzienTygodnia = dzien, parzystosc = parz,
+                                                           godzinaOd = godzR, godzinaDo = godzZ, miejsce=miejsce, kurs = kursGrupy)
+            #for g in grupy:
             if not(models.Plan.objects.filter(student = student, grupa = g).exists()):
                 pl.student = student
                 pl.grupa = g
                 pl.save()
+

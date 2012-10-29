@@ -15,13 +15,15 @@ import urllib
 import urllib2
 from collections import defaultdict
 
+content = 'portal'
+
 # Wyswietlenie strony glownej
 def glowna(request):
 	if jestSesja(request):
 		nick = request.session['nick']
-		return render_to_response('index.html', {'nick':nick, 'wyloguj':"wyloguj"}) #DODAC WYSWIETLANIE ZALOGOWANEGO UZYTKOWNIKA
+		return render_to_response('index.html', {'strona':content, 'nick':nick, 'wyloguj':"wyloguj"}) #DODAC WYSWIETLANIE ZALOGOWANEGO UZYTKOWNIKA
 	else:
-		return render_to_response('index.html', {'logowanie':True}) #TU MA BYC NA STRONIE MENU Z LOGOWANIEM
+		return render_to_response('index.html', {'strona':content, 'logowanie':True}) #TU MA BYC NA STRONIE MENU Z LOGOWANIEM
 
 # Sprawdzenie czy sesja jest otwarta
 def jestSesja(request):
@@ -218,8 +220,12 @@ def zaladujPlan(request):
         planSr = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
         planCzw = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'cz').order_by('grupa__godzinaOd')
         planPi = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'pt').order_by('grupa__godzinaOd')
+        czy = True
+        if(len(planPn) == 0 and len(planWt) == 0 and len(planSr) == 0 and len(planCzw) == 0 and len(planPi) == 0):
+            czy = False
         #return HttpResponse()
-        return render_to_response('timetable.html', {'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
+         #and planWt.count==0 and planSr.count==0 and planCzw.count==0 and planPi.count==0
+        return render_to_response('timetable.html', {'czyJestPlan':czy, 'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
     else:
         return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 

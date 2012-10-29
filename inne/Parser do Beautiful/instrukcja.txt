@@ -1,0 +1,35 @@
+http://spartanthe.blogspot.com/2009/02/installing-beautifulsoup-for-python-in.html
+
+Installing BeautifulSoup for Python in Windows
+It's very easy.
+
+Download BeautifulSoup and extract it, say to C:\TEMP\BeautifulSoup-3.1.0.1
+Go to that folder and run command setup.py install (assuming *.py is known in path extensions, otherwise run c:\python25\python setup.py install).
+
+That's it. Obviously it is an usual procedure to follow for many Python libraries.
+
+To check it works create file testbs.py containing:
+import urllib2
+from BeautifulSoup import BeautifulSoup
+
+page = urllib2.urlopen("http://www.google.com")
+soup = BeautifulSoup(page)
+print soup.prettify()
+
+BeautifulSoup is a library for HTML and XML parsing. It promises it can parse not well formed HTML, right. I was bought by that promise to try this library after discovering that htmllib.HTMLParser works with perfect HTML only. But I found one site (actually biggest Chinese web search site) that crashed BeautifulSoup. Changing URL to page = urllib2.urlopen("http://www.baidu.com") raised an exception:
+
+File "D:\Python25\lib\HTMLParser.py", line 115, in error
+raise HTMLParseError(message, self.getpos())
+HTMLParser.HTMLParseError: junk characters in start tag: u'\u767e\u5ea6\u4e00\u4e0b id=sb>', at line 3, column 233
+
+http://www.inspyreit.com/2012/03/how-to-install-beautifulsoup-in-windows-7/
+How To Install BeautifulSoup in Windows 7
+
+Step1: Download BeautifulSoup3.2.1 from here and BeautifulSoup4-4.0.1 from here
+
+Step2: Extract the tar.gz files and copy the ‘BeautifulSoup.pyc’ to your python install folder in site-packages (“C:\Python27\Lib\site-packages\”).
+
+Step3: open the IDLE Python GUI and type “import BeautifulSoup” without quotes and press enter.
+
+Step4: You are all set to use BeautifulSoup, Congrats.
+

@@ -1,127 +1,130 @@
-﻿PLAN ZAJĘĆ
-
-<table border="1">
-    <tr>
-        <th BGCOLOR="#99CCFF">Dzień</th>
-        <th BGCOLOR="#99CCFF">Godzina</th>
-        <th BGCOLOR="#99CCFF">Parzystość</th>
-        <th BGCOLOR="#99CCFF">Nazwa</th>
-        <th BGCOLOR="#99CCFF">Prowadzący</th>
-        <th BGCOLOR="#99CCFF">Rodzaj</th>
-        <th BGCOLOR="#99CCFF">Miejsce</th>
-    </tr>
-    {% for zajecia in pPn %}
-        {% if forloop.first %}
+﻿
+{% if czyJestPlan %}
+    <table border="1">
         <tr>
-            <td rowspan={{ pPn.count }} BGCOLOR="#99CCFF">Poniedziałek</td>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
+            <th BGCOLOR="#99CCFF">Dzień</th>
+            <th BGCOLOR="#99CCFF">Godzina</th>
+            <th BGCOLOR="#99CCFF">Parzystość</th>
+            <th BGCOLOR="#99CCFF">Nazwa</th>
+            <th BGCOLOR="#99CCFF">Prowadzący</th>
+            <th BGCOLOR="#99CCFF">Rodzaj</th>
+            <th BGCOLOR="#99CCFF">Miejsce</th>
         </tr>
-        {% else %}
-        <tr>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% endif %}
-    {% endfor %}
-
-    {% for zajecia in pWt %}
-        {% if forloop.first %}
-        <tr>
-            <td rowspan={{ pWt.count }} BGCOLOR="#99CCFF">Wtorek</td>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% endif %}
-    {% endfor %}
+        {% for zajecia in pPn %}
+            {% if forloop.first %}
+            <tr>
+                <td rowspan={{ pPn.count }} BGCOLOR="#99CCFF">Poniedziałek</td>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    
+        {% for zajecia in pWt %}
+            {% if forloop.first %}
+            <tr>
+                <td rowspan={{ pWt.count }} BGCOLOR="#99CCFF">Wtorek</td>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+            
+        {% for zajecia in pSr %}
+            {% if forloop.first %}
+            <tr>
+                <td rowspan={{ pSr.count }} BGCOLOR="#99CCFF">Środa</td>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
         
-    {% for zajecia in pSr %}
-        {% if forloop.first %}
-        <tr>
-            <td rowspan={{ pSr.count }} BGCOLOR="#99CCFF">Środa</td>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% endif %}
-    {% endfor %}
-    
-    {% for zajecia in pCz %}
-        {% if forloop.first %}
-        <tr>
-            <td rowspan={{ pCz.count }} BGCOLOR="#99CCFF">Czwartek</td>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% endif %}
-    {% endfor %}
-    
-    {% for zajecia in pPi %}
-        {% if forloop.first %}
-        <tr>
-            <td rowspan={{ pPi.count }} BGCOLOR="#99CCFF">Piątek</td>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
-            <td>{{zajecia.grupa.parzystosc}}</td>
-            <td>{{zajecia.grupa.kurs.nazwa}}</td>
-            <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
-            <td>{{zajecia.grupa.kurs.rodzaj}}</td>
-            <td>{{zajecia.grupa.miejsce}}</td>
-        </tr>
-        {% endif %}
-    {% endfor %}
-</table>
+        {% for zajecia in pCz %}
+            {% if forloop.first %}
+            <tr>
+                <td rowspan={{ pCz.count }} BGCOLOR="#99CCFF">Czwartek</td>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+        
+        {% for zajecia in pPi %}
+            {% if forloop.first %}
+            <tr>
+                <td rowspan={{ pPi.count }} BGCOLOR="#99CCFF">Piątek</td>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.parzystosc}}</td>
+                <td>{{zajecia.grupa.kurs.nazwa}}</td>
+                <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
+                <td>{{zajecia.grupa.kurs.rodzaj}}</td>
+                <td>{{zajecia.grupa.miejsce}}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+{% else %}
+    <div>Nie ma wczytanego planu.</div>
+{% endif %}
