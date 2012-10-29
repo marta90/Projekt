@@ -4,10 +4,10 @@
         if ($(this).parent().find('.error').length > 0){
             $(this).parent().find('.error').remove();
         }
-        if($(this).val().length < 3){
+        if($(this).val().length < 2){
             $(this).after("<div class='error' id='shortError'>Podane imię jest za krótkie</div>");
         }
-        var reg = /^(([A-za-z]+[\s]{1}[A-za-z]+)|([A-Za-z]+))$/;
+        var reg = /^([a-zA-Z '-]+)$/;
         if(reg.test($(this).val()) == false){
             $(this).after("<div class='error' id='shortError'>Wprowadź imię poprawnie!</div>");
         }
@@ -17,12 +17,12 @@
         if ($(this).parent().find('.error').length > 0){
             $(this).parent().find('.error').remove();
         }
-        if($(this).val().length < 3){
+        if($(this).val().length < 2){
             $(this).after("<div class='error' id='shortError'>Podane nazwisko jest za krótkie</div>");
         }
-        var reg = /^(([A-za-z]+[\s]{1}[A-za-z]+)|([A-Za-z]+))$/;
+        var reg = /^([a-zA-Z '-]+)$/;
         if(reg.test($(this).val()) == false){
-            $(this).after("<div class='error' id='shortError'>Wprowadź imię poprawnie!</div>");
+            $(this).after("<div class='error' id='shortError'>Wprowadź nazwisko poprawnie!</div>");
         }
         
     });
@@ -32,7 +32,7 @@
         if ($(this).parent().find('.error').length > 0){
             $(this).parent().find('.error').remove();
         }
-        var threeRepeatChars = /^(?!.*(.)\1{3}).*$/ //trzy takie same znaki pod rząd
+        var threeRepeatChars = /^(?!.*(.)\1{3}).*$/ //ponad trzy takie same znaki pod rząd
         var numbSpecChar = /^((?=.*[\d])|(?=.*[^\w\d\s])).*$/ //numery i specjalne znaki
         var longChars = /^(?=.*[A-Z]).*$/ //duze znaki
         var smallChars = /^(?=.*[a-z]).*$/ //male znaki

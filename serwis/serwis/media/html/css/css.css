@@ -1,0 +1,507 @@
+html, body {
+	background-color:#A6CAF0;
+	height:100%;
+	/*background: url(images/srodek.png) repeat-y 50% 0px #093;*/
+	/*background-image:url(images/srodek.png);
+	background-repeat:repeat-y;
+	background-position:left 50%;
+	#396B8C - niebieski;
+	#A6CAF0*/
+	}
+div#tlo{
+	background: url(images/srodek.png) repeat-y 50% 0px #A6CAF0;
+	width:1350px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom:0px;
+/*	min-height:550px;*/
+	min-height:1200px;
+	text-align:center;
+	overflow:hidden;
+}
+div#logowanie{
+margin-left:auto;
+    margin-right:auto;
+    margin-top:0px;
+    background-color:  #FFC;
+    width: 600px;
+    height: 500px;
+    font-family: calibri;
+    font-size: large;
+    text-align: center;
+background-color:#fff;
+border:  2px groove #97c47b;
+}
+div#tytul{
+	background:url(images/tytul.png);
+	height:195px;
+	width: 1303px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:0px;
+	}
+div#login{
+	position:relative;
+	left:30px;
+	top:145px;
+	width:300px;
+	height:30px;
+	font-size:x-large;
+	font-weight:bold;
+	color:#903;
+}
+div#glowny {
+	position:relative;
+	width:1150px;
+	margin:10px auto;
+	min-height:750px;
+}	
+div#menu{
+	position:absolute;
+	background-color:#FFC;
+	min-height:275px;
+	width:250px;
+	border-style:solid;
+	border-width:thick;
+	border-color:#030;
+	font-family:calibri;
+}
+div#zawartosc{
+	position:absolute;
+	left:280px;
+	width:868px;
+	min-height:2050px;
+}
+#tabs {
+	position: absolute;
+	width: 868px;
+	height: 50px;
+}
+
+div#divTerminow{
+	margin-left:auto;
+	margin-right:auto;
+	background-color:#fff;
+	border:  2px groove #97c47b;
+	width: 600px;
+	min-height:360px;
+	padding-bottom:10px;
+}
+
+div#generowanyPlan{
+	width:400px;
+	background-color:#fff;
+	min-height:450px;
+	border:  2px groove #97c47b;
+	
+}
+
+div#dodajKurs{
+	float:right;
+	position:relative;
+	width:410px;
+	background-color:#fff;
+	min-height:450px;
+	top:0px;
+	border:  2px groove #97c47b;
+	
+}
+div#shoutbox{
+	margin-left:auto;
+	margin-right:auto;
+	width:750px;
+	height:300px;
+/*	border-style:solid;*/
+	border:  2px groove #97c47b;
+	background-color:#fff;
+	text-align: left;
+}
+div#conversation{
+	margin-left:auto;
+	margin-right:auto;
+	width:750px;
+	height:260px;
+	overflow: scroll;
+	overflow-x: hidden;
+}
+div#add_shout{
+	background-color:#d1f6bb;
+	height:40px;
+}
+#shoutbox_table{
+    width: 100%;
+    text-align:  left;
+    font-size: medium;
+    border-bottom: 1px groove  #97c47b;
+}
+#shoutbox_td{
+    border: 0px groove #97c47b;
+}
+#shoutbox_tr{
+    border-bottom: 1px groove  #97c47b
+}
+div#ostatnieTerminy{
+	text-align:  left;
+	margin-left:auto;
+	margin-right:auto;
+	width:750px;
+	height:300px;
+	background-color:#fff;
+	border:  2px groove #97c47b;
+	overflow: scroll;
+	overflow-x: hidden;
+}
+
+ul{
+	margin-left:0px;
+	padding-left:0px;
+	margin-top:0px;
+	padding-top:0px;
+	margin-bottom:0px;
+	padding-bottom:0px;
+	width:100%;
+ 	overflow: hidden;
+}
+ul li{
+ 	width: 170px;
+ 	height: 55px;
+ 	float: left;
+ 	display: block;
+}
+#dane{
+	background-color:#fff;
+	border:  2px groove #97c47b;
+	
+}
+#tabela_modyfikacja{
+    margin-left:auto;
+    margin-right:auto;
+    text-align:  left;
+    font-size: large;
+}
+
+#terminy{
+	border-style:solid; 
+	background-color:#fff;
+	width:600px;
+	margin-left:auto;
+	margin-right:auto;
+	padding-left:30px;
+	padding-right:30px;
+}
+
+#przyciski{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.ev{
+	color:black;
+	font-weight:bold;
+
+}
+.butt{
+    font-size: medium;
+    text-align: center;
+    background-color: #97c47b;
+    border-color: #97c47b;
+}
+
+.czerwonyButt{
+    font-size: small;
+    text-align: center;
+    background-color: #FF3300;
+    border-color: #CC0000;
+}
+.fontM{
+	font-size: medium;
+}
+
+.fontL{
+	font-size: large;
+}
+
+
+#kalendarz_menu{
+   font-size: large;
+   width: 100%;
+   text-align: left;
+   border:  2px groove #97c47b;
+
+}
+#kal_menu_prawe{
+    text-align: right;
+}
+#tab_kalendarz{
+    margin-top: 10px;
+    width: 100%;
+    border: 2px groove #97c47b;
+    border-collapse: collapse;
+	background-color:#fff;
+}
+#kalendarz_td{
+    border: 1px groove #97c47b;
+    width: 108px;
+}
+
+
+#kalendarz_tr{
+    border: 1px groove  #97c47b;
+    height: 108px;
+    
+}
+
+#kalendarz_tr_dni{
+    font-size: large;
+    height: 20px;
+    border: 1px groove  #97c47b;
+   
+}
+
+#kalendarz_tydz{
+    width: 40px;
+	border: 1px groove  #97c47b;
+}
+
+
+#dzien{
+    font-size: larger;
+}
+#wydarzenie{
+    font-style: italic;
+    list-style-type: disc;
+    
+    
+}
+#dzienKal{
+   height: 108px;
+   width: 108px; 
+}
+#nr_dnia1{
+    width: 108px;
+    height: 30px;
+    background-color: #97c47b;
+}
+#nr_dnia{
+	font-size:medium;
+    table-layout: fixed; 
+    width: 108px;
+    height: 20px;
+    background-color: #d1f6bb;
+}
+#przycisk_usun{
+    font-size: small;
+    width: 18px;
+    height: 18px;
+}
+
+ul li a { text-decoration: none; color: #000; }
+ul li.active { background: color: #fff; }
+ul li.active a { color: #fff; }
+#z1, #z2, #z3, #z4, #z5 { 
+	font-size: large;
+	font-family:calibri;
+	color:#000; 
+	min-height:200px; 
+	width:824px; 
+	margin-top:0px; 
+	padding: 10px; 
+	background:#FFC; 
+	display: none;
+	border-style:solid;
+	border-width:thick;
+	border-color:#030;
+	position:relative;
+}
+#z1 { display: block; }
+
+
+#tab_terminarz{
+    width: 330px;
+    text-align: left;
+	margin-left:180px;
+
+}
+#szczegolyTerm{
+	margin-left:180px;
+	height:100px;
+}
+
+
+#rejestracja{
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:0px;
+    background-color:  #FFC;
+    width: 600px;
+    height: 500px;
+    font-family: calibri;
+    font-size: large;
+    text-align: center;
+	border: 3px groove #97c47b ;
+}
+
+
+/* KALENDARZ!!!!!!!! #97c47b*/
+table.jCalendar {
+	border: 1px solid #000;
+	background: #aaa;
+    border-collapse: separate;
+    border-spacing: 2px;
+}
+table.jCalendar th {
+	background: #333;
+	color: #fff;
+	font-weight: bold;
+	padding: 3px 5px;
+}
+
+table.jCalendar td {
+	background: #ccc;
+	color: #000;
+	padding: 3px 5px;
+	text-align: center;
+}
+table.jCalendar td.other-month {
+	background: #ddd;
+	color: #aaa;
+}
+table.jCalendar td.today {
+	background: #666;
+	color: #fff;
+}
+table.jCalendar td.selected {
+	background: #f66;
+	color: #fff;
+}
+table.jCalendar td.selected.dp-hover {
+	background: #f33;
+	color: #fff;
+}
+table.jCalendar td.dp-hover,
+table.jCalendar tr.activeWeekHover td {
+	background: #fff;
+	color: #000;
+}
+table.jCalendar tr.selectedWeek td {
+	background: #f66;
+	color: #fff;
+}
+table.jCalendar td.disabled, table.jCalendar td.disabled.dp-hover {
+	background: #bbb;
+	color: #888;
+}
+table.jCalendar td.unselectable,
+table.jCalendar td.unselectable:hover,
+table.jCalendar td.unselectable.dp-hover {
+	background: #bbb;
+	color: #888;
+}
+
+/* For the popup */
+
+/* NOTE - you will probably want to style a.dp-choose-date - see how I did it in demo.css */
+
+div.dp-popup {
+	position: relative;
+	background: #ccc;
+	font-size: 10px;
+	font-family: arial, sans-serif;
+	padding: 2px;
+	width: 171px;
+	line-height: 1.2em;
+}
+div#dp-popup {
+	position: absolute;
+	z-index: 199;
+}
+div.dp-popup h2 {
+	font-size: 12px;
+	text-align: center;
+	margin: 2px 0;
+	padding: 0;
+}
+a#dp-close {
+	font-size: 11px;
+	padding: 4px 0;
+	text-align: center;
+	display: block;
+}
+a#dp-close:hover {
+	text-decoration: underline;
+}
+div.dp-popup a {
+	color: #000;
+	text-decoration: none;
+	padding: 3px 2px 0;
+}
+div.dp-popup div.dp-nav-prev {
+	position: absolute;
+	top: 2px;
+	left: 4px;
+	width: 100px;
+}
+div.dp-popup div.dp-nav-prev a {
+	float: left;
+}
+/* Opera needs the rules to be this specific otherwise it doesn't change the cursor back to pointer after you have disabled and re-enabled a link */
+div.dp-popup div.dp-nav-prev a, div.dp-popup div.dp-nav-next a {
+	cursor: pointer;
+}
+div.dp-popup div.dp-nav-prev a.disabled, div.dp-popup div.dp-nav-next a.disabled {
+	cursor: default;
+}
+div.dp-popup div.dp-nav-next {
+	position: absolute;
+	top: 2px;
+	right: 4px;
+	width: 100px;
+}
+div.dp-popup div.dp-nav-next a {
+	float: right;
+}
+div.dp-popup a.disabled {
+	cursor: default;
+	color: #aaa;
+}
+div.dp-popup td {
+	cursor: pointer;
+}
+div.dp-popup td.disabled {
+	cursor: default;
+}
+
+
+/* located in demo.css and creates a little calendar icon
+ * instead of a text link for "Choose date"
+ */
+a.dp-choose-date {
+	float: left;
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	margin: 5px 3px 0;
+	display: block;
+	text-indent: -2000px;
+	overflow: hidden;
+	background: url(images/calendar_icon.gif) no-repeat; 
+}
+a.dp-choose-date.dp-disabled {
+	background-position: 0 -20px;
+	cursor: default;
+}
+/* makes the input field shorter once the date picker code
+ * has run (to allow space for the calendar icon
+ */
+input.dp-applied {
+	width: 140px;
+	float: left;
+}
+
+
+
+
+
+
+
+

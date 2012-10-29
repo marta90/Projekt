@@ -21,15 +21,22 @@ urlpatterns = patterns('',
     (r'^rememberPassword$', views.przypomnijHaslo),             
     (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),    #potwierdzenie rejestracji poprzez link aktywacyjny
     (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
+    (r'^shout/(.*)$', views.dodajShout), 
     
     #ANDROID
-    (r'^test$', views.test),                                    #klasa do testow
-    (r'^getEventsAndroid$', views.mojeWydarzeniaAND),           #przeslanie do And. zblizajacych sie wydarzen
-    (r'^getLastEventsAndroid$', views.ostatnieWydarzeniaAND),   #przeslanie do And. ostatnio dodanych wydarzen
-    (r'^shout$', views.dodajWShoutboxieAND),                    #zapisanie wiadomosci z And. w bazie - Jeszcze nie obslugiwane
-    
+    (r'^test$', views.test),                                                        #klasa do testow
+    (r'^getEventsAndroid$', views.mojeWydarzeniaAND),                               #przeslanie do And. zblizajacych sie wydarzen
+    (r'^getLastEventsAndroid$', views.ostatnieWydarzeniaAND),                       #przeslanie do And. ostatnio dodanych wydarzen
+    (r'^getTeachersAndroid$', views.listaWykladowcowAND),                           #przeslanie do And. listy wykladowcow
+    (r'^getTeachersTutorialsAndroid$', views.konsultacjeWykladowcowAND),            #przeslanie do And. konsultacji wybranego wykladowcy
+    (r'^getTeachersTimetablesAndroid$', views.planyWykladowcowAND),                 #przeslanie do And. planu wybranego wykladowcy
+    (r'^getBuildingsAndroid$', views.budynkiAND),
+    (r'^getCoursesAndroid$', views.kursyAND),  
+    (r'^shoutAndroid$', views.dodajWShoutboxieAND),      
+
     # MEDIA
-    (r'^media/html/portal.html$', views.zaladujPortal),     
+    (r'^media/html/portal.html$', views.zaladujPortal),
+    (r'^media/html/news.html$', views.zaladujNewsy), 
     (r'^media/html/timetable.html$', views.zaladujPlan),
     (r'^media/html/calendar.html$', views.zaladujKalendarz),
     (r'^media/html/teachers.html$', views.zaladujWykladowcow), 
