@@ -22,25 +22,59 @@ def glowna(request):
 		nick = request.session['nick']
 		if 'content' not in request.session.keys():
 			request.session['content'] = 'news'
-		return render_to_response('index.html', {'strona':'news', 'nick':nick, 'wyloguj':"wyloguj"}) #DODAC WYSWIETLANIE ZALOGOWANEGO UZYTKOWNIKA
+		return render_to_response('index.html', {'strona':'news', 'nick':nick, 'wyloguj':"wyloguj"})
 	else:
-		return render_to_response('index.html', {'strona':'portal', 'logowanie':True}) #TU MA BYC NA STRONIE MENU Z LOGOWANIEM
+		return render_to_response('index.html', {'strona':'portal', 'logowanie':True})
 
+def uz(nick):
+	return models.Uzytkownik.objects.get(nick=nick)
+
+def uzSesja(request):
+	return models.Uzytkownik.objects.get(nick=request.session['nick'])
+
+def kier(idK):
+	return models.Kierunek.objects.get(id = idK)
+
+def kierSesja(request):
+	return models.Kierunek.objects.get(id = request.session['spec'])
+
+def stud(indeks):
+	return models.Student.objects.get(indeks = indeks)
+
+def studSesja(request):
+	uzytkownik = uzSesja(request)
+	return models.Student.objects.get(uzytkownik = uzytkownik)
+
+def post(request):
+	if request.method == 'POST':
+		return True
+	else:
+		return False
+
+# Dodanie wiadomosci do shoutboxa
 def dodajShout(request, wiadomosc):
-	#u = models.Uzytkownik.objects.get(nick = request.session['nick'])
-	u = models.Uzytkownik.objects.get(nick = 'nick1')
+	uzytkownik = uzSesja(request)
+	kierunek = kierSesja(request)
+	stopien = request.session['type']
+	semestr = request.session['semester']
 	if wiadomosc != "":
-		s = models.Shoutbox(uzytkownik = u, tresc = wiadomosc, data = datetime.datetime.now(), czyWazne = False)
-		s.save()
-	return HttpResponseRedirect("/media/html/news.html")
+		shout = models.Shoutbox(uzytkownik = uzytkownik,
+								tresc = wiadomosc,
+								data = datetime.datetime.now(),
+								czyWazne = False,
+								kierunek = kierunek,
+								rodzajStudiow = stopien,
+								semestr = semestr)
+		shout.save()
+	return HttpResponseRedirect("/media/html/shoutbox.html")
 
 # Sprawdzenie czy sesja jest otwarta
 def jestSesja(request):
-	return ('nick' in request.session) & ('idUz' in request.session)
+	return ('nick' in request.session)
 
 # Wyswietlenie rejestracji
 def rejestruj(request):
-	if request.method == 'POST':
+	if post(request):
 		nick = request.POST['fld_loginCheck']
 		indeks = request.POST['fld_indexNumber']
 		wydz = models.Wydzial.objects.all()
@@ -51,7 +85,7 @@ def rejestruj(request):
 # Rejestracja użytkownika
 @transaction.commit_on_success
 def zarejestruj(request):
-	if request.method == 'POST':
+	if post(request):
 		nick = 'fld_nick' in request.POST.keys()
 		indeks = 'fld_index' in request.POST.keys()
 		haslo = 'fld_pass' in request.POST.keys()
@@ -59,7 +93,7 @@ def zarejestruj(request):
 		imie = 'fld_name' in request.POST.keys()
 		nazwisko = 'fld_lastName' in request.POST.keys()
 		semestr = 'select_semester' in request.POST.keys()
-		kierunek = 'select_faculty' in request.POST.keys()
+		kierunek = 'select_specialization' in request.POST.keys()
 		stopienStudiow = 'select_type' in request.POST.keys()
 		regulamin = 'cbox_rules' in request.POST.keys()
 		zgoda = 'cbox_permission' in request.POST.keys()
@@ -72,11 +106,11 @@ def zarejestruj(request):
 			imie = request.POST['fld_name']
 			nazwisko = request.POST['fld_lastName']
 			semestr = request.POST['select_semester']
-			kierunek = request.POST['select_faculty']
+			kierunek = request.POST['select_specialization']
 			stopienStudiow = request.POST['select_type']
 			poprawnosc = sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, stopienStudiow)
 			if(poprawnosc):
-				kierunek = models.Kierunek.objects.get(id = request.POST['select_faculty'])
+				kierunek = kier(request.POST['select_specialization'])
 				haslo = sha256_crypt.encrypt(haslo)
 				uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl")
 				uzytkownik.save()
@@ -125,7 +159,7 @@ def sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, 
 		return False
 	
 	try:
-		kierunekOk = models.Kierunek.objects.get(id = kierunek)
+		kierunekOk = kier(kierunek)
 	except:
 		return False
 	
@@ -145,27 +179,14 @@ def sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, 
 		return False
 	return True
 
-# Klasa do testow
-def test(request):
-	if True:
-		indeks = '121212'
-		try:
-			student = models.Student.objects.get(indeks = indeks)
-			if (student.czyAktywowano == False):
-				student.aktywator = wygenerujAktywator()
-				student.save()
-				wyslijPotwierdzenie(student)
-			else:
-				return HttpResponse("Twoje konto jest już aktywne")
-		except:
-			return HttpResponse("Nie ma takiego uzytkownika")
-	return HttpResponse("Fail")
 
-def przeslijAktywatorPonownie():
-	if request.method == 'POST' & 'fld_index' in request.POST.keys():
+
+
+def przeslijAktywatorPonownie(request):
+	if post(request) & 'fld_index' in request.POST.keys():
 		indeks = request.POST['fld_index']
 		try:
-			student = models.Student.objects.get(indeks = indeks)
+			student = stud(indeks)
 			if (student.czyAktywowano == False):
 				student.aktywator = wygenerujAktywator()
 				student.save()
@@ -183,6 +204,7 @@ def wygenerujAktywator():
 	random = random.SystemRandom()
 	return ''.join([random.choice(allowed_chars) for i in range(33)])
 
+# Funkcja do oprogramowania
 # Przypomnienie hasla
 def przypomnijHaslo(request):
 	return 0
@@ -196,20 +218,24 @@ def wyslijPotwierdzenie(student):
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
 def potwierdzRejestracje(request, aktywator, indeks):
-	st = models.Student.objects.filter(indeks=indeks)
-	if st.exists():
-		student = models.Student.objects.get(indeks=indeks)
+	try:
+		student = stud(indeks)
 		if student.aktywator == aktywator:
 			student.czyAktywowano = True
 			student.save()
 			return HttpResponse("Udało się aktywować")
-	return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
+		else:
+			HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	
+	except:
+		return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
 
 # Sprawdzenie czy dany uzytkownik jest studentem	
 def jestStudentem(uzytkownik):
-	st = models.Student.objects.filter(uzytkownik=uzytkownik)
-	odp = st.exists()
-	return odp
+	try:
+		student = models.Student.objects.get(uzytkownik=uzytkownik)
+		return True
+	except:
+		return False
 
 # Sprawdzenie czy dany uzytkownik musi zmienić hasło (mineło 30 dni)
 def czyZmienicHaslo(uzytkownik):
@@ -221,17 +247,19 @@ def czyZmienicHaslo(uzytkownik):
 	else:
 		return False
 
+'''
 # Logowanie	
-def logowanie(request):	 #Dodaj sprawdzanie aktywacje i sprawdzanie hasla > 30 dni
-	if request.method == 'POST':
+def logowanie(request):
+	if post(request):
 		zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
 		bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
-		zmienHaslo = 'Coś ze zmianą hasła'
+		kontoNieaktywne = 'Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link'
+		zmianaHasla = 'Trzeba zmienić hasło'
+		
 		nickPost = request.POST['fld_login']
 		hasloPost = request.POST['fld_pass']
-		uz = models.Uzytkownik.objects.filter(nick=nickPost)
-		if uz.exists():
-			uzytkownik = models.Uzytkownik.objects.get(nick=nickPost)
+		try:
+			uzytkownik = uz(nickPost)
 			haslo = uzytkownik.haslo
 			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
 			if(zgodnosc):
@@ -241,28 +269,80 @@ def logowanie(request):	 #Dodaj sprawdzanie aktywacje i sprawdzanie hasla > 30 d
 						if czyZmienicHaslo(uzytkownik):
 							return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
 						else:
-							request.session['nick'] = nickPost # SESJA
-							request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
-							request.session['content'] = 'news'
-							return HttpResponseRedirect('/')
+							try:
+								kierunek = student.kierunek.all()[:1].get()
+								request.session['spec'] = kierunek.id
+								infoOKierunku = models.KierunkiStudenta.objects.get(student = student, kierunek = kierunek)
+								request.session['type'] = infoOKierunku.rodzajStudiow
+								request.session['semester'] = infoOKierunku.semestr
+								request.session['nick'] = nickPost
+								request.session['content'] = 'news'
+								return HttpResponseRedirect('/')
+							except:
+								return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 					else:
-						return HttpResponse('Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link')
+						return HttpResponse(kontoNieaktywne)
 				else:
 					if czyZmienicHaslo(uzytkownik):
-						return HttpResponse('Trzeba zmienić hasło')
+						return HttpResponse(zmianaHasla)
 					else:
-						request.session['nick'] = nickPost # SESJA
-						request.session['idUz'] = models.Uzytkownik.objects.get(nick=nickPost).id # SESJA
+						request.session['nick'] = nickPost
 						request.session['content'] = 'news'
 						return HttpResponseRedirect('/')
 			else:
 					return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
-		else:
-				return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
-				#return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
+		except:
+				return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 	else:
 			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 
+'''
+
+
+# Logowanie	
+def logowanie(request):
+	if post(request):
+		zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
+		bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
+		kontoNieaktywne = 'Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link'
+		zmianaHasla = 'Trzeba zmienić hasło'
+		
+		nickPost = request.POST['fld_login']
+		hasloPost = request.POST['fld_pass']
+		if True:
+			uzytkownik = uz(nickPost)
+			haslo = uzytkownik.haslo
+			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
+			if(zgodnosc):
+				if jestStudentem(uzytkownik):
+					student = models.Student.objects.get(uzytkownik=uzytkownik)
+					if student.czyAktywowano:
+						if czyZmienicHaslo(uzytkownik):
+							return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmianaHasla, 'zmianaHasla': True})
+						else:
+							
+							kierunek = student.kierunek.all()[:1].get()
+							request.session['spec'] = kierunek.id
+							infoOKierunku = models.KierunkiStudenta.objects.get(student = student, kierunek = kierunek)
+							request.session['type'] = infoOKierunku.rodzajStudiow
+							request.session['semester'] = infoOKierunku.semestr
+							request.session['nick'] = nickPost
+							request.session['content'] = 'news'
+							return HttpResponseRedirect('/')
+
+					else:
+						return HttpResponse(kontoNieaktywne)
+				else:
+					if czyZmienicHaslo(uzytkownik):
+						return HttpResponse(zmianaHasla)
+					else:
+						request.session['nick'] = nickPost
+						request.session['content'] = 'news'
+						return HttpResponseRedirect('/')
+			else:
+					return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
+	else:
+			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 # Wylogowanie z serwisu - usunięcie sesji
 def wylogowanie(request):
 	try:
@@ -282,7 +362,7 @@ def nickWolny(nick):
 
 # Czy nick jest poprawny - dozwolone znaki
 def nickPoprawny(nick):
-	ok = len(nick)>=2
+	ok = len(nick)>=2 & len(nick) <=20
 	pattern = '^[A-Za-z0-9_-]*$'
 	return pasuje(pattern, nick) & ok
 	
@@ -326,19 +406,18 @@ def pobierzKierunki(request, idWydz):
 	kierunki = models.Kierunek.objects.filter(wydzial__id=idWydz)
 	odp = '<option value=0>Wybierz kierunek...</option>'
 	for k in kierunki:
-		#odp = odp + 'obj.options[obj.options.length] = new Option(\''+ k.nazwa +'\' , \'' + str(k.id) + '\'); '
-		odp = odp + '<option value=\'' + str(k.id) +'\'>' + k.nazwa + '</option>'
+		odp = odp + '<option value=\'' + str(k.id) +'\'>' + str(k.id) + k.nazwa + '</option>'
 	return HttpResponse(odp)
 
 #Pobieranie Semestrów dla poszczególnych kierunków i typu studiów. Potrzebne przy rejestracji
 def pobierzSemestry(request, idSpec, idTyp):
-	k = models.Kierunek.objects.get(id=idSpec)
+	kierunek = kier(idSpec)
 	odp = ""
 	if idTyp == "1":
-		for i in range(1, k.liczbaSemestrow1st + 1):
+		for i in range(1, kierunek.liczbaSemestrow1st + 1):
 			odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
 	if idTyp == "2":
-		for i in range(1, k.liczbaSemestrow2stPoInz + 1):
+		for i in range(1, kierunek.liczbaSemestrow2stPoInz + 1):
 			odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
 	return HttpResponse(odp)
 
@@ -348,18 +427,44 @@ def zaladujPortal(request):
 		return zaladujNewsy(request)
 	else:
 		return render_to_response('portal.html')
+'''
+def zaladujNewsy(request):
+	uzytkownik = uzSesja(request)
+	kierunek = kierSesja(request)
+	semestr = request.session['semester']
+	stopien = request.session['type']
+	shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
+											  semestr = semestr,
+											  rodzajStudiow = stopien).order_by('data')[:10]
+	shoutbox = shoutbox.reverse()
+	return render_to_response('news.html', {'rozmowy':shoutbox ,'uz':uzytkownik})
+'''
 
 def zaladujNewsy(request):
-	shoutbox = models.Shoutbox.objects.all().order_by('data')[:10]
-	shoutbox = shoutbox.reverse
-	#uzytkownik = models.Uzytkownik.objects.get(nick = request.session['nick'])
-	u = models.Uzytkownik.objects.get(nick = 'nick1')
-	return render_to_response('news.html', {'rozmowy':shoutbox ,'uz':u})
+	kierunek = kierSesja(request)
+	semestr = request.session['semester']
+	stopien = request.session['type']
+	shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
+											  semestr = semestr,
+											  rodzajStudiow = stopien).order_by('data')[:10]
+	shoutbox = shoutbox.reverse()
+	scroll ='objDiv.scrollTop = objDiv.scrollHeight;'
+	return render_to_response('news.html', {'rozmowy':shoutbox, 'scroll':scroll})
+
+def zaladujShoutbox(request):
+	kierunek = kierSesja(request)
+	semestr = request.session['semester']
+	stopien = request.session['type']
+	shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
+											  semestr = semestr,
+											  rodzajStudiow = stopien).order_by('data')[:10]
+	shoutbox = shoutbox.reverse()
+	return render_to_response('shoutbox.html', {'rozmowy':shoutbox})
 
 # Zaladowanie strony timetable.html do diva na stronie glownej
 def zaladujPlan(request):
 	if jestSesja(request):
-		st = models.Student.objects.get(uzytkownik = request.session['idUz'])
+		st = studSesja(request)
 		planPn = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'pn').order_by('grupa__godzinaOd')
 		planWt = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'wt').order_by('grupa__godzinaOd')
 		planSr = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
@@ -395,14 +500,18 @@ def zaladujKonto(request):
 
 # Wysyłanie maila do admina
 def wyslijEmail(request):
-	if request.method == 'POST':
-		do = "179298@student.pwr.wroc.pl"
-		od = "179298@student.pwr.wroc.pl"
+	if post(request):
+		do = "pwrtracker@gmail.com"
+		od = "pwrtracker@gmail.com"
 		mailZwrotny = request.POST['fld_email'].encode('utf-8')
 		tytul = request.POST['fld_topic'].encode('utf-8')
 		tresc = request.POST['fld_text'].encode('utf-8')
 		send_mail(tytul, tresc+ "\n\nWiadomość wysłana od\n" + mailZwrotny, od, [do], fail_silently=False)
-		send_mail("PwrTracker - wysłano wiadomość: " + tytul, "Wysłałeś wiadomość o następującej treści:\n\n" + tresc, od, [mailZwrotny], fail_silently=False)
+		send_mail("PwrTracker - wysłano wiadomość: " + tytul,
+				  "Wysłałeś wiadomość o następującej treści:\n\n" + tresc,
+				  od,
+				  [mailZwrotny],
+				  fail_silently=False)
 		return HttpResponse('Wysłano wiadomości')
 
 #############################################
@@ -415,13 +524,44 @@ def wyslijEmail(request):
 def dodajWShoutboxieAND(request):
 	if request.method == 'POST':
 		nick = request.POST['nick']
+		idKierunku = request.POST['spec']
+		stopien = request.POST['type']
+		semestr = request.POST['semester']
 		wiadomosc = request.POST['message']
-		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+		uzytkownik = uz(nick)
+		kierunek = kier(idKierunku)
 		if wiadomosc != "":
-			shout = models.Shoutbox(uzytkownik = uzytkownik, tresc = wiadomosc, data = datetime.datetime.now())
+			shout = models.Shoutbox(uzytkownik = uzytkownik,
+									tresc = wiadomosc,
+									data = datetime.datetime.now(),
+									czyWazne = False,
+									kierunek = kierunek,
+									rodzajStudiow = stopien,
+									semestr = semestr)
 			shout.save()
-			return HttpResponse("Zapisalo")
-	return HttpResponse("Nie zapisało")
+			return shoutboxAND(request)
+	return HttpResponse("Failed")
+
+# Android - wyświetlenie wiadomości z shoutboxa
+def shoutboxAND(request):
+	if request.method == 'POST':
+		nick = request.POST['nick']
+		idKierunku = request.POST['spec']
+		stopien = request.POST['type']
+		semestr = request.POST['semester']
+		kierunek = models.Kierunek.objects.get(id = idKierunku)
+		shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
+												  rodzajStudiow = stopien,
+												  semestr = semestr).order_by('data')[:10]
+		shoutbox = shoutbox.reverse()
+		idUzShoutboxa = shoutbox.values_list('uzytkownik_id', flat=True)
+		uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
+		obiekt = list(shoutbox) + list(uz)
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik'))
+		return HttpResponse(wynik, mimetype="application/json")
+	else:
+		return HttpResponse("Failed")
 
 # Android - Wyslanie na androida zblizajacych sie wydarzen
 def mojeWydarzeniaAND(request):
@@ -504,6 +644,12 @@ def kursyAND(request):
 
 
 
+# Klasa do testow
+def test(request):
+	uzytkownik = uz('marta')
+	return HttpResponse(uzytkownik.nick)
+		
+		#return HttpResponse(idUzShoutboxa)
 
 
 

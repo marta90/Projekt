@@ -118,6 +118,9 @@ class Shoutbox(models.Model):
     tresc = models.CharField(max_length = 250)
     data = models.DateTimeField(auto_now_add = True)
     czyWazne = models.BooleanField(default = False)
+    kierunek = models.ForeignKey(Kierunek)
+    rodzajStudiow = models.IntegerField()
+    semestr =  models.IntegerField()
     def __unicode__(self):
         return self.tresc
     class Meta:

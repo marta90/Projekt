@@ -32,11 +32,13 @@ urlpatterns = patterns('',
     (r'^getTeachersTimetablesAndroid$', views.planyWykladowcowAND),                 #przeslanie do And. planu wybranego wykladowcy
     (r'^getBuildingsAndroid$', views.budynkiAND),
     (r'^getCoursesAndroid$', views.kursyAND),  
-    (r'^shoutAndroid$', views.dodajWShoutboxieAND),      
-
+    (r'^shoutAndroid$', views.dodajWShoutboxieAND),
+    (r'^getShoutboxAndroid$', views.shoutboxAND),
+    
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),
-    (r'^media/html/news.html$', views.zaladujNewsy), 
+    (r'^media/html/news.html$', views.zaladujNewsy),
+    (r'^media/html/shoutbox.html$', views.zaladujShoutbox),
     (r'^media/html/timetable.html$', views.zaladujPlan),
     (r'^media/html/calendar.html$', views.zaladujKalendarz),
     (r'^media/html/teachers.html$', views.zaladujWykladowcow), 

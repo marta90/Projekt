@@ -5,6 +5,11 @@ function loadContent(name) {
     return false;
 }
 
+function loadContentAfter(name, funct) {
+    $("#main-content").load("/media/html/"+name+".html", funct);
+    return false;
+}
+
 function createRequest() {
     try {
         request = new XMLHttpRequest();

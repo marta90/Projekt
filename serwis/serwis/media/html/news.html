@@ -1,45 +1,153 @@
-﻿<script type="text/javascript" src="media/js/jquery-1.8.2.js"></script>			
 <script type="text/javascript">			
-				
-	document.getElementById("shout").focus();
-	
-	function shout()
-	{
-		var message = document.getElementById("shout").value
+			
+	//document.getElementById("fld_sbox_text").focus();
+	//$("#portal-shoutbox-scroll").load("media/html/shoutbox.html", scrollDown);
+	//setTimeout(refresh, 5000);
+	var objDiv = document.getElementById("portal-shoutbox-scroll");
+	function shout(){
+		var message = document.getElementById("fld_sbox_text").value;
 		message = encodeURIComponent(message);
-		$("#main-content").load("shout/" + message);
+		document.getElementById("fld_sbox_text").value = "";
+		document.getElementById("fld_sbox_text").focus();
+		$("#portal-shoutbox-scroll").load("shout/" + message);
 		return false;
 	}
-	
-	var objDiv = document.getElementById("conversation");
-	objDiv.scrollTop = objDiv.scrollHeight;		  
-</script>
 
-<div id=shoutbox >
-	<div id="conversation">
-		{% for r in rozmowy reversed %}
-		<table  id = "shoutbox_table" style="table-layout: fixed;">
-		    <tr id = "shoutbox_tr" >
-			   <td id = "shoutbox_td" style="word-wrap: break-word"><b>{{r.uzytkownik.nick}} : </b>{{r.tresc}}</td>
-			</tr>
-			<tr>
-				<label style="font-size: small; text-align: left">{{ r.data|date:"SHORT_DATE_FORMAT" }}, {{ r.data|date:"G:i:s"  }}</label> 
-		    </tr>  
-		</table> 
-		{% endfor %}
-		      
-	</div>
-	<div id="add_shout">
-		<table style="margin-bottom: 10px">
-			<tr>
-				<td><label><b>{{uz.nick}}</b> napisz:</label></td>
-				<td><input class="text" id="shout" onkeydown="if (event.keyCode == 13) document.getElementById('send-shout').click()" name = "shout" style="width: 520px" type="text" MAXLENGTH="255" /></td>
-				<td><input id="send-shout" name="send-shout"  type="submit" value="Dodaj!" class="butt" onclick="shout()"/></td>
-			</tr>
-		</table>
-	</div>
-</div>
+	function refresh(){
+		$("#portal-shoutbox-scroll").load("media/html/shoutbox.html", scrollDown);
+		setTimeout(refresh, 5000);
+	}
 	
-				
-				
-				
+	function scrollDown(){
+		objDiv.scrollTop = objDiv.scrollHeight;
+	}
+	scrollDown();
+	setTimeout(refresh, 5000);
+
+		  
+</script>
+					
+					
+					<div id="portal-shoutbox">
+					<div class="box-title">Shoutbox</div>
+					<div id="portal-shoutbox-scroll">
+
+
+						{% for r in rozmowy reversed %}
+						<div class="portal-text">
+							<div class="box-img-add-on"></div>
+							<div class="box-date">{{ r.data|date:"SHORT_DATE_FORMAT" }} {{ r.data|date:"G:i:s"  }}</div>
+							<div class="box-text"><b>{{r.uzytkownik.nick}} : </b>{{r.tresc}}</div>
+						</div>
+						{% endfor %}
+						
+					
+
+					</div>
+					
+
+						<div id="portal-write-text">
+							<input class="CLASS" type="text" name="fld_sbox_text" id="fld_sbox_text" onkeydown="if (event.keyCode == 13) shout()" value="" style="width: 870px;" /><!-- jak się dorobi do tego klasę to wywalić WIDTH -->
+							<input class="CLASS" type="submit" name="btn_sbox_send" id="btn_sbox_send" onclick="shout()" value="Wyślij" />
+						</div>
+
+				</div>
+				<div id="portal-important-msgs">
+					<div class="box-title">Ważne wiadomości</div>
+					<div id="portal-important-msgs-scroll">
+						<div class="portal-text">
+							<div class="box-img-del"><a href="#"><img src="static/img/blank.png" alt="" title="Usuń tę wiadomość z listy ważnych wiadomości" width="28" height="28" /></a></div>
+							<div class="box-date">24-10-2012 18:54:42</div>
+							<div class="box-text"><b>Stefan: </b>Daty od 2 dni wstecz normalnie</div>
+						</div>
+						<div class="portal-text">
+							<div class="box-img-del"><a href="#"><img src="static/img/blank.png" alt="" title="Usuń tę wiadomość z listy ważnych wiadomości" width="28" height="28" /></a></div>
+							<div class="box-date">Wczoraj 07:06:01</div>
+							<div class="box-text"><b>Stefan: </b>A aktualna 'Dzisiaj' i dzień wcześniej 'Wczoraj'</div>
+						</div>
+						<div class="portal-text">
+							<div class="box-img-del"><a href="#"><img src="static/img/blank.png" alt="" title="Usuń tę wiadomość z listy ważnych wiadomości" width="28" height="28" /></a></div>
+							<div class="box-date">Wczoraj 11:34:48</div>
+							<div class="box-text"><b>Stefan: </b>Niech cała ta część wyświetla się tylko, gdy będzie tu cokolwiek!</div>
+						</div>
+						<div class="portal-text">
+							<div class="box-img-del"><a href="#"><img src="static/img/blank.png" alt="" title="Usuń tę wiadomość z listy ważnych wiadomości" width="28" height="28" /></a></div>
+							<div class="box-date">Wczoraj 11:34:48</div>
+							<div class="box-text"><b>Stefan: </b>Zrobimy też tak, że można usunąć własne ustawione na 'ważna wiadomość', a inna sprawa to jak długo je tu trzymać?</div>
+						</div>
+						<div class="portal-text">
+							<div class="box-img-del-off"></div>
+							<div class="box-date">Dzisiaj 19:14:48</div>
+							<div class="box-text"><b>Stefan: </b>Żeby to zrobić standardowo nie może być w ogóle linku i obrazka w htmlu w box-img-del i sama klasa musi się nazywać box-img-del-off</div>
+						</div>
+					</div>
+				</div>
+				<div id="portal-my-events">
+					<div class="box-title">Moje wydarzenia</div>
+					<div id="portal-my-events-scroll">
+						<div class="portal-event-text">
+							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
+							<div class="box-event-text"><a href="#" title="">W nickach musimy dopuszczać max 20 znaków!</a></div>
+							<div class="box-event-where">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+						<div class="portal-event-text">
+							<div class="box-event-date">30-11-2012 cały dzień</div>
+							<div class="box-event-text"><a href="#" title="">Opis będzie w kalendarzu lub też tu w chmurce; brak zasięgu wydarzenia</a></div>
+							<div class="box-event-where">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+						<div class="portal-event-text">
+							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
+							<div class="box-event-text"><a href="#" title="">W nickach musimy dopuszczać max 20 znaków!</a></div>
+							<div class="box-event-where">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+						<div class="portal-event-text">
+							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
+							<div class="box-event-text"><a href="#" title="">W nickach musimy dopuszczać max 20 znaków!</a></div>
+							<div class="box-event-where">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+					</div>
+				</div>
+				<div id="portal-new-events">
+					<div class="box-title">Nowe wydarzenia</div>
+					<div id="portal-new-events-scroll">
+						<div class="portal-event-text"><!-- TU JEST 20 ZAMIAST 28 !!!!!!!!!!!!!!!!!!!!!1 -->
+							<a href="#" class="box-img-add-event"><!-- <img src="static/img/blank.png" alt="" title="" width="28" height="20" /> --></a>
+							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
+							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
+							<div class="box-event-where-new">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+						<div class="portal-event-text">
+							<div class="box-img-add-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="20" /></a></div>
+							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
+							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
+							<div class="box-event-where-new">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+						<div class="portal-event-text">
+							<div class="box-img-add-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="20" /></a></div>
+							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
+							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
+							<div class="box-event-where-new">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+						<div class="portal-event-text">
+							<div class="box-img-add-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="20" /></a></div>
+							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
+							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
+							<div class="box-event-where-new">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+						<div class="portal-event-text">
+							<div class="box-img-update-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="28" /></a></div>
+							<div class="box-event-date">30-11-2012 cały dzień</div>
+							<div class="box-event-text"><a href="#" title="">To jest wydarzenie które ktoś poprawił i mogę je zaktualizować u siebie w kalendarzu</a></div>
+							<div class="box-event-where-new">C-13</div>
+							<div class="box-event-who">Stefan</div>
+						</div>
+					</div>
+				</div>

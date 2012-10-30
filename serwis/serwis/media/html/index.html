@@ -4,7 +4,6 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link rel="stylesheet" type="text/css" href="css/default.css" />
-		<link rel="stylesheet" type="text/css" href="css/css.css" />
 		<script type="text/javascript" src="media/js/ajax.js"></script>
 		<script type="text/javascript" src="media/js/jQuery.js"></script>
 		<script type="text/javascript" src="media/js/myJS.js"></script>
@@ -17,6 +16,8 @@
 				
 			function initPage() {
 				loadContent('{{ strona }}');
+				
+				
 				isJavaScripted();
 			}
 			function wyloguj( ){
@@ -25,6 +26,7 @@
 			function isJavaScripted() {
 				document.getElementById("no-js").style.display='none';
 			}
+		
 		</script>
 	</head>
 	<body>
