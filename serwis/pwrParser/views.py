@@ -24,7 +24,7 @@ def generujPlan(request):
             tabelaA = i.findChildren('a', {'name': re.compile('^hrefZapisaneGrupySluchaczaTabela\d{7}$')}, False) #False wskazuje ze rekursja jest wylaczona
             tabelaB = i.findChildren('a', {'name': re.compile('^hrefZapisaneAdminGrupySluchaczaTabela\d{7}$')}, False) #False wskazuje ze rekursja jest wylaczona
             if len(tabelaA) > 0:    # Jesli sa jakies zapisy
-                zapisyNormalne(request, i, tabelaA[0])
+                zapisyAdministracyjne(request, i, tabelaA[0])
             if len(tabelaB) >0:
                 zapisyAdministracyjne(request, i, tabelaB[0])
     else:
@@ -115,7 +115,6 @@ def pobierzPlan(user, password):
     return content
 
 def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
-        czyKursZaoczny = False
         czyKursZapisany = None
         czyProwadzacyZapisany = None
         k = models.Kurs()          # obiekt bazy tabeli Kurs
@@ -195,6 +194,8 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
             parz = ""
             godzR = None
             godzZ = None
+            czyData = None
+            czyKursZaoczny = False
             
             listaDM = dm.string.split(',', 1)   # oddzielenie daty od miejsca
             if listaDM[0].strip() != "bez terminu":
@@ -206,6 +207,7 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
                 else:
                     dzien = dzienIParz[0]
                     parz = dzienIParz[1]
+                print(dzien)
                 czyData = re.search('^(\d{2,4})-(\d{2})-(\d{2})$', dzien)   # Od daty zaczyna się dla zaocznych
                 if (czyData == None):
                     godz = listaDG[1].split('-', 1) # oddzielenie godz rozp od zak
