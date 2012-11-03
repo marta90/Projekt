@@ -1,0 +1,12 @@
+﻿
+{{ tekst }}
+{% for p in prowadzacy %}
+    <p style = "line-height: 0.1;">
+<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
+    </p>
+<div id = d{{p.id}} class="divinactive">
+    Tutaj będą koncultacje<br>
+    powyższego wykładowcy
+</div>
+{% endfor %}
+

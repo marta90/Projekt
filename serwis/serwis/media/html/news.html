@@ -22,6 +22,7 @@
 		objDiv.scrollTop = objDiv.scrollHeight;
 	}
 	scrollDown();
+	document.getElementById("fld_sbox_text").focus();
 	setTimeout(refresh, 5000);
 
 		  
@@ -36,7 +37,18 @@
 						{% for r in rozmowy reversed %}
 						<div class="portal-text">
 							<div class="box-img-add-on"></div>
-							<div class="box-date">{{ r.data|date:"SHORT_DATE_FORMAT" }} {{ r.data|date:"G:i:s"  }}</div>
+							<div class="box-date">
+								{% if r.data|date:"SHORT_DATE_FORMAT" ==  dzisiaj|date:"SHORT_DATE_FORMAT" %}
+									Dzisiaj
+								{% else %}
+								{% if r.data|date:"SHORT_DATE_FORMAT" ==  wczoraj|date:"SHORT_DATE_FORMAT" %}
+									Wczoraj
+								{% else %}
+									{{ r.data|date:"SHORT_DATE_FORMAT" }}
+								{% endif %}
+								{% endif %}
+								
+								{{ r.data|date:"G:i:s"  }}</div>
 							<div class="box-text"><b>{{r.uzytkownik.nick}} : </b>{{r.tresc}}</div>
 						</div>
 						{% endfor %}
@@ -85,69 +97,35 @@
 				<div id="portal-my-events">
 					<div class="box-title">Moje wydarzenia</div>
 					<div id="portal-my-events-scroll">
+					
+					{% for w in mojeWydarzenia %}
 						<div class="portal-event-text">
-							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
-							<div class="box-event-text"><a href="#" title="">W nickach musimy dopuszczać max 20 znaków!</a></div>
-							<div class="box-event-where">C-13</div>
-							<div class="box-event-who">Stefan</div>
+							<div class="box-event-date">{{ w.dataWydarzenia|date:"SHORT_DATE_FORMAT" }} {{ w.godzinaOd|time:"H:i"  }} - {{ w.godzinaDo|time:"H:i"  }}</div>
+							<div class="box-event-text"><a href="#" title=""><b>{{ w.nazwa }}</b></a></div>
+							<div class="box-event-where">miejsce???</div>
 						</div>
-						<div class="portal-event-text">
-							<div class="box-event-date">30-11-2012 cały dzień</div>
-							<div class="box-event-text"><a href="#" title="">Opis będzie w kalendarzu lub też tu w chmurce; brak zasięgu wydarzenia</a></div>
-							<div class="box-event-where">C-13</div>
-							<div class="box-event-who">Stefan</div>
-						</div>
-						<div class="portal-event-text">
-							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
-							<div class="box-event-text"><a href="#" title="">W nickach musimy dopuszczać max 20 znaków!</a></div>
-							<div class="box-event-where">C-13</div>
-							<div class="box-event-who">Stefan</div>
-						</div>
-						<div class="portal-event-text">
-							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
-							<div class="box-event-text"><a href="#" title="">W nickach musimy dopuszczać max 20 znaków!</a></div>
-							<div class="box-event-where">C-13</div>
-							<div class="box-event-who">Stefan</div>
-						</div>
+					{% endfor %}
 					</div>
 				</div>
 				<div id="portal-new-events">
 					<div class="box-title">Nowe wydarzenia</div>
 					<div id="portal-new-events-scroll">
+					{% for w in wydarzenia %}
 						<div class="portal-event-text"><!-- TU JEST 20 ZAMIAST 28 !!!!!!!!!!!!!!!!!!!!!1 -->
 							<a href="#" class="box-img-add-event"><!-- <img src="static/img/blank.png" alt="" title="" width="28" height="20" /> --></a>
-							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
-							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
-							<div class="box-event-where-new">C-13</div>
-							<div class="box-event-who">Stefan</div>
+							<div class="box-event-date">
+								{% if w.dataWydarzenia == now %}
+									dzisiaj
+								{% else %}
+								{{ w.dataWydarzenia|date:"SHORT_DATE_FORMAT" }}
+								{% endif %}
+								
+								{{ w.godzinaOd|time:"H:i"  }} - {{ w.godzinaDo|time:"H:i"  }}</div>
+							<div class="box-event-text"><a href="#" title="">{{ w.nazwa }}</a></div>
+							<div class="box-event-where-new">miejsce???</div>
+							<div class="box-event-who">{{ w.dodal.nick }}</div>
 						</div>
-						<div class="portal-event-text">
-							<div class="box-img-add-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="20" /></a></div>
-							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
-							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
-							<div class="box-event-where-new">C-13</div>
-							<div class="box-event-who">Stefan</div>
-						</div>
-						<div class="portal-event-text">
-							<div class="box-img-add-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="20" /></a></div>
-							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
-							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
-							<div class="box-event-where-new">C-13</div>
-							<div class="box-event-who">Stefan</div>
-						</div>
-						<div class="portal-event-text">
-							<div class="box-img-add-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="20" /></a></div>
-							<div class="box-event-date">02-11-2012 16:00 - 20:00</div>
-							<div class="box-event-text"><a href="#" title="">To jest jakieś nowe wydarzenie które mogę dodać</a></div>
-							<div class="box-event-where-new">C-13</div>
-							<div class="box-event-who">Stefan</div>
-						</div>
-						<div class="portal-event-text">
-							<div class="box-img-update-event"><a href="#"><img src="static/img/blank.png" alt="" title="" width="28" height="28" /></a></div>
-							<div class="box-event-date">30-11-2012 cały dzień</div>
-							<div class="box-event-text"><a href="#" title="">To jest wydarzenie które ktoś poprawił i mogę je zaktualizować u siebie w kalendarzu</a></div>
-							<div class="box-event-where-new">C-13</div>
-							<div class="box-event-who">Stefan</div>
-						</div>
+					{% endfor %}	
+					
 					</div>
 				</div>

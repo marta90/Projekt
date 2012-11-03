@@ -1,1 +1,106 @@
-﻿WYKŁADOWCY
+﻿<style type="text/css">
+    .divinactive {visibility: hidden; height: 0px; }
+    .divactive {visibility: visible; height: auto; padding-bottom: 10px;}
+</style>
+
+
+<script type="text/javascript">			
+	document.getElementById("name").focus();		
+    function letter(idA){
+        var litera = idA.id;
+        $("#teachers-list").load("getTeachers/" + litera);
+    }
+ /*
+    function showTutorial(idA){
+        var idd = idA.id;
+        idd = "d" + idd;
+        
+        var klasa = document.getElementById(idd).className;
+        if(klasa == 'divinactive')
+            document.getElementById(idd).className = 'divactive';
+        else
+             document.getElementById(idd).className = 'divinactive';
+    }
+ */
+     function showTutorial(idA){
+        var idUrl = idA.id;
+        var idDiv = "d" + idUrl;
+        
+        var klasa = document.getElementById(idDiv).className;
+        if(klasa == 'divinactive')
+        {
+            $("#"+idDiv).load("getTutorial/" + idUrl , function(){
+            document.getElementById(idDiv).className = 'divactive';
+            });
+        }
+        else
+             document.getElementById(idDiv).className = 'divinactive';
+        
+   
+        
+    }
+ 
+    function find(){
+         var nazwa = document.getElementById("name").value;
+		 nazwa = encodeURIComponent(nazwa);
+         $("#teachers-list").load("findTeacher/" + nazwa);
+         
+    }
+</script>
+
+
+
+<b>
+    
+ <p style="font-size: large">   
+<a id="A" href=# onclick="letter(this);">A</a>
+<a id="B" href=# onclick="letter(this);">B</a>
+<a id="C" href=# onclick="letter(this);">C</a>
+<a id="Ć" href=# onclick="letter(this);">Ć</a>
+<a id="D" href=# onclick="letter(this);">D</a>
+<a id="E" href=# onclick="letter(this);">E</a>
+<a id="F" href=# onclick="letter(this);">F</a>
+<a id="G" href=# onclick="letter(this);">G</a>
+<a id="H" href=# onclick="letter(this);">H</a>
+<a id="I" href=# onclick="letter(this);">I</a>
+<a id="J" href=# onclick="letter(this);">J</a>
+<a id="K" href=# onclick="letter(this);">K</a>
+<a id="L" href=# onclick="letter(this);">L</a>
+<a id="Ł" href=# onclick="letter(this);">Ł</a>
+<a id="M" href=# onclick="letter(this);">M</a>
+<a id="N" href=# onclick="letter(this);">N</a>
+<a id="O" href=# onclick="letter(this);">O</a>
+<a id="Ó" href=# onclick="letter(this);">Ó</a>
+<a id="P" href=# onclick="letter(this);">P</a>
+<a id="Q" href=# onclick="letter(this);">Q</a>
+<a id="R" href=# onclick="letter(this);">R</a>
+<a id="S" href=# onclick="letter(this);">S</a>
+<a id="Ś" href=# onclick="letter(this);">Ś</a>
+<a id="T" href=# onclick="letter(this);">T</a>
+<a id="U" href=# onclick="letter(this);">U</a>
+<a id="V" href=# onclick="letter(this);">V</a>
+<a id="W" href=# onclick="letter(this);">W</a>
+<a id="X" href=# onclick="letter(this);">X</a>
+<a id="Y" href=# onclick="letter(this);">Y</a>
+<a id="Z" href=# onclick="letter(this);">Z</a>
+<a id="Ź" href=# onclick="letter(this);">Ź</a>
+<a id="Ż" href=# onclick="letter(this);">Ż</a>
+
+ </p>
+
+
+<p>Wyszukaj <input type="text" name="name" id="name" onkeydown="if (event.keyCode == 13) find()"/> <button id = "findTeacher" onclick="find();">Wyszukaj</button></p>
+</b>
+<br>
+<div id = "teachers-list" style="text-align: left">
+{{ tekst }}
+{% for p in prowadzacy %}
+    <p style = "line-height: 0.1;">
+<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
+    </p>
+<div id = d{{p.id}} class="divinactive">
+    Tutaj będą koncultacje<br>
+    powyższego wykładowcy
+</div>
+{% endfor %}
+</div>

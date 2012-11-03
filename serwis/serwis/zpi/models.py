@@ -52,7 +52,7 @@ class Prowadzacy(models.Model):
     ktoZmienilDane = models.ForeignKey(Uzytkownik, related_name = 'prowadzacy_zmienil')
     konflikt = models.BooleanField(default = False)
     def __unicode__(self):
-        return u'%s %s %s' % (self.tytul, self.imie, self.nazwisko)
+        return u'%s %s, %s' % (self.nazwisko, self.imie, self.tytul)
     class Meta:
         db_table = u'Prowadzacy'
         verbose_name_plural = 'Prowadzacy'

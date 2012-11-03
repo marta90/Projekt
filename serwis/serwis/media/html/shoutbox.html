@@ -1,8 +1,18 @@
-
-						{% for r in rozmowy reversed %}
+{% for r in rozmowy reversed %}
 						<div class="portal-text">
 							<div class="box-img-add-on"></div>
-							<div class="box-date">{{ r.data|date:"SHORT_DATE_FORMAT" }} {{ r.data|date:"G:i:s"  }}</div>
+							<div class="box-date">
+								{% if r.data|date:"SHORT_DATE_FORMAT" ==  dzisiaj|date:"SHORT_DATE_FORMAT" %}
+									Dzisiaj
+								{% else %}
+								{% if r.data|date:"SHORT_DATE_FORMAT" ==  wczoraj|date:"SHORT_DATE_FORMAT" %}
+									Wczoraj
+								{% else %}
+									{{ r.data|date:"SHORT_DATE_FORMAT" }}
+								{% endif %}
+								{% endif %}
+								
+								{{ r.data|date:"G:i:s"  }}</div>
 							<div class="box-text"><b>{{r.uzytkownik.nick}} : </b>{{r.tresc}}</div>
 						</div>
 						{% endfor %}

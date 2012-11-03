@@ -22,7 +22,10 @@ urlpatterns = patterns('',
     (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),    #potwierdzenie rejestracji poprzez link aktywacyjny
     (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
     (r'^pobierzPlan$', views.pobierzPlan),
-    (r'^shout/(.*)$', views.dodajShout), 
+    (r'^shout/(.*)$', views.dodajShout),
+    (r'^getTeachers/(.)$', views.wykladowcaNaLitere),
+    (r'^getTutorial/(.*)$', views.konsultacjeWykladowcy),
+    (r'^findTeacher/(.*)$', views.znajdzWykladowce), 
     
     #ANDROID
     (r'^test$', views.test),                                                        #klasa do testow

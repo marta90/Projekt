@@ -12,9 +12,10 @@ import random
 import re
 import json
 import urllib
+import urllib2
 from collections import defaultdict
 from twill import commands
-
+from django.db.models import Q
 
 
 # Wyswietlenie strony glownej
@@ -68,6 +69,24 @@ def dodajShout(request, wiadomosc):
 								semestr = semestr)
 		shout.save()
 	return HttpResponseRedirect("/media/html/shoutbox.html")
+
+
+def konsultacjeWykladowcy(request, idw):
+	prowadzacy = models.Prowadzacy.objects.get(id = idw)
+	konsultacje = models.Konsultacje.objects.filter(prowadzacy = prowadzacy)
+	response = HttpResponse()
+	response.write("<i>")
+	if konsultacje.exists():
+		for k in konsultacje:
+			response.write(k.dzienTygodnia)
+			if (k.parzystosc == 'TP') or (k.parzystosc == 'TN'):
+				response.write(" " + k.parzystosc)
+			response.write(" " + k.godzinaOd.strftime("%H:%M") + " - " + k.godzinaDo.strftime("%H:%M") + ", bud. ")
+			response.write(k.budynek.nazwa + ", s. " + k.sala + "<br>")
+	else:
+		response.write('Brak informacji o konsultacjach')
+	response.write("</i>")
+	return response
 
 # Sprawdzenie czy sesja jest otwarta
 def jestSesja(request):
@@ -248,12 +267,13 @@ def czyZmienicHaslo(uzytkownik):
 	else:
 		return False
 
-'''
+
 # Logowanie	
 def logowanie(request):
+	bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
 	if post(request):
 		zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
-		bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
+		
 		kontoNieaktywne = 'Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link'
 		zmianaHasla = 'Trzeba zmienić hasło'
 		
@@ -297,53 +317,7 @@ def logowanie(request):
 	else:
 			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 
-'''
 
-
-# Logowanie	
-def logowanie(request):
-	if post(request):
-		zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
-		bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
-		kontoNieaktywne = 'Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link'
-		zmianaHasla = 'Trzeba zmienić hasło'
-		
-		nickPost = request.POST['fld_login']
-		hasloPost = request.POST['fld_pass']
-		if True:
-			uzytkownik = uz(nickPost)
-			haslo = uzytkownik.haslo
-			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
-			if(zgodnosc):
-				if jestStudentem(uzytkownik):
-					student = models.Student.objects.get(uzytkownik=uzytkownik)
-					if student.czyAktywowano:
-						if czyZmienicHaslo(uzytkownik):
-							return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmianaHasla, 'zmianaHasla': True})
-						else:
-							
-							kierunek = student.kierunek.all()[:1].get()
-							request.session['spec'] = kierunek.id
-							infoOKierunku = models.KierunkiStudenta.objects.get(student = student, kierunek = kierunek)
-							request.session['type'] = infoOKierunku.rodzajStudiow
-							request.session['semester'] = infoOKierunku.semestr
-							request.session['nick'] = nickPost
-							request.session['content'] = 'news'
-							return HttpResponseRedirect('/')
-
-					else:
-						return HttpResponse(kontoNieaktywne)
-				else:
-					if czyZmienicHaslo(uzytkownik):
-						return HttpResponse(zmianaHasla)
-					else:
-						request.session['nick'] = nickPost
-						request.session['content'] = 'news'
-						return HttpResponseRedirect('/')
-			else:
-					return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
-	else:
-			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 # Wylogowanie z serwisu - usunięcie sesji
 def wylogowanie(request):
 	try:
@@ -428,18 +402,7 @@ def zaladujPortal(request):
 		return zaladujNewsy(request)
 	else:
 		return render_to_response('portal.html')
-'''
-def zaladujNewsy(request):
-	uzytkownik = uzSesja(request)
-	kierunek = kierSesja(request)
-	semestr = request.session['semester']
-	stopien = request.session['type']
-	shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
-											  semestr = semestr,
-											  rodzajStudiow = stopien).order_by('data')[:10]
-	shoutbox = shoutbox.reverse()
-	return render_to_response('news.html', {'rozmowy':shoutbox ,'uz':uzytkownik})
-'''
+
 
 def zaladujNewsy(request):
 	kierunek = kierSesja(request)
@@ -449,8 +412,18 @@ def zaladujNewsy(request):
 											  semestr = semestr,
 											  rodzajStudiow = stopien).order_by('data')[:10]
 	shoutbox = shoutbox.reverse()
-	scroll ='objDiv.scrollTop = objDiv.scrollHeight;'
-	return render_to_response('news.html', {'rozmowy':shoutbox, 'scroll':scroll})
+	uzytkownik = uzSesja(request)
+	wczoraj = datetime.date.today() - datetime.timedelta(days=1)
+	ileWydarzen = uzytkownik.ileMoichWydarzen
+	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia')[:ileWydarzen]
+	wydarzenia = models.Wydarzenie.objects.all()
+	wydarzeniaUz = uzytkownik.wydarzenie_set.all()
+	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
+	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
+	dzisiaj = datetime.datetime.now()
+	wczoraj = dzisiaj - datetime.timedelta(days = 1)
+	return render_to_response('news.html', {'rozmowy':shoutbox, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj})
+
 
 def zaladujShoutbox(request):
 	kierunek = kierSesja(request)
@@ -460,7 +433,10 @@ def zaladujShoutbox(request):
 											  semestr = semestr,
 											  rodzajStudiow = stopien).order_by('data')[:10]
 	shoutbox = shoutbox.reverse()
-	return render_to_response('shoutbox.html', {'rozmowy':shoutbox})
+	dzisiaj = datetime.datetime.now()
+	wczoraj = dzisiaj - datetime.timedelta(days=1)
+	return render_to_response('shoutbox.html', {'rozmowy':shoutbox, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj})
+
 
 # Zaladowanie strony timetable.html do diva na stronie glownej
 def zaladujPlan(request):
@@ -489,7 +465,56 @@ def zaladujKalendarz(request):
 
 # Zaladowanie strony teachers.html do diva na stronie glownej
 def zaladujWykladowcow(request):
-	return render_to_response('teachers.html')
+	literaDuza = "A"
+	literaMala = literaDuza.lower()
+	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).filter( Q(nazwisko__startswith=literaDuza) | Q(nazwisko__startswith=literaMala)).order_by('nazwiskoD', 'imieD')
+	return render_to_response('teachers.html', {'prowadzacy':wykladowcy})
+
+def wykladowcaNaLitere(request, litera):
+	literaDuza = litera
+	literaMala = litera.lower()
+
+	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).filter( Q(nazwisko__startswith=literaDuza) | Q(nazwisko__startswith=literaMala)).order_by('nazwiskoD', 'imieD')
+	return render_to_response('teachersList.html', {'prowadzacy':wykladowcy})
+
+def znajdzWykladowce(request, nazwa):
+	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).order_by('nazwiskoD', 'imieD')
+	wyrazy = nazwa.split()
+
+	calosc = ""
+	for i in range(len(wyrazy)):
+		wyrazy[i] = usunPolskieZnaki(wyrazy[i]).upper()
+		calosc = calosc + wyrazy[i] + " "
+	calosc = calosc[:-1]
+	#return render_to_response('teachersList.html', {'tekst':wyrazy})
+	ilosc = len(wyrazy)
+	wynik = []
+	propozycje = []
+	for w in wykladowcy:
+		imie = usunPolskieZnaki(w.imie).upper()
+		nazwisko = usunPolskieZnaki(w.nazwisko).upper()
+		imieNazwisko = imie + " " + nazwisko
+		nazwiskoImie = nazwisko + " " + imie
+		# Pełne imię i nazwisko
+		if(imieNazwisko == calosc or nazwiskoImie == calosc or nazwisko == calosc or imie == calosc):
+			wynik.append(w)
+		else:
+			for wyr in wyrazy:
+				if(wyr in imieNazwisko):
+					propozycje.append(w)
+	
+	if(len(wynik)>0):	
+		return render_to_response('teachersList.html', {'prowadzacy':wynik})
+	elif(len(propozycje)>0):
+		return render_to_response('teachersList.html', {'prowadzacy':propozycje, 'tekst':"Czy chodziło Ci o..."})
+	else:
+		return render_to_response('teachersList.html', {'tekst':"Nie znaleziono wyników spełniających podane kryteria. Spróbuj ponownie."})
+
+
+def usunPolskieZnaki(text):
+	pltoang_tab = {u'ą':'a', u'ć':'c', u'ę':'e', u'ł':'l', u'ń':'n', u'ó':'o', u'ś':'s', u'ż':'z', u'ź':'z'}
+	return ''.join( pltoang_tab.get(char, char) for char in text )
+
 
 # Zaladowanie strony map.html do diva na stronie glownej
 def zaladujMape(request):
