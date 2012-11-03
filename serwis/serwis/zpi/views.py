@@ -12,8 +12,9 @@ import random
 import re
 import json
 import urllib
-import urllib2
 from collections import defaultdict
+from twill import commands
+
 
 
 # Wyswietlenie strony glownej
@@ -651,6 +652,84 @@ def test(request):
 		
 		#return HttpResponse(idUzShoutboxa)
 
+def pobierzPlan(request):
 
+    commands.clear_cookies()        # Czyszczenie ciastek
+    commands.go("https://edukacja.pwr.wroc.pl/EdukacjaWeb/studia.do")   # Przechodzimy do edukacji
+    
+    commands.showlinks()            # DO USUNIECIA! Pokazuje linki
 
+    commands.formclear('1')                                 # Czysci formularz logowania
+    commands.formvalue('1', 'login', 'pwr84628')            # Podaje login
+    commands.formvalue('1', 'password', 'sync53master7')    # Podaje hasło
+    commands.submit('0')                                    # Klika zaloguj
+    
+    print("Linki po submit")                                # DO USUNIECIA! Pokazuje informacje
+    commands.showlinks()                                    # DO USUNIECIA! Pokazuje linki
+    
+    commands.follow("Zapisy")                               # Przechodzi linkiem na stronę zapisów
+    
+    # DO USUNIECIA! Pokazuje stronę po kliknięciu zapisy!
+    print("Co po kliknieciu Zapisy")
+    commands.showlinks()
+    print "Forms:"
+    commands.showforms()
 
+    # Szuka w linkach tego przenoszącego na odpowiedni semestr.
+    dateToday = datetime.date.today()
+    #dateToday = datetime.date(2012, 6, 10)
+    firstOctober = datetime.date(dateToday.year, 10, 1)
+    links = commands.showlinks()                            # Pobiera linki z danej strony 
+
+    if dateToday > firstOctober:                            # Jesli dzisiaj jest wiekszy niz 1 Pazdziernika
+        #Semestr zimowy
+        for link in links:
+            ktory = 0
+            if link.text=='' + str(dateToday.year) + '/' + str(dateToday.year+1) + '':  # Szukamy linka o tytule (rok/rok+1)
+                ktory = ktory + 1
+                if ktory == 1:                              # Znalazł!
+                    commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
+    else:
+        #Semest letni
+        for link in links:
+            ktory = 0
+            if link.text=='' + str(dateToday.year)+ '/' + str(dateToday.year+1) + '':   # Szukamy linka o tytule (rok/rok+1)
+                ktory = ktory + 1
+                if ktory == 2:                              # Znalazł!
+                    commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
+    
+    # DO USUNIECIA! Pokazuje stronę po kliknięciu danego semestru!
+    print("Co po kliknieciu semestru:")
+    commands.showlinks()
+    print "Forms:"
+    commands.showforms()
+    
+    # Szuka w formularzach tego odpowiadającego za pokazanie zapisanych kursów.
+    forms = commands.showforms()                            # Pobranie formularzy
+    naszForm = None                                         # Zmienna do ktorej zapiszemy znaleziony przez nas form
+    for form in forms:                                      # Petla po formualrzach
+        if form.action == 'https://edukacja.pwr.wroc.pl/EdukacjaWeb/zapisy.do?href=#hrefZapisySzczSlu':     # Jesli akcja danego formularza przenosi do szczegolow
+            naszForm = form                                 # To zapisujemy znaleziony formularz
+    
+    print(naszForm)                                         # DO USUNIECIA! Wypisuje znaleziony formularz
+    
+    ctrl = naszForm.controls                                                # pobieram ze znalezionego formularza wszystkie kontrolki
+    for ct in ctrl:
+        if ct.type == 'submit':                                             # szukam wsrod niej tej co ma typ submit
+            commands.get_browser().clicked(naszForm, ct.attrs['name'])      # klikam na ten przycisk
+            commands.get_browser().submit()
+    
+    
+    print("Co po kliknieciu szczegoly zajec")
+    commands.showlinks()
+    print "Forms:"
+    commands.showforms()
+    
+    content = commands.show()
+    
+    commands.clear_cookies()        #usuwanie ciasteczek
+    commands.reset_browser()        #restart przegladarki
+    commands.reset_output()
+    
+    
+    return HttpResponse(content)
