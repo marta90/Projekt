@@ -36,6 +36,9 @@ class Uzytkownik(models.Model):
     ktoZmienilDane = models.ForeignKey('self', related_name = 'uzytkownik_zmienil', null = True)
     ileMoichWydarzen = models.IntegerField(default = 7) #z ilu dni wprzod pokazywac
     poziomDostepu = models.IntegerField(default = 0)
+    czyAktywowano = models.BooleanField(default=False)
+    aktywator = models.CharField(max_length = 250, null = True)
+    domyslny = models.IntegerField()
     def __unicode__(self):
         return self.nick
     class Meta:
@@ -77,6 +80,7 @@ class Grupa(models.Model):
     godzinaDo = models.TimeField(null = True)
     miejsce = models.CharField(max_length = 250)
     kurs = models.ForeignKey(Kurs)
+    uzytkownik = models.ManyToManyField(Uzytkownik, through = 'Plan')
     def __unicode__(self):
         return self.kodGrupy
     class Meta:
@@ -86,10 +90,10 @@ class Grupa(models.Model):
 class Student(models.Model):
     uzytkownik = models.ForeignKey(Uzytkownik)
     indeks = models.CharField(max_length = 6)
-    grupa = models.ManyToManyField(Grupa, through='Plan')
-    kierunek = models.ManyToManyField(Kierunek, through='KierunkiStudenta')
-    czyAktywowano = models.BooleanField(default=False)
-    aktywator = models.CharField(max_length = 250, null = True)
+    kierunek = models.ForeignKey(Kierunek)
+    semestr = models.IntegerField()
+    rodzajStudiow = models.IntegerField() #1 - inz/lic, 2 - mgr
+    uprawnienia = models.IntegerField(default = 0)
     def __unicode__(self):
         return self.indeks
     class Meta:
@@ -97,30 +101,17 @@ class Student(models.Model):
         verbose_name_plural = 'Studenci'
 
 class Plan(models.Model):
-    student = models.ForeignKey(Student)
+    uzytkownik = models.ForeignKey(Uzytkownik)
     grupa = models.ForeignKey(Grupa)
     class Meta:
         db_table = u'GrupyStudentow'
         verbose_name_plural = 'Plany'
 
-class KierunkiStudenta(models.Model):
-    student = models.ForeignKey(Student)
-    kierunek = models.ForeignKey(Kierunek)
-    semestr = models.IntegerField()
-    rodzajStudiow = models.IntegerField() #1 - inz/lic, 2 - mgr
-    uprawnienia = models.IntegerField(default = 0)
-    class Meta:
-        db_table = u'KierunkiStudenta'
-        verbose_name_plural = 'Kierunki studentow'
-
 class Shoutbox(models.Model):
-    uzytkownik = models.ForeignKey(Uzytkownik)
+    student = models.ForeignKey(Student)
     tresc = models.CharField(max_length = 250)
     data = models.DateTimeField(auto_now_add = True)
     czyWazne = models.BooleanField(default = False)
-    kierunek = models.ForeignKey(Kierunek)
-    rodzajStudiow = models.IntegerField()
-    semestr =  models.IntegerField()
     def __unicode__(self):
         return self.tresc
     class Meta:
@@ -136,7 +127,7 @@ class Wydarzenie(models.Model):
     dataDodaniaWyd = models.DateTimeField(auto_now_add = True)
     rodzajWydarzenia = models.IntegerField()
     grupa = models.ForeignKey(Grupa, blank=True, null=True, on_delete=models.SET_NULL)
-    dodal = models.ForeignKey(Uzytkownik, related_name = 'wydarzenie_dodal')
+    dodal = models.ForeignKey(Student, related_name = 'wydarzenie_dodal')
     uzytkownik = models.ManyToManyField(Uzytkownik, through = 'Kalendarz')
     def __unicode__(self):
         return self.nazwa
@@ -223,7 +214,8 @@ class ZmianaDat(models.Model):
 class NotatkaDoPlanu(models.Model):
     grupa = models.ForeignKey(Grupa)
     tydzien = models.ForeignKey(Tydzien)
-    notatka = models.CharField(max_length = 250)                
+    notatka = models.CharField(max_length = 250)
+    dodal = models.ForeignKey(Uzytkownik)
     class Meta:
         db_table = u'NotatkaDoPlanu'
         verbose_name_plural = 'Notatki do planu'

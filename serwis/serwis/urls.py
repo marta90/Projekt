@@ -19,9 +19,9 @@ urlpatterns = patterns('',
     (r'^registration$', views.rejestruj),                       #widok obslugujacy przejscie do strony "registration.html"
     (r'^register$', views.zarejestruj),                         #widok obslugujacy transakcje rejestrowania
     (r'^rememberPassword$', views.przypomnijHaslo),             
-    (r'^confirm/(.*)/(\d{6})$', views.potwierdzRejestracje),    #potwierdzenie rejestracji poprzez link aktywacyjny
+    (r'^confirm/(.*)/(.*)$', views.potwierdzRejestracje),    #potwierdzenie rejestracji poprzez link aktywacyjny
     (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
-    (r'^pobierzPlan$', views.pobierzPlan),
+
     (r'^shout/(.*)$', views.dodajShout),
     (r'^getTeachers/(.)$', views.wykladowcaNaLitere),
     (r'^getTutorial/(.*)$', views.konsultacjeWykladowcy),

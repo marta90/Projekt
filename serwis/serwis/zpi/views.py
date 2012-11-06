@@ -24,42 +24,25 @@ from django.db.models import Q
 def uz(nick):
 	return models.Uzytkownik.objects.get(nick=nick)
 
+# Pobranie studenta po id
+def stud(ids):
+	return models.Student.objects.get(id = ids)
 
 # Pobranie uzytkownika zapamietanego w sesji
 def uzSesja(request):
-	return uz(request.session['nick'])
-
+	return studSesja(request).uzytkownik
 
 # Pobranie uzytkownika z nicku wyslanego postem
 def uzPost(request):
-	return uz(request.POST['nick'])
-
-
-# Pobranie kierunku po id
-def kier(idK):
-	return models.Kierunek.objects.get(id = idK)
-
-
-# Pobranie kierunku zapamietanego w sesji
-def kierSesja(request):
-	return kier(request.session['spec'])
-
-
-# Pobranie studenta po id
-def stud(indeks):
-	return models.Student.objects.get(indeks = indeks)
-
+	return studPost(request).uzytkownik
 
 # Pobranie studenta zapamietanego w sesji
 def studSesja(request):
-	uzytkownik = uzSesja(request)
-	return models.Student.objects.get(uzytkownik = uzytkownik)
-
+	return stud(request.session['studentId'])
 
 # Pobranie studenta z nicku wyslanego postem
 def studPost(request):
-	uzytkownik = uzPost(request)
-	return models.Student.objects.get(uzytkownik = uzytkownik)
+	return stud(request.POST['studentId'])
 
 
 # Sprawdzenie czy dane wyslano metoda post
@@ -72,7 +55,7 @@ def post(request):
 	
 # Sprawdzenie czy sesja jest otwarta
 def jestSesja(request):
-	return ('nick' in request.session)
+	return ('studentId' in request.session or 'admin' in request.session)
 
 
 # Usuniecie polskich znakow z wybranego tekstu
@@ -87,7 +70,7 @@ def usunPolskieZnaki(text):
 # Wyswietlenie strony glownej
 def glowna(request):
 	if jestSesja(request):
-		nick = request.session['nick']
+		nick = uzSesja(request).nick
 		if 'content' not in request.session.keys():
 			request.session['content'] = 'news'
 		return render_to_response('index.html', {'strona':'news', 'nick':nick, 'wyloguj':"wyloguj"})
@@ -162,20 +145,18 @@ def zarejestruj(request):
 				kierunek = kier(request.POST['select_specialization'])
 				haslo = sha256_crypt.encrypt(haslo)
 				uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl")
-				uzytkownik.save()
+				uzytkownik.save(commit = False)
 				uzytkownik.ktoWprowadzil = models.Uzytkownik.objects.get(id = uzytkownik.id)
 				uzytkownik.ktoZmienilDane = models.Uzytkownik.objects.get(id = uzytkownik.id)
 				uzytkownik.dataOstLogowania = datetime.date.today()
 				uzytkownik.dataOstZmianyHasla = datetime.date.today()
 				uzytkownik.dataOstZmianyDanych = datetime.date.today()
+				uzytkownik.aktywator = wygenerujAktywator()
+				student = models.Student(uzytkownik = models.Uzytkownik.objects.get(id = uzytkownik.id), indeks = indeks, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
+				student.save()
+				uzytkownik.domyslny = student.id
 				uzytkownik.save()
-				student = models.Student(uzytkownik = models.Uzytkownik.objects.get(id = uzytkownik.id), indeks = indeks)
-				student.save()
-				student.aktywator = wygenerujAktywator()
-				student.save()
-				kierunki = models.KierunkiStudenta(student = student, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
-				kierunki.save()
-				wyslijPotwierdzenie(student)
+				wyslijPotwierdzenie(uzytkownik)
 				return render_to_response('index.html', {'alert': "Na Twojego maila studenckiego został wysłany link z aktywacją konta."})
 			else:
 				return HttpResponse("Dane nie spełniają wymaganych ograniczeń")
@@ -294,26 +275,25 @@ def wygenerujAktywator():
 
 
 # Wyslanie maila z kodem potwierdzajacym rejestracje
-def wyslijPotwierdzenie(student):
+def wyslijPotwierdzenie(uzytkownik):
 	tytul = "PwrTracker - potwierdzenie rejestracji"
 	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
-	tresc = tresc + "http://127.0.0.1:8000/confirm/" + student.aktywator + "/" + student.indeks.encode('utf-8')
+	tresc = tresc + "http://127.0.0.1:8000/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
 	#send_mail(tytul, tresc, 'pwrtracker@gmail.com', [student.indeks + "@student.pwr.wroc.pl"], fail_silently=False)
 
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
-def potwierdzRejestracje(request, aktywator, indeks):
+def potwierdzRejestracje(request, aktywator, nick):
 	try:
-		student = stud(indeks)
-		if student.aktywator == aktywator:
-			student.czyAktywowano = True
-			student.save()
+		uzytkownik = uz(nick)
+		if uzytkownik.aktywator == aktywator:
+			uzytkownik.czyAktywowano = True
+			uzytkownik.save()
 			return HttpResponse("Udało się aktywować")
 		else:
 			HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	
 	except:
 		return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
-
 
 
 ############### LOGOWANIE ################################################################
@@ -330,50 +310,43 @@ def logowanie(request):
 		nickPost = request.POST['fld_login']
 		hasloPost = request.POST['fld_pass']
 		try:
-			uzytkownik = uz(nickPost)
+			uzytkownik = models.Uzytkownik.objects.get(nick = nickPost)
 			haslo = uzytkownik.haslo
 			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
 			if(zgodnosc):
 				if jestStudentem(uzytkownik):
-					student = models.Student.objects.get(uzytkownik=uzytkownik)
-					if student.czyAktywowano:
+					domyslny = uzytkownik.domyslny
+					student = models.Student.objects.get(id = domyslny)
+					if uzytkownik.czyAktywowano:
 						if czyZmienicHaslo(uzytkownik):
 							return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
 						else:
-							try:
-								kierunek = student.kierunek.all()[:1].get()
-								request.session['spec'] = kierunek.id
-								infoOKierunku = models.KierunkiStudenta.objects.get(student = student, kierunek = kierunek)
-								request.session['type'] = infoOKierunku.rodzajStudiow
-								request.session['semester'] = infoOKierunku.semestr
-								request.session['nick'] = nickPost
-								request.session['content'] = 'news'
-								return HttpResponseRedirect('/')
-							except:
-								return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
+							request.session['studentId'] = student.id
+							request.session['content'] = 'news'
+							return HttpResponseRedirect('/')
 					else:
 						return HttpResponse(kontoNieaktywne)
 				else:
 					if czyZmienicHaslo(uzytkownik):
 						return HttpResponse(zmianaHasla)
 					else:
-						request.session['nick'] = nickPost
+						request.session['admin'] = nickPost
 						request.session['content'] = 'news'
 						return HttpResponseRedirect('/')
 			else:
 					return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
 		except:
-				return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
+				return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':"2"})
 	else:
-			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
+			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':"3"})
 
 
 # Sprawdzenie czy dany uzytkownik jest studentem	
 def jestStudentem(uzytkownik):
-	try:
-		student = models.Student.objects.get(uzytkownik=uzytkownik)
+	student = models.Student.objects.filter(uzytkownik=uzytkownik)
+	if student.exists():
 		return True
-	except:
+	else:
 		return False
 
 
@@ -396,14 +369,14 @@ def przypomnijHaslo(request):
 
 # Przeslanie aktywatora ponownie - wygenerowanie nowego
 def przeslijAktywatorPonownie(request):
-	if post(request) & 'fld_index' in request.POST.keys():
-		indeks = request.POST['fld_index']
+	if post(request) & 'fld_login' in request.POST.keys():
+		nick = request.POST['fld_login']
 		try:
-			student = stud(indeks)
-			if (student.czyAktywowano == False):
-				student.aktywator = wygenerujAktywator()
-				student.save()
-				wyslijPotwierdzenie(student)
+			uzytkownik = uz(nick)
+			if (uzytkownik.czyAktywowano == False):
+				uzytkownik.aktywator = wygenerujAktywator()
+				uzytkownik.save()
+				wyslijPotwierdzenie(uzytkownik)
 			else:
 				return HttpResponse("Twoje konto jest już aktywne")
 		except:
@@ -434,14 +407,15 @@ def zaladujPortal(request):
 
 # Zaladowanie strony z aktualnosciami (shoutbox, moje wydarzenia, ostatnio dodane wydarzenia) na stronie glownej
 def zaladujNewsy(request):
-	kierunek = kierSesja(request)
-	semestr = request.session['semester']
-	stopien = request.session['type']
-	shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
-											  semestr = semestr,
-											  rodzajStudiow = stopien).order_by('data')[:10]
+	student = studSesja(request)
+	kierunek = student.kierunek
+	semestr = student.semestr
+	stopien = student.rodzajStudiow
+	shoutbox = models.Shoutbox.objects.filter(student__kierunek = kierunek,
+											  student__semestr = semestr,
+											  student__rodzajStudiow = stopien).order_by('data')[:10]
 	shoutbox = shoutbox.reverse()
-	uzytkownik = uzSesja(request)
+	uzytkownik = student.uzytkownik
 	wczoraj = datetime.date.today() - datetime.timedelta(days=1)
 	ileWydarzen = uzytkownik.ileMoichWydarzen
 	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia')[:ileWydarzen]
@@ -456,12 +430,13 @@ def zaladujNewsy(request):
 
 # Pobranie aktualnego shoutboxa - potrzebne przy odświeżaniu go
 def zaladujShoutbox(request):
-	kierunek = kierSesja(request)
-	semestr = request.session['semester']
-	stopien = request.session['type']
-	shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
-											  semestr = semestr,
-											  rodzajStudiow = stopien).order_by('data')[:10]
+	student = studSesja(request)
+	kierunek = student.kierunek
+	semestr = student.semestr
+	stopien = student.rodzajStudiow
+	shoutbox = models.Shoutbox.objects.filter(student__kierunek = kierunek,
+											  student__semestr = semestr,
+											  student__rodzajStudiow = stopien).order_by('data')[:10]
 	shoutbox = shoutbox.reverse()
 	dzisiaj = datetime.datetime.now()
 	wczoraj = dzisiaj - datetime.timedelta(days=1)
@@ -470,18 +445,12 @@ def zaladujShoutbox(request):
 
 # Dodanie wiadomosci do shoutboxa
 def dodajShout(request, wiadomosc):
-	uzytkownik = uzSesja(request)
-	kierunek = kierSesja(request)
-	stopien = request.session['type']
-	semestr = request.session['semester']
+	student = studSesja(request)
 	if wiadomosc != "":
-		shout = models.Shoutbox(uzytkownik = uzytkownik,
+		shout = models.Shoutbox(student = student,
 								tresc = wiadomosc,
 								data = datetime.datetime.now(),
-								czyWazne = False,
-								kierunek = kierunek,
-								rodzajStudiow = stopien,
-								semestr = semestr)
+								czyWazne = False)
 		shout.save()
 	return HttpResponseRedirect("/media/html/shoutbox.html")
 
@@ -493,11 +462,12 @@ def dodajShout(request, wiadomosc):
 def zaladujPlan(request):
 	if jestSesja(request):
 		st = studSesja(request)
-		planPn = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'pn').order_by('grupa__godzinaOd')
-		planWt = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'wt').order_by('grupa__godzinaOd')
-		planSr = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
-		planCzw = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'cz').order_by('grupa__godzinaOd')
-		planPi = models.Plan.objects.filter(student = st.id, grupa__dzienTygodnia = 'pt').order_by('grupa__godzinaOd')
+		uz = st.uzytkownik
+		planPn = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'pn').order_by('grupa__godzinaOd')
+		planWt = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'wt').order_by('grupa__godzinaOd')
+		planSr = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
+		planCzw = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'cz').order_by('grupa__godzinaOd')
+		planPi = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'pt').order_by('grupa__godzinaOd')
 		czy = True
 		if(len(planPn) == 0 and len(planWt) == 0 and len(planSr) == 0 and len(planCzw) == 0 and len(planPi) == 0):
 			czy = False
@@ -506,91 +476,6 @@ def zaladujPlan(request):
 		return render_to_response('timetable.html', {'czyJestPlan':czy, 'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
-
-
-# Wyswietlenie planu??
-def pobierzPlan(request):
-
-    commands.clear_cookies()        # Czyszczenie ciastek
-    commands.go("https://edukacja.pwr.wroc.pl/EdukacjaWeb/studia.do")   # Przechodzimy do edukacji
-    
-    commands.showlinks()            # DO USUNIECIA! Pokazuje linki
-
-    commands.formclear('1')                                 # Czysci formularz logowania
-    commands.formvalue('1', 'login', 'pwr84628')            # Podaje login
-    commands.formvalue('1', 'password', 'sync53master7')    # Podaje hasło
-    commands.submit('0')                                    # Klika zaloguj
-    
-    print("Linki po submit")                                # DO USUNIECIA! Pokazuje informacje
-    commands.showlinks()                                    # DO USUNIECIA! Pokazuje linki
-    
-    commands.follow("Zapisy")                               # Przechodzi linkiem na stronę zapisów
-    
-    # DO USUNIECIA! Pokazuje stronę po kliknięciu zapisy!
-    print("Co po kliknieciu Zapisy")
-    commands.showlinks()
-    print "Forms:"
-    commands.showforms()
-
-    # Szuka w linkach tego przenoszącego na odpowiedni semestr.
-    dateToday = datetime.date.today()
-    #dateToday = datetime.date(2012, 6, 10)
-    firstOctober = datetime.date(dateToday.year, 10, 1)
-    links = commands.showlinks()                            # Pobiera linki z danej strony 
-
-    if dateToday > firstOctober:                            # Jesli dzisiaj jest wiekszy niz 1 Pazdziernika
-        #Semestr zimowy
-        for link in links:
-            ktory = 0
-            if link.text=='' + str(dateToday.year) + '/' + str(dateToday.year+1) + '':  # Szukamy linka o tytule (rok/rok+1)
-                ktory = ktory + 1
-                if ktory == 1:                              # Znalazł!
-                    commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
-    else:
-        #Semest letni
-        for link in links:
-            ktory = 0
-            if link.text=='' + str(dateToday.year)+ '/' + str(dateToday.year+1) + '':   # Szukamy linka o tytule (rok/rok+1)
-                ktory = ktory + 1
-                if ktory == 2:                              # Znalazł!
-                    commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
-    
-    # DO USUNIECIA! Pokazuje stronę po kliknięciu danego semestru!
-    print("Co po kliknieciu semestru:")
-    commands.showlinks()
-    print "Forms:"
-    commands.showforms()
-    
-    # Szuka w formularzach tego odpowiadającego za pokazanie zapisanych kursów.
-    forms = commands.showforms()                            # Pobranie formularzy
-    naszForm = None                                         # Zmienna do ktorej zapiszemy znaleziony przez nas form
-    for form in forms:                                      # Petla po formualrzach
-        if form.action == 'https://edukacja.pwr.wroc.pl/EdukacjaWeb/zapisy.do?href=#hrefZapisySzczSlu':     # Jesli akcja danego formularza przenosi do szczegolow
-            naszForm = form                                 # To zapisujemy znaleziony formularz
-    
-    print(naszForm)                                         # DO USUNIECIA! Wypisuje znaleziony formularz
-    
-    ctrl = naszForm.controls                                                # pobieram ze znalezionego formularza wszystkie kontrolki
-    for ct in ctrl:
-        if ct.type == 'submit':                                             # szukam wsrod niej tej co ma typ submit
-            commands.get_browser().clicked(naszForm, ct.attrs['name'])      # klikam na ten przycisk
-            commands.get_browser().submit()
-    
-    
-    print("Co po kliknieciu szczegoly zajec")
-    commands.showlinks()
-    print "Forms:"
-    commands.showforms()
-    
-    content = commands.show()
-    
-    commands.clear_cookies()        #usuwanie ciasteczek
-    commands.reset_browser()        #restart przegladarki
-    commands.reset_output()
-    
-    
-    return HttpResponse(content)
-
 
 
 ############### WYKLADOWCY #################################################################
@@ -727,21 +612,13 @@ def wyslijEmail(request):
 # Android - Dodanie wiadomosci z shoutboxa do bazy danych
 def dodajWShoutboxieAND(request):
 	if post(request):
-		uzytkownik = uzPost(request)
-		idKierunku = request.POST['spec']
-		stopien = request.POST['type']
-		semestr = request.POST['semester']
+		student = studPost(request)
 		wiadomosc = request.POST['message']
-
-		kierunek = kier(idKierunku)
 		if wiadomosc != "":
-			shout = models.Shoutbox(uzytkownik = uzytkownik,
+			shout = models.Shoutbox(student = student,
 									tresc = wiadomosc,
 									data = datetime.datetime.now(),
-									czyWazne = False,
-									kierunek = kierunek,
-									rodzajStudiow = stopien,
-									semestr = semestr)
+									czyWazne = False)
 			shout.save()
 			return shoutboxAND(request)
 	return HttpResponse("Failed")
@@ -750,16 +627,15 @@ def dodajWShoutboxieAND(request):
 # Android - wyświetlenie wiadomości z shoutboxa
 def shoutboxAND(request):
 	if post(request):
-		nick = request.POST['nick']
-		idKierunku = request.POST['spec']
-		stopien = request.POST['type']
-		semestr = request.POST['semester']
-		kierunek = kier(idKierunku)
+		student = studPost(request)
+		stopien = student.rodzajStudiow
+		semestr = student.semestr
+		kierunek = student.kierunek
 		shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
 												  rodzajStudiow = stopien,
 												  semestr = semestr).order_by('data')[:10]
 		shoutbox = shoutbox.reverse()
-		idUzShoutboxa = shoutbox.values_list('uzytkownik_id', flat=True)
+		idUzShoutboxa = shoutbox.student.values_list('uzytkownik_id', flat=True)
 		uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
 		obiekt = list(shoutbox) + list(uz)
 		json_serializer = serializers.get_serializer("json")()
@@ -773,7 +649,8 @@ def shoutboxAND(request):
 def planAND(request):
 	if post(request):
 		student = studPost(request)
-		grupy = student.grupa.all().order_by('godzinaOd')
+		uzytkownik = student.uzytkownik
+		grupy = uzytkownik.grupa.all().order_by('godzinaOd')
 		idWykl = grupy.values_list('prowadzacy_id', flat=True)
 		idKurs = grupy.values_list('kurs_id', flat=True)
 		wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
@@ -799,7 +676,8 @@ def planAND(request):
 # Android - wyswietlenie zblizajacych sie wydarzen
 def mojeWydarzeniaAND(request):
 	if post(request):
-		uzytkownik = uzPost(request)
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
 		wczoraj = datetime.date.today() - datetime.timedelta(days=1)
 		ileWydarzen = uzytkownik.ileMoichWydarzen
 		wydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia', 'godzinaOd')[:ileWydarzen]
@@ -812,13 +690,15 @@ def mojeWydarzeniaAND(request):
 # Android - wyswietlenie ostatnio dodanych wydarzen
 def ostatnieWydarzeniaAND(request):
 	if post(request):
-		uzytkownik = uzPost(request)
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
 		wydarzenia = models.Wydarzenie.objects.all()
 		wydarzeniaUz = uzytkownik.wydarzenie_set.all()
+		# Tutaj trzeba wybrac odpowiednie wydarzenia!!!
 		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
 		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
-		idUz = wydarzenia.values_list('dodal_id', flat=True)
-		dodali = models.Uzytkownik.objects.filter(id__in = idUz)
+		idStud = wydarzenia.values_list('dodal_id', flat=True)
+		dodali = models.Student.objects.filter(id__in = idStud).uzytkownik
 		lista = list(wydarzenia) + list(dodali)
 		json_serializer = serializers.get_serializer("json")()
 		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('nazwa',
@@ -853,9 +733,9 @@ def listaWykladowcowAND(request):
 
 # Android - wyswietlanie wydarzen z kalendarza
 def kalendarzAND(request):
-    if request.method == 'POST':
-        nick = request.POST['nick']
-        uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+    if post(request):
+        student = studPost(request)
+        uzytkownik = student.uzytkownik
         wydarzenia = uzytkownik.wydarzenie_set.all().order_by('dataWydarzenia', 'godzinaOd')
         json_serializer = serializers.get_serializer("json")()
         wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
