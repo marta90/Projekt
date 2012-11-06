@@ -18,6 +18,72 @@ from twill import commands
 from django.db.models import Q
 
 
+############### FUNKCJE POMOCNICZE ########################################################
+
+# Pobranie uzytkownika po nicku
+def uz(nick):
+	return models.Uzytkownik.objects.get(nick=nick)
+
+
+# Pobranie uzytkownika zapamietanego w sesji
+def uzSesja(request):
+	return uz(request.session['nick'])
+
+
+# Pobranie uzytkownika z nicku wyslanego postem
+def uzPost(request):
+	return uz(request.POST['nick'])
+
+
+# Pobranie kierunku po id
+def kier(idK):
+	return models.Kierunek.objects.get(id = idK)
+
+
+# Pobranie kierunku zapamietanego w sesji
+def kierSesja(request):
+	return kier(request.session['spec'])
+
+
+# Pobranie studenta po id
+def stud(indeks):
+	return models.Student.objects.get(indeks = indeks)
+
+
+# Pobranie studenta zapamietanego w sesji
+def studSesja(request):
+	uzytkownik = uzSesja(request)
+	return models.Student.objects.get(uzytkownik = uzytkownik)
+
+
+# Pobranie studenta z nicku wyslanego postem
+def studPost(request):
+	uzytkownik = uzPost(request)
+	return models.Student.objects.get(uzytkownik = uzytkownik)
+
+
+# Sprawdzenie czy dane wyslano metoda post
+def post(request):
+	if request.method == 'POST':
+		return True
+	else:
+		return False
+
+	
+# Sprawdzenie czy sesja jest otwarta
+def jestSesja(request):
+	return ('nick' in request.session)
+
+
+# Usuniecie polskich znakow z wybranego tekstu
+def usunPolskieZnaki(text):
+	pltoang_tab = {u'ą':'a', u'ć':'c', u'ę':'e', u'ł':'l', u'ń':'n', u'ó':'o', u'ś':'s', u'ż':'z', u'ź':'z'}
+	return ''.join( pltoang_tab.get(char, char) for char in text )
+
+
+
+############### STRONA GLOWNA #############################################################
+
 # Wyswietlenie strony glownej
 def glowna(request):
 	if jestSesja(request):
@@ -28,69 +94,9 @@ def glowna(request):
 	else:
 		return render_to_response('index.html', {'strona':'portal', 'logowanie':True})
 
-def uz(nick):
-	return models.Uzytkownik.objects.get(nick=nick)
-
-def uzSesja(request):
-	return models.Uzytkownik.objects.get(nick=request.session['nick'])
-
-def kier(idK):
-	return models.Kierunek.objects.get(id = idK)
-
-def kierSesja(request):
-	return models.Kierunek.objects.get(id = request.session['spec'])
-
-def stud(indeks):
-	return models.Student.objects.get(indeks = indeks)
-
-def studSesja(request):
-	uzytkownik = uzSesja(request)
-	return models.Student.objects.get(uzytkownik = uzytkownik)
-
-def post(request):
-	if request.method == 'POST':
-		return True
-	else:
-		return False
-
-# Dodanie wiadomosci do shoutboxa
-def dodajShout(request, wiadomosc):
-	uzytkownik = uzSesja(request)
-	kierunek = kierSesja(request)
-	stopien = request.session['type']
-	semestr = request.session['semester']
-	if wiadomosc != "":
-		shout = models.Shoutbox(uzytkownik = uzytkownik,
-								tresc = wiadomosc,
-								data = datetime.datetime.now(),
-								czyWazne = False,
-								kierunek = kierunek,
-								rodzajStudiow = stopien,
-								semestr = semestr)
-		shout.save()
-	return HttpResponseRedirect("/media/html/shoutbox.html")
 
 
-def konsultacjeWykladowcy(request, idw):
-	prowadzacy = models.Prowadzacy.objects.get(id = idw)
-	konsultacje = models.Konsultacje.objects.filter(prowadzacy = prowadzacy)
-	response = HttpResponse()
-	response.write("<i>")
-	if konsultacje.exists():
-		for k in konsultacje:
-			response.write(k.dzienTygodnia)
-			if (k.parzystosc == 'TP') or (k.parzystosc == 'TN'):
-				response.write(" " + k.parzystosc)
-			response.write(" " + k.godzinaOd.strftime("%H:%M") + " - " + k.godzinaDo.strftime("%H:%M") + ", bud. ")
-			response.write(k.budynek.nazwa + ", s. " + k.sala + "<br>")
-	else:
-		response.write('Brak informacji o konsultacjach')
-	response.write("</i>")
-	return response
-
-# Sprawdzenie czy sesja jest otwarta
-def jestSesja(request):
-	return ('nick' in request.session)
+############### REJESTRACJA ##############################################################
 
 # Wyswietlenie rejestracji
 def rejestruj(request):
@@ -101,6 +107,29 @@ def rejestruj(request):
 		return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz})
 	else:
 		return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.")
+
+
+#Pobranie kierunków dla okreslonych wydzialow. Potrzebne przy rejestracji
+def pobierzKierunki(request, idWydz):
+	kierunki = models.Kierunek.objects.filter(wydzial__id=idWydz)
+	odp = '<option value=0>Wybierz kierunek...</option>'
+	for k in kierunki:
+		odp = odp + '<option value=\'' + str(k.id) +'\'>' + str(k.id) + k.nazwa + '</option>'
+	return HttpResponse(odp)
+
+
+#Pobieranie Semestrów dla poszczególnych kierunków i typu studiów. Potrzebne przy rejestracji
+def pobierzSemestry(request, idSpec, idTyp):
+	kierunek = kier(idSpec)
+	odp = ""
+	if idTyp == "1":
+		for i in range(1, kierunek.liczbaSemestrow1st + 1):
+			odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
+	if idTyp == "2":
+		for i in range(1, kierunek.liczbaSemestrow2stPoInz + 1):
+			odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
+	return HttpResponse(odp)
+
 
 # Rejestracja użytkownika
 @transaction.commit_on_success
@@ -155,6 +184,7 @@ def zarejestruj(request):
 	else:
 		return HttpResponse("Blad danych - spróbuj jeszcze raz")
 
+
 # Sprawdzanie poprawności danych przy rejestracji
 def sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, stopien):
 	nickOk = (nickWolny(nick) & nickPoprawny(nick))
@@ -200,23 +230,61 @@ def sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, 
 	return True
 
 
+# Sprawdzanie nicku - dozwolne znaki oraz unikatowość w bazie danych
+def sprawdzNick(request, nick):
+	if (nickPoprawny(nick) & nickWolny(nick)):
+		return HttpResponse('okay')
+	else:
+		return HttpResponse('denied')
 
-
-def przeslijAktywatorPonownie(request):
-	if post(request) & 'fld_index' in request.POST.keys():
-		indeks = request.POST['fld_index']
-		try:
-			student = stud(indeks)
-			if (student.czyAktywowano == False):
-				student.aktywator = wygenerujAktywator()
-				student.save()
-				wyslijPotwierdzenie(student)
-			else:
-				return HttpResponse("Twoje konto jest już aktywne")
-		except:
-			return HttpResponse("Nie ma takiego uzytkownika")
-	return HttpResponse("Wysłano aktywator ponownie")
 	
+# Czy nick nie jest zajęty
+def nickWolny(nick):
+	uzytkownicy = models.Uzytkownik.objects.all()
+	for uz in uzytkownicy:
+		if nick == uz.nick:
+			return False
+	return True
+
+
+# Czy nick jest poprawny - dozwolone znaki
+def nickPoprawny(nick):
+	ok = len(nick)>=2 & len(nick) <=20
+	pattern = '^[A-Za-z0-9_-]*$'
+	return pasuje(pattern, nick) & ok
+
+	
+# Sprawdzanie indeksu - dozwolne znaki oraz unikatowość w bazie danych
+def sprawdzIndeks(request, indeks):
+	if (indeksPoprawny(indeks) & indeksWolny(indeks)):
+		return HttpResponse('okay')
+	else:
+		return HttpResponse('denied')
+
+
+# Czy indeks nie jest zajęty
+def indeksWolny(indeks):
+	studenci = models.Student.objects.all()
+	for st in studenci:
+		if indeks == st.indeks:
+			return False
+	return True
+
+
+# Czy indeks jest poprawny - dozwolone znaki
+def indeksPoprawny(indeks):
+	pattern = '\d{6}'
+	return pasuje(pattern, indeks)
+
+
+# Funkcja sprawdzajace dopasowanie tekstu do wzorca
+def pasuje(wzorzec, tekst):
+	if (re.match(wzorzec, tekst)):
+		return True
+	else:
+		return False
+
+
 # Generacja kodu do aktywacji konta
 def wygenerujAktywator():
 	allowed_chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -224,10 +292,6 @@ def wygenerujAktywator():
 	random = random.SystemRandom()
 	return ''.join([random.choice(allowed_chars) for i in range(33)])
 
-# Funkcja do oprogramowania
-# Przypomnienie hasla
-def przypomnijHaslo(request):
-	return 0
 
 # Wyslanie maila z kodem potwierdzajacym rejestracje
 def wyslijPotwierdzenie(student):
@@ -235,6 +299,7 @@ def wyslijPotwierdzenie(student):
 	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
 	tresc = tresc + "http://127.0.0.1:8000/confirm/" + student.aktywator + "/" + student.indeks.encode('utf-8')
 	#send_mail(tytul, tresc, 'pwrtracker@gmail.com', [student.indeks + "@student.pwr.wroc.pl"], fail_silently=False)
+
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
 def potwierdzRejestracje(request, aktywator, indeks):
@@ -249,24 +314,9 @@ def potwierdzRejestracje(request, aktywator, indeks):
 	except:
 		return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
 
-# Sprawdzenie czy dany uzytkownik jest studentem	
-def jestStudentem(uzytkownik):
-	try:
-		student = models.Student.objects.get(uzytkownik=uzytkownik)
-		return True
-	except:
-		return False
 
-# Sprawdzenie czy dany uzytkownik musi zmienić hasło (mineło 30 dni)
-def czyZmienicHaslo(uzytkownik):
-	dzisiaj = datetime.date.today()
-	dataZmianyHasla = uzytkownik.dataOstZmianyHasla.date()
-	dni = (dzisiaj - dataZmianyHasla)
-	if(dni.days) > 29:
-		return True
-	else:
-		return False
 
+############### LOGOWANIE ################################################################
 
 # Logowanie	
 def logowanie(request):
@@ -318,6 +368,49 @@ def logowanie(request):
 			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':bladWyslania})
 
 
+# Sprawdzenie czy dany uzytkownik jest studentem	
+def jestStudentem(uzytkownik):
+	try:
+		student = models.Student.objects.get(uzytkownik=uzytkownik)
+		return True
+	except:
+		return False
+
+
+# Sprawdzenie czy dany uzytkownik musi zmienić hasło (mineło 30 dni)
+def czyZmienicHaslo(uzytkownik):
+	dzisiaj = datetime.date.today()
+	dataZmianyHasla = uzytkownik.dataOstZmianyHasla.date()
+	dni = (dzisiaj - dataZmianyHasla)
+	if(dni.days) > 29:
+		return True
+	else:
+		return False
+	
+
+# Funkcja do oprogramowania
+# Przypomnienie hasla
+def przypomnijHaslo(request):
+	return 0
+
+
+# Przeslanie aktywatora ponownie - wygenerowanie nowego
+def przeslijAktywatorPonownie(request):
+	if post(request) & 'fld_index' in request.POST.keys():
+		indeks = request.POST['fld_index']
+		try:
+			student = stud(indeks)
+			if (student.czyAktywowano == False):
+				student.aktywator = wygenerujAktywator()
+				student.save()
+				wyslijPotwierdzenie(student)
+			else:
+				return HttpResponse("Twoje konto jest już aktywne")
+		except:
+			return HttpResponse("Nie ma takiego uzytkownika")
+	return HttpResponse("Wysłano aktywator ponownie")
+	
+
 # Wylogowanie z serwisu - usunięcie sesji
 def wylogowanie(request):
 	try:
@@ -327,74 +420,9 @@ def wylogowanie(request):
 		pass
 	return HttpResponseRedirect('/')
 
-# Czy nick nie jest zajęty
-def nickWolny(nick):
-	uzytkownicy = models.Uzytkownik.objects.all()
-	for uz in uzytkownicy:
-		if nick == uz.nick:
-			return False
-	return True
 
-# Czy nick jest poprawny - dozwolone znaki
-def nickPoprawny(nick):
-	ok = len(nick)>=2 & len(nick) <=20
-	pattern = '^[A-Za-z0-9_-]*$'
-	return pasuje(pattern, nick) & ok
-	
 
-# Sprawdzanie nicku - dozwolne znaki oraz unikatowość w bazie danych
-def sprawdzNick(request, nick):
-	if (nickPoprawny(nick) & nickWolny(nick)):
-		return HttpResponse('okay')
-	else:
-		return HttpResponse('denied')
-
-# Czy indeks nie jest zajęty
-def indeksWolny(indeks):
-	studenci = models.Student.objects.all()
-	for st in studenci:
-		if indeks == st.indeks:
-			return False
-	return True
-
-# Czy indeks jest poprawny - dozwolone znaki
-def indeksPoprawny(indeks):
-	pattern = '\d{6}'
-	return pasuje(pattern, indeks)
-
-# Sprawdzanie indeksu - dozwolne znaki oraz unikatowość w bazie danych
-def sprawdzIndeks(request, indeks):
-	if (indeksPoprawny(indeks) & indeksWolny(indeks)):
-		return HttpResponse('okay')
-	else:
-		return HttpResponse('denied')
-	
-
-def pasuje(wzorzec, tekst):
-	if (re.match(wzorzec, tekst)):
-		return True
-	else:
-		return False
-
-#Pobranie kierunków dla okreslonych wydzialow. Potrzebne przy rejestracji
-def pobierzKierunki(request, idWydz):
-	kierunki = models.Kierunek.objects.filter(wydzial__id=idWydz)
-	odp = '<option value=0>Wybierz kierunek...</option>'
-	for k in kierunki:
-		odp = odp + '<option value=\'' + str(k.id) +'\'>' + str(k.id) + k.nazwa + '</option>'
-	return HttpResponse(odp)
-
-#Pobieranie Semestrów dla poszczególnych kierunków i typu studiów. Potrzebne przy rejestracji
-def pobierzSemestry(request, idSpec, idTyp):
-	kierunek = kier(idSpec)
-	odp = ""
-	if idTyp == "1":
-		for i in range(1, kierunek.liczbaSemestrow1st + 1):
-			odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
-	if idTyp == "2":
-		for i in range(1, kierunek.liczbaSemestrow2stPoInz + 1):
-			odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
-	return HttpResponse(odp)
+############### PORTAL ####################################################################
 
 # Zaladowanie strony portal.html do diva na stronie glownej
 def zaladujPortal(request):
@@ -404,6 +432,7 @@ def zaladujPortal(request):
 		return render_to_response('portal.html')
 
 
+# Zaladowanie strony z aktualnosciami (shoutbox, moje wydarzenia, ostatnio dodane wydarzenia) na stronie glownej
 def zaladujNewsy(request):
 	kierunek = kierSesja(request)
 	semestr = request.session['semester']
@@ -425,6 +454,7 @@ def zaladujNewsy(request):
 	return render_to_response('news.html', {'rozmowy':shoutbox, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj})
 
 
+# Pobranie aktualnego shoutboxa - potrzebne przy odświeżaniu go
 def zaladujShoutbox(request):
 	kierunek = kierSesja(request)
 	semestr = request.session['semester']
@@ -437,6 +467,27 @@ def zaladujShoutbox(request):
 	wczoraj = dzisiaj - datetime.timedelta(days=1)
 	return render_to_response('shoutbox.html', {'rozmowy':shoutbox, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj})
 
+
+# Dodanie wiadomosci do shoutboxa
+def dodajShout(request, wiadomosc):
+	uzytkownik = uzSesja(request)
+	kierunek = kierSesja(request)
+	stopien = request.session['type']
+	semestr = request.session['semester']
+	if wiadomosc != "":
+		shout = models.Shoutbox(uzytkownik = uzytkownik,
+								tresc = wiadomosc,
+								data = datetime.datetime.now(),
+								czyWazne = False,
+								kierunek = kierunek,
+								rodzajStudiow = stopien,
+								semestr = semestr)
+		shout.save()
+	return HttpResponseRedirect("/media/html/shoutbox.html")
+
+
+
+############### PLAN ZAJEC ################################################################
 
 # Zaladowanie strony timetable.html do diva na stronie glownej
 def zaladujPlan(request):
@@ -456,227 +507,8 @@ def zaladujPlan(request):
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
-# Zaladowanie strony calendar.html do diva na stronie glownej
-def zaladujKalendarz(request):
-	if jestSesja(request):
-		return render_to_response('calendar.html')
-	else:
-		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
-# Zaladowanie strony teachers.html do diva na stronie glownej
-def zaladujWykladowcow(request):
-	literaDuza = "A"
-	literaMala = literaDuza.lower()
-	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).filter( Q(nazwisko__startswith=literaDuza) | Q(nazwisko__startswith=literaMala)).order_by('nazwiskoD', 'imieD')
-	return render_to_response('teachers.html', {'prowadzacy':wykladowcy})
-
-def wykladowcaNaLitere(request, litera):
-	literaDuza = litera
-	literaMala = litera.lower()
-
-	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).filter( Q(nazwisko__startswith=literaDuza) | Q(nazwisko__startswith=literaMala)).order_by('nazwiskoD', 'imieD')
-	return render_to_response('teachersList.html', {'prowadzacy':wykladowcy})
-
-def znajdzWykladowce(request, nazwa):
-	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).order_by('nazwiskoD', 'imieD')
-	wyrazy = nazwa.split()
-
-	calosc = ""
-	for i in range(len(wyrazy)):
-		wyrazy[i] = usunPolskieZnaki(wyrazy[i]).upper()
-		calosc = calosc + wyrazy[i] + " "
-	calosc = calosc[:-1]
-	#return render_to_response('teachersList.html', {'tekst':wyrazy})
-	ilosc = len(wyrazy)
-	wynik = []
-	propozycje = []
-	for w in wykladowcy:
-		imie = usunPolskieZnaki(w.imie).upper()
-		nazwisko = usunPolskieZnaki(w.nazwisko).upper()
-		imieNazwisko = imie + " " + nazwisko
-		nazwiskoImie = nazwisko + " " + imie
-		# Pełne imię i nazwisko
-		if(imieNazwisko == calosc or nazwiskoImie == calosc or nazwisko == calosc or imie == calosc):
-			wynik.append(w)
-		else:
-			for wyr in wyrazy:
-				if(wyr in imieNazwisko):
-					propozycje.append(w)
-	
-	if(len(wynik)>0):	
-		return render_to_response('teachersList.html', {'prowadzacy':wynik})
-	elif(len(propozycje)>0):
-		return render_to_response('teachersList.html', {'prowadzacy':propozycje, 'tekst':"Czy chodziło Ci o..."})
-	else:
-		return render_to_response('teachersList.html', {'tekst':"Nie znaleziono wyników spełniających podane kryteria. Spróbuj ponownie."})
-
-
-def usunPolskieZnaki(text):
-	pltoang_tab = {u'ą':'a', u'ć':'c', u'ę':'e', u'ł':'l', u'ń':'n', u'ó':'o', u'ś':'s', u'ż':'z', u'ź':'z'}
-	return ''.join( pltoang_tab.get(char, char) for char in text )
-
-
-# Zaladowanie strony map.html do diva na stronie glownej
-def zaladujMape(request):
-	return render_to_response('map.html')
-
-# Zaladowanie strony account.html do diva na stronie glownej
-def zaladujKonto(request):
-	return render_to_response('account.html')
-
-# Wysyłanie maila do admina
-def wyslijEmail(request):
-	if post(request):
-		do = "pwrtracker@gmail.com"
-		od = "pwrtracker@gmail.com"
-		mailZwrotny = request.POST['fld_email'].encode('utf-8')
-		tytul = request.POST['fld_topic'].encode('utf-8')
-		tresc = request.POST['fld_text'].encode('utf-8')
-		send_mail(tytul, tresc+ "\n\nWiadomość wysłana od\n" + mailZwrotny, od, [do], fail_silently=False)
-		send_mail("PwrTracker - wysłano wiadomość: " + tytul,
-				  "Wysłałeś wiadomość o następującej treści:\n\n" + tresc,
-				  od,
-				  [mailZwrotny],
-				  fail_silently=False)
-		return HttpResponse('Wysłano wiadomości')
-
-#############################################
-#ANDROID
-#############################################
-
-
-
-# Android - Dodanie wiadomosci z shoutboxa do bazy danych
-def dodajWShoutboxieAND(request):
-	if request.method == 'POST':
-		nick = request.POST['nick']
-		idKierunku = request.POST['spec']
-		stopien = request.POST['type']
-		semestr = request.POST['semester']
-		wiadomosc = request.POST['message']
-		uzytkownik = uz(nick)
-		kierunek = kier(idKierunku)
-		if wiadomosc != "":
-			shout = models.Shoutbox(uzytkownik = uzytkownik,
-									tresc = wiadomosc,
-									data = datetime.datetime.now(),
-									czyWazne = False,
-									kierunek = kierunek,
-									rodzajStudiow = stopien,
-									semestr = semestr)
-			shout.save()
-			return shoutboxAND(request)
-	return HttpResponse("Failed")
-
-# Android - wyświetlenie wiadomości z shoutboxa
-def shoutboxAND(request):
-	if request.method == 'POST':
-		nick = request.POST['nick']
-		idKierunku = request.POST['spec']
-		stopien = request.POST['type']
-		semestr = request.POST['semester']
-		kierunek = models.Kierunek.objects.get(id = idKierunku)
-		shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
-												  rodzajStudiow = stopien,
-												  semestr = semestr).order_by('data')[:10]
-		shoutbox = shoutbox.reverse()
-		idUzShoutboxa = shoutbox.values_list('uzytkownik_id', flat=True)
-		uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
-		obiekt = list(shoutbox) + list(uz)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik'))
-		return HttpResponse(wynik, mimetype="application/json")
-	else:
-		return HttpResponse("Failed")
-
-# Android - Wyslanie na androida zblizajacych sie wydarzen
-def mojeWydarzeniaAND(request):
-	if request.method == 'POST':
-		nick = request.POST['nick']
-		dzisiaj = datetime.date.today() - datetime.timedelta(days=1)
-		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
-		ileWydarzen = uzytkownik.ileMoichWydarzen
-		wydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = dzisiaj).order_by('dataWydarzenia')[:ileWydarzen]
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-# Android - Wyslanie na androida ostatnio dodanych wydarzen
-def ostatnieWydarzeniaAND(request):
-	if request.method == 'POST':
-		nick = request.POST['nick']
-		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
-		wydarzenia = models.Wydarzenie.objects.all()
-		wydarzeniaUz = uzytkownik.wydarzenie_set.all()
-		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
-		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-# Android - Wyslanie na androida listy wykladowcow
-def listaWykladowcowAND(request):
-	if request.method == 'POST':
-		wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(wykladowcy, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-# Android - Wyslanie na androida konsultacji wykladowcow
-def konsultacjeWykladowcowAND(request):
-	if request.method == 'POST':
-		konsultacje = models.Konsultacje.objects.all()
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(konsultacje, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-# Android - Wyslanie na androida planów wykladowcow
-def planyWykladowcowAND(request):
-	if request.method == 'POST':
-		grupy = models.Grupa.objects.all()
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(grupy, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-# Android - Wyslanie na androida listy budynków
-def budynkiAND(request):
-	if request.method == 'POST':
-		kategoria = models.KategoriaMiejsca.objects.get(id=1)
-		budynki = models.Miejsce.objects.filter(kategoria = kategoria)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(budynki, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-
-
-# Android - Wyslanie na androida listy budynków
-def kursyAND(request):
-	if request.method == 'POST':
-		kursy = models.Kurs.objects.all()
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(kursy, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-
-
-
-
-
-
-# Klasa do testow
-def test(request):
-	uzytkownik = uz('marta')
-	return HttpResponse(uzytkownik.nick)
-		
-		#return HttpResponse(idUzShoutboxa)
-
+# Wyswietlenie planu??
 def pobierzPlan(request):
 
     commands.clear_cookies()        # Czyszczenie ciastek
@@ -758,3 +590,344 @@ def pobierzPlan(request):
     
     
     return HttpResponse(content)
+
+
+
+############### WYKLADOWCY #################################################################
+
+# Zaladowanie strony teachers.html do diva na stronie glownej - wyswietlenie wykladowcow na litere A
+def zaladujWykladowcow(request):
+	literaDuza = "A"
+	literaMala = literaDuza.lower()
+	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).filter( Q(nazwisko__startswith=literaDuza) | Q(nazwisko__startswith=literaMala)).order_by('nazwiskoD', 'imieD')
+	return render_to_response('teachers.html', {'prowadzacy':wykladowcy})
+
+
+# Pobranie wykladowcy, ktorego nazwisko rozpoczyna sie na wybrana litere
+def wykladowcaNaLitere(request, litera):
+	literaDuza = litera
+	literaMala = litera.lower()
+	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).filter( Q(nazwisko__startswith=literaDuza) | Q(nazwisko__startswith=literaMala)).order_by('nazwiskoD', 'imieD')
+	return render_to_response('teachersList.html', {'prowadzacy':wykladowcy})
+
+
+# Wyszukanie wykladowcy po wybranej frazie
+def znajdzWykladowce(request, nazwa):
+	wykladowcy = models.Prowadzacy.objects.extra(select={'nazwiskoD': 'upper(nazwisko)', 'imieD': 'upper(imie)'}).order_by('nazwiskoD', 'imieD')
+	wyrazy = nazwa.split()
+
+	calosc = ""
+	for i in range(len(wyrazy)):
+		wyrazy[i] = usunPolskieZnaki(wyrazy[i]).upper()
+		calosc = calosc + wyrazy[i] + " "
+	calosc = calosc[:-1]
+	ilosc = len(wyrazy)
+	wynik = []
+	propozycje = []
+	for w in wykladowcy:
+		imie = usunPolskieZnaki(w.imie).upper()
+		nazwisko = usunPolskieZnaki(w.nazwisko).upper()
+		imieNazwisko = imie + " " + nazwisko
+		nazwiskoImie = nazwisko + " " + imie
+		# Pełne imię i nazwisko
+		if(imieNazwisko == calosc or nazwiskoImie == calosc or nazwisko == calosc or imie == calosc):
+			wynik.append(w)
+		else:
+			for wyr in wyrazy:
+				if(wyr in imieNazwisko):
+					propozycje.append(w)
+	
+	if(len(wynik)>0):	
+		return render_to_response('teachersList.html', {'prowadzacy':wynik})
+	elif(len(propozycje)>0):
+		return render_to_response('teachersList.html', {'prowadzacy':propozycje, 'tekst':"Czy chodziło Ci o..."})
+	else:
+		return render_to_response('teachersList.html', {'tekst':"Nie znaleziono wyników spełniających podane kryteria. Spróbuj ponownie."})
+
+
+# Wczytanie konsultacji podanego wykladowcy
+def konsultacjeWykladowcy(request, idw):
+	prowadzacy = models.Prowadzacy.objects.get(id = idw)
+	konsultacje = models.Konsultacje.objects.filter(prowadzacy = prowadzacy)
+	response = HttpResponse()
+	response.write("<i>")
+	br = False
+	if konsultacje.exists():
+		for k in konsultacje:
+			if br:
+				response.write('<br>')
+			br = True
+			response.write(k.dzienTygodnia)
+			if (k.parzystosc == 'TP') or (k.parzystosc == 'TN'):
+				response.write(" " + k.parzystosc)
+			response.write(" " + k.godzinaOd.strftime("%H:%M") + " - " + k.godzinaDo.strftime("%H:%M") + ", bud. ")
+			response.write(k.budynek.nazwa + ", s. " + k.sala)
+		
+	else:
+		response.write('Brak informacji o konsultacjach')
+	#response.write('</i> &nbsp &nbsp   <img id = "a' +idw +'" src="media/html/img/edit.png" height=20px width=20px onclick="editIt(this);">')
+	response.write('</i>')
+	return response
+
+
+
+############### KALENDARZ #################################################################
+
+# Zaladowanie strony calendar.html do diva na stronie glownej
+def zaladujKalendarz(request):
+	if jestSesja(request):
+		return render_to_response('calendar.html')
+	else:
+		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
+
+
+
+############### MAPA ######################################################################
+
+# Zaladowanie strony map.html do diva na stronie glownej
+def zaladujMape(request):
+	return render_to_response('map.html')
+
+
+
+############### EDYCJA KONTA ##############################################################
+
+# Zaladowanie strony account.html do diva na stronie glownej
+def zaladujKonto(request):
+	return render_to_response('account.html')
+
+
+
+############### INNE ######################################################################
+
+#Wysyłanie maila do admina
+def wyslijEmail(request):
+	if post(request):
+		do = "pwrtracker@gmail.com"
+		od = "pwrtracker@gmail.com"
+		mailZwrotny = request.POST['fld_email'].encode('utf-8')
+		tytul = request.POST['fld_topic'].encode('utf-8')
+		tresc = request.POST['fld_text'].encode('utf-8')
+		send_mail(tytul, tresc+ "\n\nWiadomość wysłana od\n" + mailZwrotny, od, [do], fail_silently=False)
+		send_mail("PwrTracker - wysłano wiadomość: " + tytul,
+				  "Wysłałeś wiadomość o następującej treści:\n\n" + tresc,
+				  od,
+				  [mailZwrotny],
+				  fail_silently=False)
+		return HttpResponse('Wysłano wiadomości')
+
+
+
+
+##########################################################################################
+#ANDROID
+##########################################################################################
+
+
+# Android - Dodanie wiadomosci z shoutboxa do bazy danych
+def dodajWShoutboxieAND(request):
+	if post(request):
+		uzytkownik = uzPost(request)
+		idKierunku = request.POST['spec']
+		stopien = request.POST['type']
+		semestr = request.POST['semester']
+		wiadomosc = request.POST['message']
+
+		kierunek = kier(idKierunku)
+		if wiadomosc != "":
+			shout = models.Shoutbox(uzytkownik = uzytkownik,
+									tresc = wiadomosc,
+									data = datetime.datetime.now(),
+									czyWazne = False,
+									kierunek = kierunek,
+									rodzajStudiow = stopien,
+									semestr = semestr)
+			shout.save()
+			return shoutboxAND(request)
+	return HttpResponse("Failed")
+
+
+# Android - wyświetlenie wiadomości z shoutboxa
+def shoutboxAND(request):
+	if post(request):
+		nick = request.POST['nick']
+		idKierunku = request.POST['spec']
+		stopien = request.POST['type']
+		semestr = request.POST['semester']
+		kierunek = kier(idKierunku)
+		shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
+												  rodzajStudiow = stopien,
+												  semestr = semestr).order_by('data')[:10]
+		shoutbox = shoutbox.reverse()
+		idUzShoutboxa = shoutbox.values_list('uzytkownik_id', flat=True)
+		uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
+		obiekt = list(shoutbox) + list(uz)
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik'))
+		return HttpResponse(wynik, mimetype="application/json")
+	else:
+		return HttpResponse("Failed")
+
+
+# Android - wyswietlenie planu zajec - przeslanie grup
+def planAND(request):
+	if post(request):
+		student = studPost(request)
+		grupy = student.grupa.all().order_by('godzinaOd')
+		idWykl = grupy.values_list('prowadzacy_id', flat=True)
+		idKurs = grupy.values_list('kurs_id', flat=True)
+		wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
+		kursy = models.Kurs.objects.filter(id__in = idKurs)
+		lista = list(grupy) + list(kursy) + list(wykladowcy)
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
+																			   'dzienTygodnia',
+																			   'parzystosc',
+																			   'godzinaOd',
+																			   'godzinaDo',
+																			   'miejsce',
+																			   'kurs',
+																			   'nazwisko',
+																			   'imie',
+																			   'tytul',
+																			   'nazwa',
+																			   'rodzaj'))
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+		
+# Android - wyswietlenie zblizajacych sie wydarzen
+def mojeWydarzeniaAND(request):
+	if post(request):
+		uzytkownik = uzPost(request)
+		wczoraj = datetime.date.today() - datetime.timedelta(days=1)
+		ileWydarzen = uzytkownik.ileMoichWydarzen
+		wydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia', 'godzinaOd')[:ileWydarzen]
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+
+# Android - wyswietlenie ostatnio dodanych wydarzen
+def ostatnieWydarzeniaAND(request):
+	if post(request):
+		uzytkownik = uzPost(request)
+		wydarzenia = models.Wydarzenie.objects.all()
+		wydarzeniaUz = uzytkownik.wydarzenie_set.all()
+		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
+		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
+		idUz = wydarzenia.values_list('dodal_id', flat=True)
+		dodali = models.Uzytkownik.objects.filter(id__in = idUz)
+		lista = list(wydarzenia) + list(dodali)
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('nazwa',
+																			   'opis',
+																			   'dataWydarzenia',
+																			   'godzinaOd',
+																			   'godzinaDo',
+																			   'dataDodaniaWyd',
+																			   'dodal_id',
+																			   'nick'))
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+
+# Android - wyswietlenie listy wykladowcow, ich konsultacji oraz planu zajec
+def listaWykladowcowAND(request):
+	if post(request):
+		wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
+		konsultacje = models.Konsultacje.objects.all()
+		kategoria = models.KategoriaMiejsca.objects.get(id=1)
+		budynki = models.Miejsce.objects.filter(kategoria = kategoria)
+		grupy = models.Grupa.objects.all().order_by('godzinaOd')
+		kursy = models.Kurs.objects.all()
+		wydzialy = models.Wydzial.objects.all()
+		lista = list(kursy) + list(wykladowcy) + list(konsultacje) + list(grupy) +list(budynki)
+		
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(lista, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+
+# Android - wyswietlanie wydarzen z kalendarza
+def kalendarzAND(request):
+    if request.method == 'POST':
+        nick = request.POST['nick']
+        uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+        wydarzenia = uzytkownik.wydarzenie_set.all().order_by('dataWydarzenia', 'godzinaOd')
+        json_serializer = serializers.get_serializer("json")()
+        wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+        return HttpResponse(wynik, mimetype="application/json")
+    return HttpResponse("Fail")
+
+
+'''
+# Android - wyswietlenie konsultacji wykladowcow
+def konsultacjeWykladowcowAND(request):
+	if post(request):
+		konsultacje = models.Konsultacje.objects.all()
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(konsultacje, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+
+# Android - wyswietlenie planów wykladowcow
+def planyWykladowcowAND(request):
+	if post(request):
+		grupy = models.Grupa.objects.all()
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(grupy, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+
+# Android - Wyslanie na androida listy budynków
+def budynkiAND(request):
+	if request.method == 'POST':
+		kategoria = models.KategoriaMiejsca.objects.get(id=1)
+		budynki = models.Miejsce.objects.filter(kategoria = kategoria)
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(budynki, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+
+
+# Android - Wyslanie na androida listy budynków
+def kursyAND(request):
+	if request.method == 'POST':
+		kursy = models.Kurs.objects.all()
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(kursy, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+'''
+
+
+
+############################################# TESTOWANIE ###################################
+
+
+
+# Klasa do testow
+def test(request):
+	if True:
+		wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
+		konsultacje = models.Konsultacje.objects.all()
+		kategoria = models.KategoriaMiejsca.objects.get(id=1)
+		budynki = models.Miejsce.objects.filter(kategoria = kategoria)
+		grupy = models.Grupa.objects.all().order_by('godzinaOd')
+		kursy = models.Kurs.objects.all()
+		wydzialy = models.Wydzial.objects.all()
+		lista = list(kursy) + list(wykladowcy) + list(konsultacje) +   list(grupy) +list(budynki) + list(wydzialy) 
+		json_serializer = serializers.get_serializer("json")()
+		
+		wynik = json_serializer.serialize(lista, ensure_ascii=False, )
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
+
+

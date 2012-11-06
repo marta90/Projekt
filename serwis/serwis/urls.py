@@ -32,12 +32,14 @@ urlpatterns = patterns('',
     (r'^getEventsAndroid$', views.mojeWydarzeniaAND),                               #przeslanie do And. zblizajacych sie wydarzen
     (r'^getLastEventsAndroid$', views.ostatnieWydarzeniaAND),                       #przeslanie do And. ostatnio dodanych wydarzen
     (r'^getTeachersAndroid$', views.listaWykladowcowAND),                           #przeslanie do And. listy wykladowcow
-    (r'^getTeachersTutorialsAndroid$', views.konsultacjeWykladowcowAND),            #przeslanie do And. konsultacji wybranego wykladowcy
-    (r'^getTeachersTimetablesAndroid$', views.planyWykladowcowAND),                 #przeslanie do And. planu wybranego wykladowcy
-    (r'^getBuildingsAndroid$', views.budynkiAND),
-    (r'^getCoursesAndroid$', views.kursyAND),  
+   # (r'^getTeachersTutorialsAndroid$', views.konsultacjeWykladowcowAND),            #przeslanie do And. konsultacji wybranego wykladowcy
+   # (r'^getTeachersTimetablesAndroid$', views.planyWykladowcowAND),                 #przeslanie do And. planu wybranego wykladowcy
+   # (r'^getBuildingsAndroid$', views.budynkiAND),
+   # (r'^getCoursesAndroid$', views.kursyAND),  
     (r'^shoutAndroid$', views.dodajWShoutboxieAND),
     (r'^getShoutboxAndroid$', views.shoutboxAND),
+	(r'^getCalendarAndroid$', views.kalendarzAND),
+	(r'^getTimetableAndroid$', views.planAND),
     
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),

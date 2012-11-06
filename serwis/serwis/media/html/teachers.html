@@ -10,18 +10,6 @@
         var litera = idA.id;
         $("#teachers-list").load("getTeachers/" + litera);
     }
- /*
-    function showTutorial(idA){
-        var idd = idA.id;
-        idd = "d" + idd;
-        
-        var klasa = document.getElementById(idd).className;
-        if(klasa == 'divinactive')
-            document.getElementById(idd).className = 'divactive';
-        else
-             document.getElementById(idd).className = 'divinactive';
-    }
- */
      function showTutorial(idA){
         var idUrl = idA.id;
         var idDiv = "d" + idUrl;
@@ -35,10 +23,16 @@
         }
         else
              document.getElementById(idDiv).className = 'divinactive';
-        
-   
-        
+
     }
+    
+    /* DO KOLEJNEGO SPRINTU
+    function editIt(imgSel){
+        var idWykl = imgSel.id;
+        idWykl = idWykl + "e";
+        document.getElementById(idWykl).className = 'divactive';
+    }
+    */
  
     function find(){
          var nazwa = document.getElementById("name").value;
@@ -92,7 +86,7 @@
 <p>Wyszukaj <input type="text" name="name" id="name" onkeydown="if (event.keyCode == 13) find()"/> <button id = "findTeacher" onclick="find();">Wyszukaj</button></p>
 </b>
 <br>
-<div id = "teachers-list" style="text-align: left">
+<div id = "teachers-list" style="text-align: left; width: 100%;">
 {{ tekst }}
 {% for p in prowadzacy %}
     <p style = "line-height: 0.1;">
@@ -102,5 +96,12 @@
     Tutaj będą koncultacje<br>
     powyższego wykładowcy
 </div>
+<!-- DO NOWEGO SPRINTU
+<div id = a{{p.id}}e class="divinactive">
+<textarea rows="4" cols="50">
+At W3Schools you will find all the Web-building tutorials you need, from basic HTML to advanced XML, SQL, ASP, and PHP.
+</textarea> 
+</div>
+-->
 {% endfor %}
 </div>

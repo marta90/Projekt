@@ -1,12 +1,19 @@
 ﻿
 {{ tekst }}
 {% for p in prowadzacy %}
-    <p style = "line-height: 0.1;">
+    <p style = "line-height: 0.1; width: 100%;">
 <a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
     </p>
 <div id = d{{p.id}} class="divinactive">
     Tutaj będą koncultacje<br>
     powyższego wykładowcy
 </div>
+<!-- DO NOWEGO SPRINTU
+<div id = a{{p.id}}e class="divinactive">
+<textarea rows="4" cols="50">
+At W3Schools you will find all the Web-building tutorials you need, from basic HTML to advanced XML, SQL, ASP, and PHP.
+</textarea> 
+</div>
+-->
 {% endfor %}
 
