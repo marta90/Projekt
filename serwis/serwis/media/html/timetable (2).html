@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" type="text/css" href="static/css/default.css" />
+		<!-- <script type="text/javascript" src="static/js/.js"></script> -->
+		<title>PWrTracker.pl</title>
+		<script type="text/javascript">
+			window.onload = isJavaScripted;
+			function isJavaScripted() {
+				document.getElementById("no-js").style.display='none';
+			}
+		</script>
+	</head>
+	<body>
+		<div id="no-js">
+			Do prawidłowej pracy serwisu wymagany jest włączony JavaScript.
+		</div>
+		<div id="header">
+			<div id="header-logo">
+				<div style="color: #000000; font-weight: bold; display: inline; font-family: monospace; font-size: 40px; line-height: 50px;">PWr</div><div style="color: #ffffff; font-weight: bold; display: inline; font-family: monospace; font-size: 40px;line-height: 50px;">Tracker</div>
+			</div>
+			<div id="header-login-form">
+				<form method="post" action="/logIn" id ="form_login">
+					<table class="header-login-table">
+						<tr>
+							<td><input class="header-login-input" type="text" name="fld_login" id="fld_login" value="Login" /></td>
+							<td><input class="header-login-input" type="password" name="fld_pass" id="fld_pass" value="Hasło" /></td>
+							<td style="width: 40px;"><input class="header-login-submit" type="submit" name="btn_logIn" id="btn_logIn" value=">" /></td>
+						</tr>
+						<tr>
+							<td><div class="header-login-text"><input type="checkbox" name="cbox_remember" id="cbox_remember" />Zapamiętaj</div></td>
+							<td><div class="header-login-text"><a href="lostpassword.html">Przypomnij hasło</a></div></td>
+							<td></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div id="header-logged-in-menu">
+				<div id="header-account">
+					<a href="account.html">Konto</a>
+				</div>
+				<div id="header-logout">
+					<a href="index.html">Wyloguj</a>
+				</div>
+			</div>
+			<div id="header-menu">
+				<a href="portal.html" class="header-menu-box"><img src="static/img/portal.png" alt="Portal" width="50" height="50" /><br />Portal</a><!-- 
+				 --><a href="timetable.html" class="header-menu-box"><img src="static/img/timetable.png" alt="Plan zajęć" width="50" height="50" /><br />Plan zajęć</a><!-- 
+				 --><a href="calendar.html" class="header-menu-box"><img src="static/img/calendar.png" alt="Kalendarz" width="50" height="50" /><br />Kalendarz</a><!-- 
+				 --><a href="teachers.html" class="header-menu-box"><img src="static/img/teachers.png" alt="Wykładowcy" width="50" height="50" /><br />Wykładowcy</a><!-- 
+				 --><a href="map.html" class="header-menu-box"><img src="static/img/map.png" alt="Plan uczelni" width="50" height="50" /><br />Plan&nbsp;uczelni</a>
+			</div>
+		</div>
+		<div id="main">
+			<div id="main-skipper"></div>
+			<div id="main-content">
+				<!-- ==================== -->
+				
+				<div id="left-box">
+					<div id="timetable-scroll">
+						<!-- te id tu dałem bo chyba będą potrzebne do obsłużenia przycisków prawda? w każdym razie wygląd będzie w timetable-choice -->
+						<a href="#" id="timetable-one" class="timetable-choice"><img src="static/img/.png" alt="" title="Poglądowy plan zajęć" width="20" height="20" /></a>
+						<!-- <a href="#" id="timetable-all" class="timetable-choice"><img src="static/img/.png" alt="" title="Plan zajęć na wszystkie tygodnie" width="20" height="20" /></a> (to na 2. wydanie, wtedy też dojdzie select box pod spodem) -->
+						<a href="#" id="timetable-print" class="timetable-choice"><img src="static/img/.png" alt="" title="Wersja do druku" width="20" height="20" /></a>
+						<br />
+						(po kliknięciu na przycisk ma się przeładowywać w prawej kolumnie plan zajęć)
+						<br /><br /><br />
+						(to wszystko poniżej się pojawia gdy się kliknie konkretne zajęcia)
+						<br /><br />
+						<b>[Sztuczna Inteligencja]</b>
+						<br />
+						<b>[Wykład]</b>
+						<br /><br />
+						Kod kursu i grupy:
+						<br />
+						[INZ0004598W], [h-45b]
+						<br />
+						Prowadzący:
+						<br />
+						[prof. dr hab. inż. Halina Kwaśnicka]
+						<br />
+						Termin i miejsce:
+						<br />
+						[Piątek] [(parzysty)]
+						<br />
+						[11:15]-[13:00]
+						<br />
+						[B-4/409]
+						<br /><br /><br />
+						Notatki:
+						<br /><br />
+						<div id="timetable-notes">
+							<div class="timetable-note">
+								Jakaś notatka 1.
+							</div>
+							<div class="timetable-note">
+								Jakaś notatka 2.
+							</div>
+						</div>
+						<input class="CLASS" type="text" name="fld_note" id="fld_note" value="" style="width: 100px;" /><!-- WIDTH DO WYWALENIA JAK BĘDZIE KLASA -->
+						<input class="CLASS" type="submit" name="btn_send_note" id="btn_send_note" value="Dodaj" />
+						<br /><br /><br />
+						<a href="#" id="timetable-add">Link do dodawania zajęć, czyli do Konto -> Plan zajęć (potem tu będzie lepszy tekst ;p )</a>
+					</div>
+				</div>
+				<div id="right-box">
+					<div id="timetable-content">
+						<!-- TEN DIV MOŻE BYĆ CZASEM NIEWIDOCZNY NA STRONIE! MUSI BYĆ OPROGRAMOWANE TAK, ŻE WYŚWIETLA SIĘ TO LUB TIMETABLE-SCHEME -->
+						<div id="timetable-add-class">
+							Póki nie ma żadnych zajęć to ma się tu wyświetlać link do dodawania zajęć (trzeba sprawdzać w Django czy użytkownik ma już zajęcia)<br />
+							<a href="#" id="timetable-first-time">Link do dodawania zajęć</a>
+						</div>
+						<!-- DNI I GODZINY DODAM POTEM -->
+						<div id="timetable-scheme">
+							TEN DIV PRZEZNACZONY JEST NA PLAN ZAJĘĆ
+							<br />
+							Tak jak uzgadnialiśmy, 750x420px (jego położenie już zostaje)
+							<br /><br />
+							Przykład kratki:<!-- wszelkie pytania i uwagi i twoje pomysły zgłaszaj do mnie w miarę szybko -->
+							<br /><br />
+							<div class="timetable-class">
+								(W) <a href="#">Sztuczna Inteligencja</a><!-- gdy to się kliknie mają się pojawić szczegóły po lewej stronie -->
+								<br />
+								prof. dr hab. inż. Halina Kwaśnicka
+								<br />
+								B-4/409 11:15-13:00 (TP)
+								<!-- potem ten obrazek (którego brak) będzie w osobnym divie wypozycjonowane na prawy dolny róg (uwzględniając suwak), póki co  -->
+								<a href="#" class="timetable-del-class"><img src="static/img/.png" alt="" title="Usuń te zajęcia z planu" width="8" height="8" /></a><!-- ROZMIARY ZMIENIĆ -->
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- ==================== -->
+			</div>
+		</div>
+		<div id="footer">
+			<a href="mobile.html">PWrTracker Mobile</a> | <a href="help.html">Pomoc</a> | <a href="rules.html">Regulamin</a> | <a href="privacy.html">Polityka prywatności</a> | <a href="contact.html">Kontakt</a>
+			<br />&#169; 2012 <a href="team.html">PWrTracker Team</a>
+		</div>
+	</body>
+</html>

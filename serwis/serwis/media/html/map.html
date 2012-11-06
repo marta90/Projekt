@@ -1,1 +1,62 @@
-PLAN UCZELNI
+<script type="text/javascript">
+			$(document).ready(function () {
+				$('#map-menu > li > a').click(function(){
+					if ($(this).attr('class') != 'active'){
+						$('#map-menu li ul').slideUp();
+						$(this).next().slideToggle();
+						$('#map-menu li a').removeClass('active');
+						$(this).addClass('active');
+					}
+				});
+			});
+		</script>			
+				<div id="left-box">
+					<div id="map-scroll">
+						<ul id="map-menu">
+							<li><a href="#">Dziekanaty</a>
+								<ul>
+									<li><a href="#">Dziekanat 1</a></li>
+									<li><a href="#">Dziekanat 2</a></li>
+								</ul>
+							</li>
+							<li><a href="#">Gastronomia</a>
+								<ul>
+									<li><a href="#">Gastronomia 1</a></li>
+									<li><a href="#">Gastronomia 2</a></li>
+									<li><a href="#">Gastronomia 3</a></li>
+									<li><a href="#">Gastronomia 4</a></li>
+								</ul>
+							</li>
+							<li><a href="#">Punkty ksero</a>
+								<ul>
+									<li><a href="#">Punkt ksero 1</a></li>
+									<li><a href="#">Punkt ksero 2</a></li>
+								</ul>
+							</li>
+							<li><a href="#">Nie było coś jeszcze?</a>
+								<ul>
+									<li><a href="#">1</a></li>
+									<li><a href="#">2</a></li>
+									<li><a href="#">3</a></li>
+									<li><a href="#">4</a></li>
+									<li><a href="#">5</a></li>
+									<li><a href="#">6</a></li>
+									<li><a href="#">7</a></li>
+									<li><a href="#">8</a></li>
+									<li><a href="#">9</a></li>
+									<li><a href="#">10</a></li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div id="right-box">
+					<div id="map-content">
+						Chcę też mieć przygotowaną resztę z tabeli Miejsce, czyli: x, y, adres, godziny otwarcia i telefon (nazwa i kategoria jest potrzebna po lewej stronie) - w sensie
+						niech się już ładuje w Django.
+						<br /><br />
+						Jeśli chodzi o menu to działanie będzie takie samo, wygląd trochę inny. Możecie już z niego korzystać w Django. Wpiszcie do BD cokolwiek żeby dało się te listy rozwinąć.
+						<br /><br />
+						I co ma tu być w końcu w 1. wydaniu? Bo nie ogarniam do końca. Ktoś kto to robi niech napisze do mnie!
+					</div>
+				</div>

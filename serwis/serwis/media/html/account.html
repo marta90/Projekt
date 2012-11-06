@@ -1,12 +1,392 @@
-﻿
-<form method="post" action="/generujPlan">
-    <label for="userPWR">Login:</label><input type="text" name="userPWR"></input><br>
-    <label for="passPWR">Hasło:</label><input type="password" name="passPWR"></input><br>
-	<input type="submit"  />
-</form>
 
-<p>Wprowadz kod z politechniki:</p><br>
-    <form action="/generujPlan" method="post">
-        <textarea rows="10" cols="50" name="htmlPWR"></textarea><br>
-        <input type="submit" value="Submit">
-    </form>
+				
+				<div id="left-box">
+					<div id="account-scroll">
+						<ul>
+							<li><a href="#" id="acc-timetable">Plan zajęć</a></li><!-- ID potrzebne do obsługi js? jak nie, wywalić -->
+							<li><a href="#" id="acc-settings">Ustawienia</a></li>
+							<li><a href="#" id="acc-admin">Administracja</a></li>
+						</ul>
+					</div>
+				</div>
+				<div id="right-box">
+					<div id="account-content">
+						<b>PLAN ZAJĘĆ:</b>
+						Aby wygenerować plan zajęć podaj swój login oraz hasło wykorzystywane w portalu Edukacja.CL
+						<form method="post" action="/generujPlan">
+							<label for="userPWR">Login:</label><input type="text" name="userPWR"></input><br>
+							<label for="passPWR">Hasło:</label><input type="password" name="passPWR"></input><br>
+							<input type="submit"  />
+						</form>
+						
+						<!--
+						<br /><br />
+						Wklej tu kod źródłowy z portalu edukacja.CL (i tu dalej instrukcja...):
+						<textarea class="CLASS" id="textarea_source_code" rows="4" cols="50"></textarea>
+						<br />
+						<input class="CLASS" type="submit" name="btn_source_code" id="btn_source_code" value="Wczytaj" />
+						(po zapisaniu alert że się udało)
+						<br /><br />
+						Dodawanie zajęć ręcznie: (po co te ECTSy w Kursie niby? i gdzie KOD KURSU? jak nie ma - dodać!)
+						<br /><br />
+						Kod kursu:
+						<input class="CLASS" type="text" name="fld_course_code" id="fld_course_code" value="" />
+						<br />
+						Kod grupy:
+						<input class="CLASS" type="text" name="fld_group_code" id="fld_group_code" value="" />
+						<br />
+						(w tym momencie czary mary w JSie i sprawdza się w bazie, czy jest taki kurs - jak tak, to wypełnia pozostałe pola, które wcześniej mają być NIEAKTYWNE
+						[mój pomysł na nie powtarzanie się kursów])
+						<br />
+						Nazwa kursu:
+						<input class="CLASS" type="text" name="fld_course_name" id="fld_course_name" value="" />
+						<br />
+						Typ kursu:
+						<div>
+							<select id="sbox_type">
+								<option>Wykład</option>
+								<option>Cwiczenia</option>
+								<option>Laboratorium</option>
+								<option>Seminarium</option>
+								<option>Projekt</option>
+								<option>Inne</option>
+							</select>
+						</div>
+						<br />
+						Prowadzący:
+						<input class="CLASS" type="text" name="fld_teacher" id="fld_teacher" value="" />
+						<br />
+						Dzień tygodnia:
+						<div>
+							<select id="sbox_days">
+								<option>Poniedziałek</option>
+								<option>Wtorek</option>
+								<option>Środa</option>
+								<option>Czwartek</option>
+								<option>Piątek</option>
+								<option>Sobota</option>
+								<option>Niedziela</option>
+							</select>
+						</div>
+						<br />
+						Parzystość:
+						<div>
+							<select id="sbox_week">
+								<option>Co tydzień</option>
+								<option>Tydzień parzysty</option>
+								<option>Tydzień nieparzysty</option>
+							</select>
+						</div>
+						<br />
+						Od:
+						<div>
+							<select id="sbox_hours_from">
+								<option>07</option>
+								<option>08</option>
+								<option>09</option>
+								<option>10</option>
+								<option>11</option>
+								<option>12</option>
+								<option>13</option>
+								<option>14</option>
+								<option>15</option>
+								<option>16</option>
+								<option>17</option>
+								<option>18</option>
+								<option>19</option>
+								<option>20</option>
+								<option>21</option>
+							</select>
+							:
+							<select id="sbox_minutes_from">
+								<option>00</option>
+								<option>05</option>
+								<option>10</option>
+								<option>15</option>
+								<option>20</option>
+								<option>25</option>
+								<option>30</option>
+								<option>35</option>
+								<option>40</option>
+								<option>45</option>
+								<option>50</option>
+								<option>55</option>
+							</select>
+						</div>
+						Do:
+						<div>
+							<select id="sbox_hours_to">
+								<option>07</option>
+								<option>08</option>
+								<option>09</option>
+								<option>10</option>
+								<option>11</option>
+								<option>12</option>
+								<option>13</option>
+								<option>14</option>
+								<option>15</option>
+								<option>16</option>
+								<option>17</option>
+								<option>18</option>
+								<option>19</option>
+								<option>20</option>
+								<option>21</option>
+							</select>
+							:
+							<select id="sbox_minutes_to">
+								<option>00</option>
+								<option>05</option>
+								<option>10</option>
+								<option>15</option>
+								<option>20</option>
+								<option>25</option>
+								<option>30</option>
+								<option>35</option>
+								<option>40</option>
+								<option>45</option>
+								<option>50</option>
+								<option>55</option>
+							</select>
+						</div>
+						<br />
+						Budynek:
+						<input class="CLASS" type="text" name="fld_building" id="fld_building" value="" />
+						<br />
+						Sala:
+						<input class="CLASS" type="text" name="fld_room" id="fld_room" value="" />
+						<br /><br />
+						<input class="CLASS" type="submit" name="btn_add_class" id="btn_add_class" value="Dodaj" />
+						<br /><br />
+						Edycja zajęć: (kto może to robić w końcu? jak to ogarniesz to napisz do mnie)
+						<br /><br />
+						Kod kursu:
+						<input class="CLASS" type="text" name="fld_edit_course_code" id="fld_edit_course_code" value="" />
+						<br />
+						Kod grupy:
+						<input class="CLASS" type="text" name="fld_edit_group_code" id="fld_edit_group_code" value="" />
+						<br />
+						(w tym momencie czary mary w JSie i sprawdza się w KURSACH UŻYTKOWNIKA, czy jest taki kurs - jak tak, to wypełnia pozostałe pola, które wcześniej mają być NIEAKTYWNE)
+						<br />
+						Nazwa kursu:
+						<input class="CLASS" type="text" name="fld_edit_course_name" id="fld_edit_course_name" value="" />
+						<br />
+						Typ kursu:
+						<div>
+							<select id="sbox_edit_type">
+								<option>Wykład</option>
+								<option>Cwiczenia</option>
+								<option>Laboratorium</option>
+								<option>Seminarium</option>
+								<option>Projekt</option>
+								<option>Inne</option>
+							</select>
+						</div>
+						<br />
+						Prowadzący:
+						<input class="CLASS" type="text" name="fld_edit_teacher" id="fld_edit_teacher" value="" />
+						<br />
+						Dzień tygodnia:
+						<div>
+							<select id="sbox_edit_days">
+								<option>Poniedziałek</option>
+								<option>Wtorek</option>
+								<option>Środa</option>
+								<option>Czwartek</option>
+								<option>Piątek</option>
+								<option>Sobota</option>
+								<option>Niedziela</option>
+							</select>
+						</div>
+						<br />
+						Parzystość:
+						<div>
+							<select id="sbox_edit_week">
+								<option>Co tydzień</option>
+								<option>Tydzień parzysty</option>
+								<option>Tydzień nieparzysty</option>
+							</select>
+						</div>
+						<br />
+						Od:
+						<div>
+							<select id="sbox_edit_hours_from">
+								<option>07</option>
+								<option>08</option>
+								<option>09</option>
+								<option>10</option>
+								<option>11</option>
+								<option>12</option>
+								<option>13</option>
+								<option>14</option>
+								<option>15</option>
+								<option>16</option>
+								<option>17</option>
+								<option>18</option>
+								<option>19</option>
+								<option>20</option>
+								<option>21</option>
+							</select>
+							:
+							<select id="sbox_edit_minutes_from">
+								<option>00</option>
+								<option>05</option>
+								<option>10</option>
+								<option>15</option>
+								<option>20</option>
+								<option>25</option>
+								<option>30</option>
+								<option>35</option>
+								<option>40</option>
+								<option>45</option>
+								<option>50</option>
+								<option>55</option>
+							</select>
+						</div>
+						Do:
+						<div>
+							<select id="sbox_edit_hours_to">
+								<option>07</option>
+								<option>08</option>
+								<option>09</option>
+								<option>10</option>
+								<option>11</option>
+								<option>12</option>
+								<option>13</option>
+								<option>14</option>
+								<option>15</option>
+								<option>16</option>
+								<option>17</option>
+								<option>18</option>
+								<option>19</option>
+								<option>20</option>
+								<option>21</option>
+							</select>
+							:
+							<select id="sbox_edit_minutes_to">
+								<option>00</option>
+								<option>05</option>
+								<option>10</option>
+								<option>15</option>
+								<option>20</option>
+								<option>25</option>
+								<option>30</option>
+								<option>35</option>
+								<option>40</option>
+								<option>45</option>
+								<option>50</option>
+								<option>55</option>
+							</select>
+						</div>
+						<br />
+						Budynek:
+						<input class="CLASS" type="text" name="fld_edit_building" id="fld_edit_building" value="" />
+						<br />
+						Sala:
+						<input class="CLASS" type="text" name="fld_edit_room" id="fld_edit_room" value="" />
+						<br /><br />
+						<input class="CLASS" type="submit" name="btn_edit_class" id="btn_edit_class" value="Zmień" />
+						<br /><br />
+						
+						-->
+						
+						
+						<b>USTAWIENIA:</b>
+						<br /><br />
+						Zmiana hasła:
+						<br /><br />
+						Podaj stare hasło:
+						<input class="CLASS" type="text" name="fld_old_pass" id="fld_old_pass" value="" />
+						<br />
+						Podaj nowe hasło:
+						<input class="CLASS" type="text" name="fld_new_pass" id="fld_new_pass" value="" />
+						<br />
+						Podaj nowe hasło jeszcze raz:
+						<input class="CLASS" type="text" name="fld_new_pass2" id="fld_new_pass2" value="" />
+						<br /><br />
+						(jeśli pole 'stare hasło' jest puste przyjmujemy, że użytkownik nie chce zmienić hasła zapisując zmiany)
+						<br /><br /><br />
+						<div>
+							Z ilu dni w przód chcesz widzieć swoje zbliżające się wydarzenia (pomijając aktualny dzień)?
+							<select id="sbox_events">
+								<option>0</option>
+								<option>1</option>
+								<option>3</option>
+								<option>7</option>
+								<option>14</option>
+								<option>28</option>
+							</select>
+						</div>
+						<br /><br />
+						Zmiana wydziału/kierunku (raz na semestr!!! jak to w końcu zaprogramujemy? że kiedy?<br />
+						i shoutbox też się zmienia chyba sam z siebie i tak jest ok.
+						a co z czyszczeniem shoutboxa, planu zajęć, kalendarza, konsultacji?<br />
+						wydział i kierunek w select boxach niech będą ustawione na takie jakie są dla danego konta plus przy zapisie,<br />
+						jeśli zmieniły się te dane niech będzie alert 'Czy na pewno'):
+						<br /><br />
+						<div>
+							<select id="sbox_department">
+								<option>Wydział Architektury</option>
+								<option>itd., zgodnie z numeracją</option>
+							</select>
+						</div>
+						<div>
+							<select id="sbox_specialization">
+								<option>Architektura</option>
+								<option>itd., alfabetycznie</option>
+							</select>
+						</div>
+						<div>
+							<select id="sbox_semester">
+								<option>1</option>
+								<option>...</option>
+							</select>
+						</div>
+						<br />
+						(tutaj można wykorzystać męczarnie Mateusza, już zrobił takie coś w jsie przy rejestracji chyba czy gdzieś tam.
+						nie wiem co w końcu z tymi semestrami, niech tu będzie tak jak tam gdzie to zrobił Mateusz)
+						<br /><br />
+						(w 2. wydaniu tu będzie jeszcze dodawanie kolejnego kierunku)
+						<br /><br />
+						<input class="CLASS" type="submit" name="btn_settings" id="btn_settings" value="Zapisz" />
+						(jak się uda - alert)
+						<br /><br /><br />
+						Jeśli chcesz zmienić dane, do których nie masz dostępu w ustawieniach, prosimy o notatkę wraz z wyjaśnieniem na ten temat (250 znaków):
+						<br />
+						(fajnie by było jakby ta liczba znaków się zmniejszała - do zrobienia w jsie)
+						<textarea class="CLASS" id="textarea_request" rows="4" cols="50"></textarea>
+						<br />
+						<input class="CLASS" type="submit" name="btn_request" id="btn_request" value="Wyślij" />
+						(jak się uda - alert)
+						<br /><br />
+						<b>ADMINISTRACJA:</b>
+						<br />
+						(tylko dla opiekunów)
+						<br /><br />
+						
+						<div class="CLASS">
+							<input type="radio" name="write_rights" value="block" />Zablokuj możliwość pisania/edycji
+						</div>
+						<div>
+							na czas:
+							<select id="sbox_block_time">
+								<option>1 dzień</option>
+								<option>1 tydzień</option>
+								<option>1 miesiąc</option>
+							</select>
+						</div>
+						<div class="CLASS">
+							<input type="radio" name="write_rights" value="unblock" />Przywróć pełne prawa użytkownika
+						</div>
+						<br />
+						(jeszcze coś? Lepiej im nie dawać możliwości banowania ludzi)
+						<br /><br />
+						Nick:
+						<input class="CLASS" type="text" name="fld_rights_nick" id="fld_rights_nick" value="" />
+						<input class="CLASS" type="submit" name="btn_rights" id="btn_rights" value="OK" />
+						(jak się uda - alert)
+						<br /><br />
+						(dobrze by było gdyby nie można było zmieniać czasu gdy nie jest zaznaczone blokowanie [do zrobienia w js], prócz tego po kliknięciu OK niech wyświetla się jakiś alert
+						'Czy na pewno chcesz ...')
+					</div>
+				</div>
+				

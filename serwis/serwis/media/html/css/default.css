@@ -223,6 +223,8 @@ img {
 #main-content {
 	overflow: auto;
 	padding: 5px 5px 45px 5px;
+	font-size: 12px;
+	line-height: 14px;
 }
 
 #footer {
@@ -263,11 +265,13 @@ img {
 	font-size: 14px;
 	font-weight: bold;
 	line-height: 20px;
+	list-style: none;
 	color: #000000;
 	background-image: url('../img/.png');
 	background-repeat: repeat-x;
 	background-position: top left;
 	border: 1px solid #000000;
+	border-bottom: 1px solid #cccccc;
 	border-radius: 10px 10px;
 }
 
@@ -372,14 +376,14 @@ img {
 	text-align: center;
 	font-size: 10px;
 	font-weight: bold;
-	line-height: 14px;
+	/*line-height: 14px;*/
 }
 
 .box-text {
 	margin-left: 93px;
 	padding-top: 14px;
-	font-size: 12px;
-	line-height: 14px;
+	/*font-size: 12px;
+	line-height: 14px;*/
 }
 
 #portal-write-text {
@@ -423,26 +427,26 @@ img {
 	text-align: center;
 	font-size: 10px;
 	font-weight: bold;
-	line-height: 14px;
+	/*line-height: 14px;*/
 }
 
 .box-event-text {
-	font-size: 12px;
-	line-height: 14px;
+	/*font-size: 12px;
+	line-height: 14px;*/
 }
 
 .box-event-where {
 	max-width: 280px;
 	margin-left: 70px;
-	font-size: 12px;
-	line-height: 14px;
+	/*font-size: 12px;
+	line-height: 14px;*/
 }
 
 .box-event-where-new {
 	max-width: 252px;
 	margin-left: 98px;
-	font-size: 12px;
-	line-height: 14px;
+	/*font-size: 12px;
+	line-height: 14px;*/
 }
 
 .box-event-who {
@@ -450,8 +454,8 @@ img {
 	max-width: 115px;
 	margin-top: -14px;
 	margin-right: 5px;
-	font-size: 12px;
-	line-height: 14px;
+	/*font-size: 12px;
+	line-height: 14px;*/
 }
 
 .box-img-add-event {
@@ -478,28 +482,166 @@ img {
 
 /*	====================  */
 
-#left-of-two {
-	display: inline-block;
-	width: 200px;
-	background: #bbbbbb;
+#left-box {
+	float: left;
+	width: 160px;
+	height: 445px;
+	border: 1px solid #3777b3;
+	border-radius: 5px 5px;
 }
 
-#right-of-two {
-	display: inline-block;
-	width: 745px;
-	background: #bbbbbb;
+#left-box ul, ul li {
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	list-style: none;
+}
+
+#left-box li {
+	border-bottom: 1px solid #cccccc;
+}
+
+#right-box {
+	float: right;
+	width: 780px; /* 750+30 */
+	min-height: 445px; /* 420+15+10 za rogi; 450 bezpieczna granica; 500 max; UŻYTE MIN-HEIGHT */
+	border: 1px solid #3777b3;
+	border-radius: 5px 5px;
 }
 
 /*	====================  */
 
-#left-of-three {
+#timetable-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#timetable-content {
 	
 }
 
-#middle-of-three {
+#timetable-scheme {
+	position: absolute;
+	width: 750px;
+	height: 420px;
+	margin-top: 20px;
+	margin-left: 30px;
+}
+
+.timetable-class {
+	overflow: auto;
+	position: absolute;
+	width: 144px;
+	height: 41px;
+	margin-top: 0px;
+	margin-left: 300px;
+	padding: 2px 2px 0 2px;
+	text-align: left;
+	font-size: 10px;
+	line-height: 10px;
+	border: 1px solid #3777b3;
+	border-radius: 5px 5px;
+}
+
+#timetable-add-class {
+	position: absolute;
+	width: 780px;
+	margin-top: 210px;
+}
+
+#timetable-notes {
 	
 }
 
-#right-of-three {
+.timetable-note {
+	width: 100%;
+	text-align: left;
+	border-bottom: 1px solid #aaaaaa;
+}
+
+/*	====================  */
+
+#calendar-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#calendar-content {
+	
+}
+
+/*	====================  */
+
+#teachers-scroll {
+	overflow: auto;
+	height: 415px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#teachers-content {
+	
+}
+
+/*	====================  */
+
+#map-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#map-content {
+	
+}
+
+#map-menu {
+	float: left;
+	width: 150px; /* ustawić potem tą długość! */
+	border-top: 1px solid #999;
+	border-right: 1px solid #999;
+	border-left: 1px solid #999;
+}
+
+#map-menu li a {
+	display: block;
+	padding: 10px 15px;
+	background: #ccc;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #999;
+	text-decoration: none;
+	color: #000;
+}
+
+#map-menu li a:hover, #map-menu li a.active {
+	background: #999;
+	color: #fff;
+}
+
+#map-menu li ul {
+	display: none;
+}
+
+#map-menu li ul li a {
+	padding: 10px 25px;
+	background: #ececec;
+	border-bottom: 1px dotted #ccc;
+}
+
+/*	====================  */
+
+#account-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#account-content {
 	
 }
