@@ -288,31 +288,32 @@
 						<br /><br />
 						
 						-->
-						
+						<div style="text-align: left; padding-left: 20px;">
 						
 						<b>USTAWIENIA:</b>
 						<br /><br />
 						Nick:
-						{{ nick }}
+						{{ uzytkownik.nick }}
 						<br /><br />
 						Imię:
-						<input class="CLASS" type="text" name="fld_name" id="fld_name" value="{{ imie }}" />
+						<input class="CLASS" type="text" name="fld_name" id="fld_name" value="{{ uzytkownik.imie }}" />
 						<br /><br />
 						Nazwisko:
-						<input class="CLASS" type="text" name="fld_lastName" id="fld_lastName" value="{{ nazwisko }}" />
+						<input class="CLASS" type="text" name="fld_lastName" id="fld_lastName" value="{{ uzytkownik.nazwisko }}" />
 						
 						<br /><br />
-						Zmiana hasła:
+						Indeks:
+						<input class="CLASS" type="text" name="fld_lastName" id="fld_lastName" value="{% for s in studenci %}{% if forloop.first %}{{ s.indeks }}{% endif %}{% endfor %}" />
 						
 						<br /><br />
 						Podaj stare hasło:
-						<input class="CLASS" type="text" name="fld_old_pass" id="fld_old_pass" value="" />
+						<input class="CLASS" type="password" name="fld_old_pass" id="fld_old_pass" value="" />
 						<br />
 						Podaj nowe hasło:
-						<input class="CLASS" type="text" name="fld_new_pass" id="fld_new_pass" value="" />
+						<input class="CLASS" type="password" name="fld_new_pass" id="fld_new_pass" value="" />
 						<br />
 						Podaj nowe hasło jeszcze raz:
-						<input class="CLASS" type="text" name="fld_new_pass2" id="fld_new_pass2" value="" />
+						<input class="CLASS" type="password" name="fld_new_pass2" id="fld_new_pass2" value="" />
 						<br /><br />
 						(jeśli pole 'stare hasło' jest puste przyjmujemy, że użytkownik nie chce zmienić hasła zapisując zmiany)
 						<br /><br /><br />
@@ -398,6 +399,7 @@
 						<br /><br />
 						(dobrze by było gdyby nie można było zmieniać czasu gdy nie jest zaznaczone blokowanie [do zrobienia w js], prócz tego po kliknięciu OK niech wyświetla się jakiś alert
 						'Czy na pewno chcesz ...')
+						</div>
 					</div>
 				</div>
 				

@@ -50,6 +50,7 @@ urlpatterns = patterns('',
     (r'^media/html/teachers.html$', views.zaladujWykladowcow), 
     (r'^media/html/map.html$', views.zaladujMape),
     (r'^media/html/account.html$', views.zaladujKonto),
+    (r'^media/html/registration.html$', views.zaladujRejestracje),
     
     (r'^css/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/css')}),
     (r'^img/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/img')}),

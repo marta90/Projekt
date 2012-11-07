@@ -1,40 +1,47 @@
-<script type="text/javascript" src="media/js/jquery-1.8.2.js"></script>
+<style type="text/css">
+    .ok {color: green}
+    .notOk {color: red}
+</style>
+
 <script type="text/javascript">
 	// WALIDACJA NICKU I INDEXU
 	$(document).ready(function(){
 		// Zdarzenie nastepujace po nacisnieciu klawisz dla pola "Imię"
-		$('#fld_loginCheck').focusout(function() {
-			if ($(this).parent().find('.error').length > 0){
-				$(this).parent().find('.error').remove();
-			}
+		$('#fld_loginCheck').keyup(function()
+		{
 			var reg = /^[a-zA-Z][a-zA-Z0-9-_]{3,32}$/;
-			if(reg.test($(this).val()) == false){
-				$(this).after("<div class='error' id='shortError'>Login powinien mieć od 3 do 32 znaków i nie zawierać znaków specjalnych.</div>");
-			} else {
+			// Login ma zla dlugosc
+			if(reg.test($(this).val()) == false)
+			{
+				document.getElementById('loginRequirements').className = 'notOk';
+				document.getElementById('loginUnique').className = 'notOk';
+				checkButton();
+			}
+			// Login ma dobra dlugosc
+			else
+			{
+				document.getElementById('loginRequirements').className = 'ok';
 				checkUsername();	//jesli pasuje login to sprawdzamy czy isnieje juz taki w bazie
 			}
+			
 		});
-		// Sprawdzanie na bierzaco czy pierwszy znak jest cyfra
-		$('#fld_loginCheck').keyup(function() {
-			if ($(this).parent().find('.error').length > 0){
-				$(this).parent().find('.error').remove();
-			}
-			var reg = /^[a-zA-Z].*$/;
-			if(reg.test($(this).val()) == false){
-				$(this).after("<div class='error' id='shortError'>Login nie powinien zaczynać się od cyfry.</div>");
-			}
-		});
+
 		// Sprawdzanie na bierzaco czy indeks sklada sie z 6 cyfr
-		$('#fld_indexNumber').keyup(function() {
-			if ($(this).parent().find('.error').length > 0){
-				$(this).parent().find('.error').remove();
-			}
+		$('#fld_indexNumber').keyup(function()
+		{
 			var reg = /^[0-9]{6}$/;
-			if(reg.test($(this).val()) == false){
-				$(this).after("<div class='error' id='shortError'>Indeks musi składać się z 6 cyfr.</div>");
-			} else {
+			
+			if(reg.test($(this).val()) == false)
+			{
+				document.getElementById('indexLength').className = 'notOk';
+				checkButton();
+			}
+			else
+			{
+				document.getElementById('indexLength').className = 'ok';
 				checkIndexNumber();		//jesli pasuje indeks to sprawdzamy czy isnieje juz taki w bazie
 			}
+			
 		});
 	});
 </script>
@@ -49,8 +56,18 @@
 						<br />
 						<input class="CLASS" type="submit" name="btn_register" id="btn_register" value="Zarejestruj" disabled=true/>
 						<br />
-						<a href="activation.html" class="CLASS">Nie doszedł mail aktywacyjny?</a>
+						<br />
+						<div style="text-align: left">
+						<p id = 'loginRequirements' class = 'notOk'>Login musi mieć od 3 do 32 znaków i nie może zawierać znaków specjalnych ani zaczynać się od cyfry. <p>
+						<p id = 'loginUnique' class = 'notOk'>Login musi być unikalny. <p>
+						<p id = 'indexLength' class = 'notOk'>Indeks musi składać się z 6 cyfr. <p>
+						<p id = 'indexUnique' class = 'notOk'>Indeks nie może znajdować się w bazie. <p>
+						</div>
+
 					</div>
 				</form>
+				<span style="color: red;">{{ alert }} </span>
+				<br><br><br>
+				<a href="activation.html" class="CLASS">Nie doszedł mail aktywacyjny?</a>
 				
 				<!-- po wyslaniu formularza idzie do registration.html z portal.html w srodku -->

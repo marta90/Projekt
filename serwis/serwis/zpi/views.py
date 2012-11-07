@@ -69,25 +69,72 @@ def usunPolskieZnaki(text):
 
 # Wyswietlenie strony glownej
 def glowna(request):
+	# Uzytkownik jest zalogowany
 	if jestSesja(request):
 		nick = uzSesja(request).nick
 		if 'content' not in request.session.keys():
 			request.session['content'] = 'news'
-		return render_to_response('index.html', {'strona':'news', 'nick':nick, 'wyloguj':"wyloguj"})
+		return render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
+	
+	# Uzytkownik nie jest zalogowany oraz wystapil blad podczas logowania lub rejestracji
+	elif 'komunikat' in request.session:
+		kom = request.session['komunikat']
+		
+		#################################
+		# Logowanie
+		# Blad wyslania
+		if kom == '1':
+			usunSesje(request)
+			tekst = "Wystąpił błąd. Spróbuj ponownie."
+			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst})
+		
+		# Błędny login lub hasło
+		elif kom == '2':
+			usunSesje(request)
+			tekst = 'Podany login i/lub hasło są nieprawidłowe.'
+			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst})
+		
+		# Konto nieaktywne
+		elif kom == '3':
+			usunSesje(request)
+			tekst = 'Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link.'
+			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst, 'wyslijAktywator':True})
+		
+		# Wymagana zmiana hasla
+		elif kom == '4':
+			usunSesje(request)
+			tekst = 'Musisz zmienić swoje hasło.'
+			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst, 'zmianaHasla':True})
+		
+		##################################
+		# Rejestracja
+		# Wyswietlenie rejestracjia
+		elif kom == '5':
+			#usunSesje(request)
+			return render_to_response('index.html', {'strona':'registration', 'logowanie':True})
 	else:
 		return render_to_response('index.html', {'strona':'portal', 'logowanie':True})
 
-
-
 ############### REJESTRACJA ##############################################################
+
+# Zaladowanie rejestracji
+def zaladujRejestracje(request):
+	nick = request.session['fld_loginCheck']
+	indeks = request.session['fld_indexNumber']
+	wydz = models.Wydzial.objects.all()
+	usunSesje(request)
+	return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz})
+
+
+
 
 # Wyswietlenie rejestracji
 def rejestruj(request):
 	if post(request):
-		nick = request.POST['fld_loginCheck']
-		indeks = request.POST['fld_indexNumber']
-		wydz = models.Wydzial.objects.all()
-		return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz})
+		request.session['fld_loginCheck'] = request.POST['fld_loginCheck']
+		request.session['fld_indexNumber'] = request.POST['fld_indexNumber']
+		request.session['komunikat'] = '5'
+		return HttpResponseRedirect('/')
 	else:
 		return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.")
 
@@ -117,6 +164,7 @@ def pobierzSemestry(request, idSpec, idTyp):
 # Rejestracja użytkownika
 @transaction.commit_on_success
 def zarejestruj(request):
+	usunSesje(request)
 	if post(request):
 		nick = 'fld_nick' in request.POST.keys()
 		indeks = 'fld_index' in request.POST.keys()
@@ -157,13 +205,17 @@ def zarejestruj(request):
 				uzytkownik.domyslny = student.id
 				uzytkownik.save()
 				wyslijPotwierdzenie(uzytkownik)
-				return render_to_response('index.html', {'alert': "Na Twojego maila studenckiego został wysłany link z aktywacją konta."})
+				request.session['komRej'] = '1' # Pomyslny przebieg rejestracji
+				return HttpResponseRedirect('/')
 			else:
-				return HttpResponse("Dane nie spełniają wymaganych ograniczeń")
+				request.session['komRej'] = '2' # Dane nie spelniaja ograniczen
+				return HttpResponseRedirect('/')
 		else:
-			return HttpResponse("Nie przeslano wszystkich danych")
+			request.session['komRej'] = '3' # Nie podano wszystkich danych
+			return HttpResponseRedirect('/')
 	else:
-		return HttpResponse("Blad danych - spróbuj jeszcze raz")
+		request.session['komRej'] = '4' # Blad wysylania
+		return HttpResponseRedirect('/')
 
 
 # Sprawdzanie poprawności danych przy rejestracji
@@ -300,13 +352,7 @@ def potwierdzRejestracje(request, aktywator, nick):
 
 # Logowanie	
 def logowanie(request):
-	bladWyslania = 'Wystąpił błąd. Spróbuj ponownie.'
 	if post(request):
-		zlyLogin = 'Podany login i/lub hasło są nieprawidłowe.'
-		
-		kontoNieaktywne = 'Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link'
-		zmianaHasla = 'Trzeba zmienić hasło'
-		
 		nickPost = request.POST['fld_login']
 		hasloPost = request.POST['fld_pass']
 		try:
@@ -319,26 +365,26 @@ def logowanie(request):
 					student = models.Student.objects.get(id = domyslny)
 					if uzytkownik.czyAktywowano:
 						if czyZmienicHaslo(uzytkownik):
-							return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu': zmienHaslo, 'zmianaHasla': True})
+							request.session['komunikat'] = '4' # zmiana hasla
 						else:
 							request.session['studentId'] = student.id
 							request.session['content'] = 'news'
-							return HttpResponseRedirect('/')
 					else:
-						return HttpResponse(kontoNieaktywne)
+						request.session['komunikat'] = '3' # konto nieaktywne
 				else:
 					if czyZmienicHaslo(uzytkownik):
-						return HttpResponse(zmianaHasla)
+						request.session['komunikat'] = '4' # zmiana hasla
 					else:
 						request.session['admin'] = nickPost
 						request.session['content'] = 'news'
-						return HttpResponseRedirect('/')
 			else:
-					return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':zlyLogin})
+					request.session['komunikat'] = '2' # bledny login lub haslo
 		except:
-				return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':"2"})
+				request.session['komunikat'] = '2' # bledny login lub haslo
+				pass
 	else:
-			return render_to_response('index.html', {'logowanie':True, 'blad':True, 'tekstBledu':"3"})
+			request.session['komunikat'] = '1' # blad wyslania
+	return HttpResponseRedirect("/")
 
 
 # Sprawdzenie czy dany uzytkownik jest studentem	
@@ -386,14 +432,16 @@ def przeslijAktywatorPonownie(request):
 
 # Wylogowanie z serwisu - usunięcie sesji
 def wylogowanie(request):
+	usunSesje(request)
+	return HttpResponseRedirect('/')
+
+
+def usunSesje(request):
 	try:
 		for elemSesji in request.session.keys():
 			del request.session[elemSesji]
 	except KeyError:
 		pass
-	return HttpResponseRedirect('/')
-
-
 
 ############### PORTAL ####################################################################
 
@@ -401,6 +449,26 @@ def wylogowanie(request):
 def zaladujPortal(request):
 	if jestSesja(request):
 		return zaladujNewsy(request)
+	elif 'komRej' in request.session:
+		kom = request.session['komRej']
+		# Poprawny przebieg rejestracji
+		if kom == '1':
+			tekst = "Na Twojego maila studenckiego został wysłany link z aktywacją konta. <br> Kliknij go, aby potwierdzić rejestrację w serwisie."
+
+		# Dane nie spelniaja ograniczen
+		elif kom == '2':
+			tekst = "Dane nie spełniają wymaganych ograniczeń. Spróbuj ponownie."
+		
+		# Nie przesłano wszystkich danych
+		elif kom == '3':
+			tekst = "Nie wysłano wszystkich danych. Spróbuj ponownie."
+		
+		# Blad wysylania	
+		elif kom == '4':
+			tekst = "Wystąpił błąd podczas rejestracji. Spróbuj ponownie."
+		
+		usunSesje(request)
+		return render_to_response('portal.html', {'alert':tekst})	
 	else:
 		return render_to_response('portal.html')
 
@@ -579,7 +647,10 @@ def zaladujMape(request):
 
 # Zaladowanie strony account.html do diva na stronie glownej
 def zaladujKonto(request):
-	return render_to_response('account.html')
+	student = studSesja(request)
+	uzytkownik = student.uzytkownik
+	studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
+	return render_to_response('account.html', {'studenci':studenci, 'uzytkownik':uzytkownik})
 
 
 
@@ -623,7 +694,30 @@ def dodajWShoutboxieAND(request):
 			return shoutboxAND(request)
 	return HttpResponse("Failed")
 
+# Android - wyświetlenie wiadomości z shoutboxa
+def shoutboxAND(request):
+	if post(request):
+		student = studPost(request)
+		stopien = student.rodzajStudiow
+		semestr = student.semestr
+		kierunek = student.kierunek
+		shoutbox = models.Shoutbox.objects.filter(student__kierunek = kierunek,
+												  student__rodzajStudiow = stopien,
+												  student__semestr = semestr).order_by('data')[:10]
+		shoutbox = shoutbox.reverse()
 
+		idSt = shoutbox.values_list('student_id', flat = True)
+		studenci = models.Student.objects.filter(id__in = idSt)
+		idUzShoutboxa = studenci.values_list('uzytkownik_id', flat=True)
+		uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
+		obiekt = list(shoutbox) + list(uz) + list(studenci)
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik', 'student'))
+		return HttpResponse(wynik, mimetype="application/json")
+	else:
+		return HttpResponse("Failed")
+
+'''
 # Android - wyświetlenie wiadomości z shoutboxa
 def shoutboxAND(request):
 	if post(request):
@@ -644,13 +738,13 @@ def shoutboxAND(request):
 	else:
 		return HttpResponse("Failed")
 
-
+'''
 # Android - wyswietlenie planu zajec - przeslanie grup
 def planAND(request):
 	if post(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
-		grupy = uzytkownik.grupa.all().order_by('godzinaOd')
+		grupy = models.Grupa.objects.filter(uzytkownik = uzytkownik).order_by('godzinaOd')
 		idWykl = grupy.values_list('prowadzacy_id', flat=True)
 		idKurs = grupy.values_list('kurs_id', flat=True)
 		wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
@@ -671,6 +765,7 @@ def planAND(request):
 																			   'rodzaj'))
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
+
 
 		
 # Android - wyswietlenie zblizajacych sie wydarzen
@@ -697,9 +792,11 @@ def ostatnieWydarzeniaAND(request):
 		# Tutaj trzeba wybrac odpowiednie wydarzenia!!!
 		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
 		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
-		idStud = wydarzenia.values_list('dodal_id', flat=True)
-		dodali = models.Student.objects.filter(id__in = idStud).uzytkownik
-		lista = list(wydarzenia) + list(dodali)
+		idSt = wydarzenia.values_list('dodal_id', flat = True)
+		studenci = models.Student.objects.filter(id__in = idSt)
+		idUz = studenci.values_list('uzytkownik_id', flat=True)
+		uzytkownicy = models.Uzytkownik.objects.filter(id__in = idUz)
+		lista = list(wydarzenia) + list(studenci) + list(uzytkownicy)
 		json_serializer = serializers.get_serializer("json")()
 		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('nazwa',
 																			   'opis',
@@ -708,6 +805,7 @@ def ostatnieWydarzeniaAND(request):
 																			   'godzinaDo',
 																			   'dataDodaniaWyd',
 																			   'dodal_id',
+																			   'uzytkownik',
 																			   'nick'))
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
@@ -796,17 +894,27 @@ def kursyAND(request):
 # Klasa do testow
 def test(request):
 	if True:
-		wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
-		konsultacje = models.Konsultacje.objects.all()
-		kategoria = models.KategoriaMiejsca.objects.get(id=1)
-		budynki = models.Miejsce.objects.filter(kategoria = kategoria)
-		grupy = models.Grupa.objects.all().order_by('godzinaOd')
-		kursy = models.Kurs.objects.all()
-		wydzialy = models.Wydzial.objects.all()
-		lista = list(kursy) + list(wykladowcy) + list(konsultacje) +   list(grupy) +list(budynki) + list(wydzialy) 
+		student = models.Student.objects.get(id = 9)
+		uzytkownik = student.uzytkownik
+		grupy = models.Grupa.objects.filter(uzytkownik = uzytkownik).order_by('godzinaOd')
+		idWykl = grupy.values_list('prowadzacy_id', flat=True)
+		idKurs = grupy.values_list('kurs_id', flat=True)
+		wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
+		kursy = models.Kurs.objects.filter(id__in = idKurs)
+		lista = list(grupy) + list(kursy) + list(wykladowcy)
 		json_serializer = serializers.get_serializer("json")()
-		
-		wynik = json_serializer.serialize(lista, ensure_ascii=False, )
+		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
+																			   'dzienTygodnia',
+																			   'parzystosc',
+																			   'godzinaOd',
+																			   'godzinaDo',
+																			   'miejsce',
+																			   'kurs',
+																			   'nazwisko',
+																			   'imie',
+																			   'tytul',
+																			   'nazwa',
+																			   'rodzaj'))
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
 

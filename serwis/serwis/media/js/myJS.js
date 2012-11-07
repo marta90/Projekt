@@ -31,15 +31,17 @@ function clearField(id) {
     document.getElementById(id).value = "";
 }
 
-function checkBoth() {
-    if ($('#btn_register').parent().find('.error').length > 0){
-	$('#btn_register').parent().find('.error').remove();
-    }
-    if (nickOk && indexOk){
+function checkButton() {
+    var p1 = document.getElementById('loginRequirements').className;
+    var p2 = document.getElementById('loginUnique').className;
+    var p3 = document.getElementById('indexLength').className;
+    var p4 = document.getElementById('indexUnique').className;
+    
+    if (p1 == 'ok' && p2== 'ok' && p3 == 'ok' && p4 == 'ok')
         document.getElementById("btn_register").disabled = false;
-    }
-    else{
-        $('#btn_register').after("<div class='error' id='shortError'>Użytkownik istnieje już w systemie.</div>");
+    else
+    {
+        
         document.getElementById("btn_register").disabled = true;
     }
 }
@@ -65,15 +67,15 @@ function showUsernameStatus() {
         if (request.status == 200) {
             if (request.responseText == "okay") {
             //	document.getElementById("obrazek").className = "approved";
-                nickOk = true;
-                checkBoth();
+                document.getElementById('loginUnique').className = 'ok';
+              
             } else {
-                nickOk = false;
-                checkBoth();
+                document.getElementById('loginUnique').className = 'notOk';
             //	document.getElementById("obrazek").className = "denied";
             //	document.getElementById("fld_loginCheck").focus();
             //	document.getElementById("fld_loginCheck").select();
             }
+            checkButton();
         }
     }
 }
@@ -99,12 +101,12 @@ function showIndexNumberStatus() {
     if (request.readyState == 4) {
         if (request.status == 200) {
             if (request.responseText == "okay") {
-                indexOk = true;
-                checkBoth();
+                document.getElementById('indexUnique').className = 'ok';
+                
             } else {
-                indexOk = false;
-                checkBoth();
+                document.getElementById('indexUnique').className = 'notOk';
             }
+            checkButton();
         }
     }
 }
