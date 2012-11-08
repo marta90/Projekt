@@ -536,12 +536,12 @@ def zaladujPlan(request):
 		planSr = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
 		planCzw = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'cz').order_by('grupa__godzinaOd')
 		planPi = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'pt').order_by('grupa__godzinaOd')
-		czy = True
-		if(len(planPn) == 0 and len(planWt) == 0 and len(planSr) == 0 and len(planCzw) == 0 and len(planPi) == 0):
-			czy = False
+		czy = False
+		if(len(planPn) != 0 or len(planWt) != 0 or len(planSr) != 0 or len(planCzw) != 0 or len(planPi) != 0):
+			czy = True
 		#return HttpResponse()
 		 #and planWt.count==0 and planSr.count==0 and planCzw.count==0 and planPi.count==0
-		return render_to_response('timetable.html', {'czyJestPlan':czy, 'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
+		return render_to_response('timetable2.html', {'czyJestPlan':czy, 'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 

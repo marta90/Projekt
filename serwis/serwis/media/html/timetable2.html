@@ -1,0 +1,174 @@
+﻿
+		<link rel='stylesheet' type='text/css' href='css/planZajec/jquery-ui-1.8.11.custom.css' />
+		<link rel='stylesheet' type='text/css' href='css/planZajec/jquery.weekcalendar.css' />
+        <script type='text/javascript' src='media/js/planZajec/jquery.weekcalendar.js'></script>
+  
+  <style type='text/css'>
+  body {
+    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+    margin: 0;
+  }
+
+  h1 {
+    margin: 0 0 1em;
+    padding: 0.5em;
+  }
+
+  p.description {
+    font-size: 0.8em;
+    padding: 1em;
+    position: absolute;
+    top: 3.2em;
+    margin-right: 400px;
+  }
+
+  #message {
+    font-size: 0.7em;
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    width: 350px;
+    display: none;
+    padding: 1em;
+    background: #ffc;
+    border: 1px solid #dda;
+  }
+  </style>
+  
+
+  
+  <!--Tworzenie planu-->
+  <script type='text/javascript'>
+    
+    //function makeGroupPlan(eventD){
+    //{% for zajecia in pPn %}
+    //  var i = {
+    //    'id': parseInt('{{ forloop.counter }}'),
+    //    'start': new Date(year, month, Date.monday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
+    //    'end': new Date(year, month, Date.monday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
+    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
+    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
+    //  };
+    //  eventData.events.push(i);
+    //{% endfor %}
+    //
+    //{% for zajecia in pWt %}
+    //  var i = {
+    //    'id': parseInt('{{ forloop.counter }}'),
+    //    'start': new Date(year, month, Date.tuesday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
+    //    'end': new Date(year, month, Date.tuesday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
+    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
+    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
+    //  };
+    //  eventData.events.push(i);
+    //{% endfor %}
+    //
+    //{% for zajecia in pSr %}
+    //  var i = {
+    //    'id': parseInt('{{ forloop.counter }}'),
+    //    'start': new Date(year, month, Date.wednesday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
+    //    'end': new Date(year, month, Date.wednesday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
+    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
+    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
+    //  };
+    //  eventData.events.push(i);
+    //{% endfor %}
+    //
+    //{% for zajecia in pCz %}
+    //  var i = {
+    //    'id': parseInt('{{ forloop.counter }}'),
+    //    'start': new Date(year, month, Date.thursday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
+    //    'end': new Date(year, month, Date.thursday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
+    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
+    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
+    //  };
+    //  eventData.events.push(i);
+    //{% endfor %}
+    //
+    //{% for zajecia in pPi %}
+    //  var i = {
+    //    'id': parseInt('{{ forloop.counter }}'),
+    //    'start': new Date(year, month, Date.friday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
+    //    'end': new Date(year, month, Date.friday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
+    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
+    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
+    //  };
+    //  eventData.events.push(i);
+    //{% endfor %}
+    //};
+    
+  </script>
+  
+  <script type='text/javascript'>
+    //$calEvent.removeData('calEvent');
+    var year = new Date().getFullYear();
+    var month = new Date().getMonth();  // od 0 do 11
+    var day = new Date().getDate();     // od 1 do 31
+  
+    
+    var eventData = {
+      events : [
+		   {"id":1, "start": new Date(year, 10, day, 12), "end": new Date(year, 10, day, 13, 35),"title":"Lunch with Mike"},
+		   {"id":2, "start": new Date(year, month, day, 14), "end": new Date(year, month, day, 14, 45),"title":"Dev Meeting"},
+		   {"id":3, "start": new Date(year, month, day + 1, 18), "end": new Date(year, month, day + 1, 18, 45),"title":"Hair cut"},
+		   {"id":4, "start": new Date(year, month, day - 1, 8), "end": new Date(year, month, day - 1, 9, 30),"title":"Team breakfast"},
+		   {"id":5, "start": new Date(year, month, day + 1, 14), "end": new Date(year, month, day + 1, 15),"title":"Product showcase"}
+		]
+    };
+    //var jed = {'id':1, 'start': new Date(year, month, 5, 10, 9), 'end': new Date(year, month, 5, 12, 19),'title':'Lunch with Mike'};
+    //var dwa = {'id':1, 'start': new Date(year, month, day, 12, 9), 'end': new Date(year, month, day, 13, 19),'title':'Lunch with Mike'};
+    
+    //alert(month);
+    //alert(year);
+    var jed = {'id':1, 'start': new Date(2012, 10, 5, 10, 9), 'end': new Date(2012, 10, 5, 12, 19),'title':'Lunch with Mike'};
+    var dwa = {'id':2, 'start': new Date(2012, 10, 6, 12, 9), 'end': new Date(2012, 10, 6, 13, 19),'title':'Lunch with Mike'};
+    //eventData.events.push(jed);
+    //eventData.events.push(dwa);
+    //makeGroupPlan(eventData);
+    
+    $(document).ready(function() {
+      $('#planZajec').weekCalendar({
+			timeslotsPerHour: 4,
+			height: function($calendar){
+				return $(window).height() - $("h1").outerHeight();
+			},
+			eventRender : function(calEvent, $event) {
+				if(calEvent.end.getTime() < new Date().getTime()) {
+					$event.css("backgroundColor", "#aaa");
+					$event.find(".time").css({"backgroundColor": "#999", "border":"1px solid #888"});
+				}
+			},
+			//eventNew : function(calEvent, $event) {
+			//	displayMessage("<strong>Added event</strong><br/>Start: " + calEvent.start + "<br/>End: " + calEvent.end);
+			//	alert("You've added a new event. You would capture this event, add the logic for creating a new event with your own fields, data and whatever backend persistence you require.");
+			//},
+			//eventDrop : function(calEvent, $event) {
+			//	displayMessage("<strong>Moved Event</strong><br/>Start: " + calEvent.start + "<br/>End: " + calEvent.end);
+			//},
+			//eventResize : function(calEvent, $event) {
+			//	displayMessage("<strong>Resized Event</strong><br/>Start: " + calEvent.start + "<br/>End: " + calEvent.end);
+			//},
+			eventClick : function(calEvent, $event) {
+				displayMessage("<strong>Clicked Event</strong><br/>Start: " + calEvent.start + "<br/>End: " + calEvent.end);
+			},
+			//eventMouseover : function(calEvent, $event) {
+			//	displayMessage("<strong>Mouseover Event</strong><br/>Start: " + calEvent.start + "<br/>End: " + calEvent.end);
+			//},
+			//eventMouseout : function(calEvent, $event) {
+			//	displayMessage("<strong>Mouseout Event</strong><br/>Start: " + calEvent.start + "<br/>End: " + calEvent.end);
+			//},
+			noEvents : function() {
+				displayMessage("There are no events for this week");
+			},
+			data:eventData
+		});
+    });
+    
+  </script>
+{% if czyJestPlan %}
+
+  <div id='planZajec' ></div>
+  
+{% else %}
+    <div>Nie ma wczytanego planu.</div>
+{% endif %}
