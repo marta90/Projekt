@@ -1,4 +1,62 @@
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#subPlanButt').click(function(){
+            $.ajax({
+              type: 'POST',
+              url: '/generujPlan',
+              data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
+              success : function(msg) {
+                if (msg=="no"){
+                  alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+                } else if (msg =="problem") {
+                  alert("Sprawdz Edukacje!")
+                } else {
+                  loadContent("timetable2");
+                }
+              },
+              error: function(error) {
+                
+                  //$.ajax({
+                  //  type: 'POST',
+                  //  url: '/generujPlan',
+                  //  data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
+                  //  success : function(msg) {
+                  //    if (msg=="no"){
+                  //      alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+                  //    } else if (msg =="problem") {
+                  //      alert("Sprawdz Edukacje!")
+                  //    } else {
+                  //      loadContent("timetable2");
+                  //      czyNieKoniec = false
+                  //    }
+                  //  },
+                  //});
+                  alert(error.responseText);
+                
+              }
+            });
 
+            //$.post('/generujPlan', { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
+            //  function(msg) {
+            //    if (msg=="no"){
+            //      alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+            //    } else if (msg =="problem") {
+            //      alert("Sprawdz Edukacje!")
+            //    } else {
+            //      loadContent("timetable2");
+            //    }
+            //  });
+        });
+    });
+    $(document).keypress(function(event){
+ 
+      var keycode = (event.keyCode ? event.keyCode : event.which);
+      if(keycode == '13'){  //Jesli wystapi klikniecie enter
+        $('#subPlanButt').trigger('click');	
+      }
+     
+    });
+</script>
 				
 				<div id="left-box">
 					<div id="account-scroll">
@@ -13,11 +71,13 @@
 					<div id="account-content">
 						<b>PLAN ZAJĘĆ:</b>
 						Aby wygenerować plan zajęć podaj swój login oraz hasło wykorzystywane w portalu Edukacja.CL
-						<form method="post" action="/generujPlan">
-							<label for="userPWR">Login:</label><input type="text" name="userPWR"></input><br>
-							<label for="passPWR">Hasło:</label><input type="password" name="passPWR"></input><br>
-							<input type="submit"  />
-						</form>
+						<!--<form method="post" action="/generujPlan">-->
+            <div id=parserPWR>
+							<label for="userPWR">Login:</label><input type="text" name="userPWR" id="userPWR"></input><br>
+							<label for="passPWR">Hasło:</label><input type="password" name="passPWR" id="passPWR"></input><br>
+							<input type="submit" id="subPlanButt" />
+            </div>
+						<!--</form>-->
 						
 						<!--
 						<br /><br />

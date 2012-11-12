@@ -4,7 +4,7 @@
 }
 
 .wc-toolbar {
-  padding: 1em;
+  padding: 0.2em;
   font-size:0.8em;
 }
 
@@ -22,6 +22,7 @@
 }
 
 .wc-toolbar .wc-title {
+  font-size: 20px;
   text-align: center;
   padding:0;
   margin:0;
@@ -243,6 +244,10 @@ table.wc-time-slots {
 
 .wc-cal-event .wc-title {
     position: relative;
+}
+.wc-title {
+  font-size: 12px;
+  font-family: sans-serif;
 }
 
 .wc-container .ui-resizable-s {

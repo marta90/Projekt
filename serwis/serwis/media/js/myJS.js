@@ -208,3 +208,15 @@ function makeSem(){
     }
 }
 
+
+function makeTimeTable(){
+    if (request.readyState == 4) {
+        if (request.status == 200) {
+            callbackContext(request.responseText);
+            
+        }
+    }
+}
+
+
+

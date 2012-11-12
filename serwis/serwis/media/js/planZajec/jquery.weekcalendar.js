@@ -20,6 +20,8 @@
  * http://arshaw.com/fullcalendar/
  */
 
+
+
 (function($) {
   // check the jquery version
   var _v = $.fn.jquery.split('.'),
@@ -32,7 +34,7 @@
       options: {
         date: new Date(),
         timeFormat: null,
-        dateFormat: 'M d, Y',
+        dateFormat: 'd M Y',
         alwaysDisplayTimeMinutes: true,
         use24Hour: true,
         daysToShow: 5,
@@ -51,17 +53,17 @@
         endParam: 'end',
         businessHours: {start: 7, end: 22, limitDisplay: true},
         newEventText: 'New Event',
-        timeslotHeight: 20,
+        timeslotHeight: 15,
         defaultEventLength: 2,
-        timeslotsPerHour: 4,
+        timeslotsPerHour: 2,
         minDate: null,
         maxDate: null,
         showHeader: true,
         buttons: true,
         buttonText: {
           today: 'dziś',
-          lastWeek: 'previous',
-          nextWeek: 'next'
+          lastWeek: 'poprzedni',
+          nextWeek: 'następny'
         },
         switchDisplay: {},
         scrollToHourMillis: 500,
@@ -1182,8 +1184,11 @@
           weekEndDate = self._dateLastMilliOfWeek(date);
 
           options.calendarBeforeLoad(self.element);
-
-          self.element.data('startDate', weekStartDate);
+	  
+	  //alert(weekStartDate.getDate() + " " + weekStartDate.getMonth() + " " + weekStartDate.getFullYear());
+	  //alert(weekEndDate.getDate() + " " + weekEndDate.getMonth() + " " + weekEndDate.getFullYear());
+          
+	  self.element.data('startDate', weekStartDate);
           self.element.data('endDate', weekEndDate);
 
           $weekDayColumns = self.element.find('.wc-day-column-inner');
@@ -1249,6 +1254,7 @@
                   });
           }
           else if (options.data) {
+	    alert("tolotlto");
                 self._renderEvents(options.data, $weekDayColumns);
             }
 
@@ -1364,7 +1370,6 @@
             title = title.replace('%start%', self._formatDate(start, date_format));
             title = title.replace('%end%', self._formatDate(end, date_format));
             title = title.replace('%date%', self._formatDate(date, date_format));
-
             $('.wc-toolbar .wc-title', self.element).html(title);
           }
           //self._clearFreeBusys();

@@ -17,6 +17,8 @@ from collections import defaultdict
 from twill import commands
 from django.db.models import Q
 
+from django.utils import simplejson
+
 
 ############### FUNKCJE POMOCNICZE ########################################################
 
@@ -124,9 +126,6 @@ def zaladujRejestracje(request):
 	wydz = models.Wydzial.objects.all()
 	usunSesje(request)
 	return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz})
-
-
-
 
 # Wyswietlenie rejestracji
 def rejestruj(request):
@@ -545,6 +544,66 @@ def zaladujPlan(request):
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
+def pobierzZajecia(request, start, end):
+    if jestSesja(request):
+        st = studSesja(request)
+        uz = st.uzytkownik
+        wynik = ""          #Zmienna tymczasowa
+        output = {          # Wynik jaki zostanie wyslany jsonem
+            "events": []
+        }
+        start = start.split("-")        # rozdzielam przeslana mi date startu
+        end = end.split("-")            # rozdzielam przeslana mi date konca
+        startDate = datetime.date(int(start[0]),int(start[1])+1,int(start[2]))  # tworze date jako obiekt datetime.date
+        endDate = datetime.date(int(end[0]),int(end[1])+1,int(end[2]))
+        czyParzysty = czyParzystyTydzien(startDate)                             # sprawdzam czy tydzien jest tygodniem parzystym
+        planPn = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'pn').order_by('grupa__godzinaOd')   # pobieram z bazy zajecia
+        planWt = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'wt').order_by('grupa__godzinaOd')
+        planSr = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
+        planCzw = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'cz').order_by('grupa__godzinaOd')
+        planPi = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'pt').order_by('grupa__godzinaOd')
+        for i in range(0, 5):       # petla od 0 do 4 
+            nowaData = startDate + datetime.timedelta(days=i)   # dodaje do daty poczatkowej okreslona ilosc dni, aby odnalezc wszystkie dni tygodnia
+            if nowaData.strftime("%w") == '1':        #poniedzialek
+                utworzZajecia(planPn, output, nowaData, czyParzysty, wynik)     # utworzenie zajec z poniedzialku
+            if nowaData.strftime("%w") == '2':        #wtorek
+                utworzZajecia(planWt, output, nowaData, czyParzysty, wynik)
+            if nowaData.strftime("%w") == '3':        #sroda
+                utworzZajecia(planSr, output, nowaData, czyParzysty, wynik)
+            if nowaData.strftime("%w") == '4':        #czwartek
+                utworzZajecia(planCzw, output, nowaData, czyParzysty, wynik)
+            if nowaData.strftime("%w") == '5':        #piatek
+                utworzZajecia(planPi, output, nowaData, czyParzysty, wynik)
+        
+        #return HttpResponse(wynik)
+        return HttpResponse(simplejson.dumps(output), mimetype="application/json")
+        
+def utworzZajecia(plan, output, nowaData, czyParzysty, wynik):
+    for i in range(0, len(plan)):       # przechodze po liscie zajec
+        if (plan[i].grupa.godzinaOd != None):         # sprawdzam czy maja godzine i 
+            if (plan[i].grupa.parzystosc == ''):      # czy nie maja okreslonej parzystosci
+                tworzenieZajec(i, nowaData, plan, output)                                   # tworze dla znalezionych zajec json
+            else:
+                if((plan[i].grupa.parzystosc == 'TN') & (czyParzysty == False)):            # sprawdzam czy tydzien jest nie parzysty i dodaje te zajecia
+                    tworzenieZajec(i, nowaData, plan, output)
+                if((plan[i].grupa.parzystosc == 'TP') & (czyParzysty == True)):             # sprawdzam czy tydzien jest parzysty i dodaje te zajecia
+                    tworzenieZajec(i, nowaData, plan, output)
+
+def tworzenieZajec(i, nowaData, plan, output):      # tworze json i dodaje go do listy events
+    event = {"id": str(i),
+                    "start": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(plan[i].grupa.godzinaOd.hour) + ":" + str(plan[i].grupa.godzinaOd.minute),
+                    "end": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(plan[i].grupa.godzinaDo.hour) + ":" + str(plan[i].grupa.godzinaDo.minute),
+                    "title": "(" + plan[i].grupa.kurs.rodzaj + ") " +  plan[i].grupa.kurs.nazwa + "<br>" + plan[i].grupa.prowadzacy.tytul + " " +
+                                plan[i].grupa.prowadzacy.imie + " " + plan[i].grupa.prowadzacy.nazwisko + "<br>" + plan[i].grupa.miejsce
+                    }
+    output.get("events").append(event)
+    
+
+def czyParzystyTydzien(data):           # sprawdzam czy tydzien jest parzysty
+    if (int(data.strftime("%W")) % 2 == 0):
+        return True
+    else:
+        return False
 
 ############### WYKLADOWCY #################################################################
 

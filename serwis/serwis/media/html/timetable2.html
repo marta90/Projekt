@@ -36,102 +36,40 @@
   </style>
   
 
-  
-  <!--Tworzenie planu-->
   <script type='text/javascript'>
-    
-    //function makeGroupPlan(eventD){
-    //{% for zajecia in pPn %}
-    //  var i = {
-    //    'id': parseInt('{{ forloop.counter }}'),
-    //    'start': new Date(year, month, Date.monday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
-    //    'end': new Date(year, month, Date.monday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
-    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
-    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
-    //  };
-    //  eventData.events.push(i);
-    //{% endfor %}
-    //
-    //{% for zajecia in pWt %}
-    //  var i = {
-    //    'id': parseInt('{{ forloop.counter }}'),
-    //    'start': new Date(year, month, Date.tuesday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
-    //    'end': new Date(year, month, Date.tuesday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
-    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
-    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
-    //  };
-    //  eventData.events.push(i);
-    //{% endfor %}
-    //
-    //{% for zajecia in pSr %}
-    //  var i = {
-    //    'id': parseInt('{{ forloop.counter }}'),
-    //    'start': new Date(year, month, Date.wednesday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
-    //    'end': new Date(year, month, Date.wednesday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
-    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
-    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
-    //  };
-    //  eventData.events.push(i);
-    //{% endfor %}
-    //
-    //{% for zajecia in pCz %}
-    //  var i = {
-    //    'id': parseInt('{{ forloop.counter }}'),
-    //    'start': new Date(year, month, Date.thursday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
-    //    'end': new Date(year, month, Date.thursday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
-    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
-    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
-    //  };
-    //  eventData.events.push(i);
-    //{% endfor %}
-    //
-    //{% for zajecia in pPi %}
-    //  var i = {
-    //    'id': parseInt('{{ forloop.counter }}'),
-    //    'start': new Date(year, month, Date.friday().getDate(), '{{ zajecia.grupa.godzinaOd.hour }}', '{{ zajecia.grupa.godzinaOd.minute }}'),
-    //    'end': new Date(year, month, Date.friday().getDate(), '{{ zajecia.grupa.godzinaDo.hour }}', '{{ zajecia.grupa.godzinaDo.minute }}'),
-    //    'title': "{{zajecia.grupa.kurs.nazwa}}<br>{{zajecia.grupa.miejsce}}<br>" + 
-    //              "{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}"
-    //  };
-    //  eventData.events.push(i);
-    //{% endfor %}
-    //};
-    
-  </script>
-  
-  <script type='text/javascript'>
-    //$calEvent.removeData('calEvent');
     var year = new Date().getFullYear();
     var month = new Date().getMonth();  // od 0 do 11
     var day = new Date().getDate();     // od 1 do 31
   
     
+//    var eventData = {
+//      events : [
+//		   {"id":1, "start": new Date(year, 10, day, 12), "end": new Date(year, 10, day, 13, 35),"title":"Lunch with Mike"},
+//		   {"id":2, "start": new Date(year, month, day, 14), "end": new Date(year, month, day, 14, 45),"title":"Dev Meeting"},
+//		   {"id":3, "start": new Date(year, month, day + 1, 18), "end": new Date(year, month, day + 1, 18, 45),"title":"Hair cut"},
+//		   {"id":4, "start": new Date(year, month, day - 1, 8), "end": new Date(year, month, day - 1, 9, 30),"title":"Team breakfast"},
+//		   {"id":5, "start": new Date(year, month, day + 1, 14), "end": new Date(year, month, day + 1, 15),"title":"Product showcase"}
+//		]
+//    };
     var eventData = {
-      events : [
-		   {"id":1, "start": new Date(year, 10, day, 12), "end": new Date(year, 10, day, 13, 35),"title":"Lunch with Mike"},
-		   {"id":2, "start": new Date(year, month, day, 14), "end": new Date(year, month, day, 14, 45),"title":"Dev Meeting"},
-		   {"id":3, "start": new Date(year, month, day + 1, 18), "end": new Date(year, month, day + 1, 18, 45),"title":"Hair cut"},
-		   {"id":4, "start": new Date(year, month, day - 1, 8), "end": new Date(year, month, day - 1, 9, 30),"title":"Team breakfast"},
-		   {"id":5, "start": new Date(year, month, day + 1, 14), "end": new Date(year, month, day + 1, 15),"title":"Product showcase"}
-		]
+      events : []
     };
-    //var jed = {'id':1, 'start': new Date(year, month, 5, 10, 9), 'end': new Date(year, month, 5, 12, 19),'title':'Lunch with Mike'};
-    //var dwa = {'id':1, 'start': new Date(year, month, day, 12, 9), 'end': new Date(year, month, day, 13, 19),'title':'Lunch with Mike'};
-    
-    //alert(month);
-    //alert(year);
+
     var jed = {'id':1, 'start': new Date(2012, 10, 5, 10, 9), 'end': new Date(2012, 10, 5, 12, 19),'title':'Lunch with Mike'};
     var dwa = {'id':2, 'start': new Date(2012, 10, 6, 12, 9), 'end': new Date(2012, 10, 6, 13, 19),'title':'Lunch with Mike'};
-    //eventData.events.push(jed);
-    //eventData.events.push(dwa);
+    
     //makeGroupPlan(eventData);
     
+    
     $(document).ready(function() {
+      $.support.cssTransitions = false;
       $('#planZajec').weekCalendar({
-			timeslotsPerHour: 4,
-			height: function($calendar){
-				return $(window).height() - $("h1").outerHeight();
-			},
+			//height: function($calendar){
+			//	return $(window).height() - $("h1").outerHeight();
+			//},
+            height: function($calendar){
+              return 570;
+            },
 			eventRender : function(calEvent, $event) {
 				if(calEvent.end.getTime() < new Date().getTime()) {
 					$event.css("backgroundColor", "#aaa");
@@ -160,7 +98,59 @@
 			noEvents : function() {
 				displayMessage("There are no events for this week");
 			},
-			data:eventData
+            data: function(start, end, callback){
+              request = createRequest();
+              if (request == null)
+                alert("Unable to create request");
+              else {
+                var url= "/giveLessons/" + start.getFullYear() + '-' + start.getMonth() + '-' + start.getDate() + "/" + end.getFullYear() + '-' + end.getMonth() + '-' + end.getDate();
+                request.onreadystatechange = function(){
+                  if (request.readyState == 4) {
+                    if (request.status == 200) {
+                      obiekt = JSON.parse(request.responseText)
+                      for (var i=0;i<obiekt.events.length;i++){
+                        var event = obiekt.events[i];
+                        var start = event.start.split(":");
+                        var end = event.end.split(":");
+                        var j = {
+                          'id': event.id,
+                          'start': new Date(start[0], start[1], start[2], start[3], start[4]),
+                          'end': new Date(end[0], end[1], end[2], end[3], end[4]),
+                          'title': event.title,
+                        }
+                        eventData.events.push(j);
+                      }
+                      //setTimeout(function(){callback(eventData); }, 3000);
+                      callback(eventData);
+                    }
+                  }
+                };
+                request.open("GET", url, true);
+                request.send(null);
+              }
+              
+            }
+            //data: eventData
+            //data: function(start, end, callback) {
+            //$.ajax({
+            //  url: "/giveLessons",
+            //  dataType: 'json',
+            //  data: {},
+            //  cache: false,
+            //  success: function(result) {
+            //    callback(result);
+            //  }
+            //  });
+            //},
+            //data: function(start, end, callback){
+            //  $.getJSON(
+            //    "/giveLessons",
+            //    '',
+            //    function(result) {
+            //      callback(result);
+            //    }
+            //  );
+            //},
 		});
     });
     
