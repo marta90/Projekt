@@ -104,8 +104,9 @@ def glowna(request):
 		
 		# Wymagana zmiana hasla
 		elif kom == '4':
-			usunSesje(request)
-			tekst = 'Musisz zmienić swoje hasło.'
+                        del request.session['komunikat']
+                        #usunSesje(request)
+			tekst = 'Teraz możesz zmienić swoje hasło.'
 			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst, 'zmianaHasla':True})
 		
 		##################################
@@ -115,7 +116,9 @@ def glowna(request):
 			#usunSesje(request)
 			return render_to_response('index.html', {'strona':'registration', 'logowanie':True})
 	else:
-		return render_to_response('index.html', {'strona':'portal', 'logowanie':True})
+            if 'content' not in request.session.keys():
+                request.session['content'] = 'portal'
+            return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True})
 
 ############### REJESTRACJA ##############################################################
 
@@ -327,10 +330,11 @@ def wygenerujAktywator():
 
 # Wyslanie maila z kodem potwierdzajacym rejestracje
 def wyslijPotwierdzenie(uzytkownik):
-	tytul = "PwrTracker - potwierdzenie rejestracji"
-	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
-	tresc = tresc + "http://127.0.0.1:8000/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
-	#send_mail(tytul, tresc, 'pwrtracker@gmail.com', [student.indeks + "@student.pwr.wroc.pl"], fail_silently=False)
+        tytul = "PwrTracker - potwierdzenie rejestracji"
+        tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
+        tresc = tresc + "http://127.0.0.1:8000/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
+        indeks = models.Student.objects.filter(uzytkownik = uzytkownik.id)[0].indeks
+        send_mail(tytul, tresc, 'pwrtracker@gmail.com', [indeks + "@student.pwr.wroc.pl"], fail_silently=False)
 
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
@@ -342,7 +346,7 @@ def potwierdzRejestracje(request, aktywator, nick):
 			uzytkownik.save()
 			return HttpResponse("Udało się aktywować")
 		else:
-			HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	
+			return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	
 	except:
 		return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
 
@@ -351,39 +355,41 @@ def potwierdzRejestracje(request, aktywator, nick):
 
 # Logowanie	
 def logowanie(request):
-	if post(request):
-		nickPost = request.POST['fld_login']
-		hasloPost = request.POST['fld_pass']
-		try:
-			uzytkownik = models.Uzytkownik.objects.get(nick = nickPost)
-			haslo = uzytkownik.haslo
-			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
-			if(zgodnosc):
-				if jestStudentem(uzytkownik):
-					domyslny = uzytkownik.domyslny
-					student = models.Student.objects.get(id = domyslny)
-					if uzytkownik.czyAktywowano:
-						if czyZmienicHaslo(uzytkownik):
-							request.session['komunikat'] = '4' # zmiana hasla
-						else:
-							request.session['studentId'] = student.id
-							request.session['content'] = 'news'
-					else:
-						request.session['komunikat'] = '3' # konto nieaktywne
-				else:
-					if czyZmienicHaslo(uzytkownik):
-						request.session['komunikat'] = '4' # zmiana hasla
-					else:
-						request.session['admin'] = nickPost
-						request.session['content'] = 'news'
-			else:
-					request.session['komunikat'] = '2' # bledny login lub haslo
-		except:
-				request.session['komunikat'] = '2' # bledny login lub haslo
-				pass
-	else:
-			request.session['komunikat'] = '1' # blad wyslania
-	return HttpResponseRedirect("/")
+    if post(request):
+            nickPost = request.POST['fld_login']
+            hasloPost = request.POST['fld_pass']
+            try:
+                    uzytkownik = models.Uzytkownik.objects.get(nick = nickPost)
+                    haslo = uzytkownik.haslo
+                    zgodnosc = sha256_crypt.verify(hasloPost, haslo)
+                    if(zgodnosc):
+                            if jestStudentem(uzytkownik):
+                                    domyslny = uzytkownik.domyslny
+                                    student = models.Student.objects.get(id = domyslny)
+                                    if uzytkownik.czyAktywowano:
+                                            if czyZmienicHaslo(uzytkownik):
+                                                    request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
+                                                    request.session['komunikat'] = '4' # zmiana hasla
+                                            else:
+                                                    request.session['studentId'] = student.id
+                                                    request.session['content'] = 'news'
+                                    else:
+                                            request.session['komunikat'] = '3' # konto nieaktywne
+                            else:
+                                    if czyZmienicHaslo(uzytkownik):
+                                        request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
+                                        request.session['komunikat'] = '4'  # zmiana hasla
+                                    else:
+                                            request.session['admin'] = nickPost
+                                            request.session['content'] = 'news'
+                    else:
+                                    request.session['komunikat'] = '2' # bledny login lub haslo
+            except:
+                            request.session['komunikat'] = '2' # bledny login lub haslo
+                            pass
+    else:
+                    request.session['komunikat'] = '1' # blad wyslania
+    return HttpResponseRedirect("/")
 
 
 # Sprawdzenie czy dany uzytkownik jest studentem	
@@ -404,18 +410,71 @@ def czyZmienicHaslo(uzytkownik):
 		return True
 	else:
 		return False
-	
+
 
 # Funkcja do oprogramowania
 # Przypomnienie hasla
 def przypomnijHaslo(request):
-	return 0
+    if post(request) & ('fld_login' in request.POST.keys()):
+        nick = request.POST['fld_login']
+        try:
+            uzytkownik = uz(nick)
+            uzytkownik.aktywator = wygenerujAktywator()
+            uzytkownik.save()
+            wyslijPrzypHaslo(uzytkownik)
+        except:
+            return HttpResponse("Nie ma takiego uzytkownika")
+    return HttpResponse("ok")
 
+# Wyslanie maila z przypomnieniem hasła
+def wyslijPrzypHaslo(uzytkownik):
+    tytul = "PwrTracker - przypomnienie hasła"
+    tresc = "Witaj użytkowniku PwrTracker!\n\nAby ustawić nowe hasło w serwisie kliknij w poniższy link.\n"
+    tresc = tresc + "http://127.0.0.1:8000/newPassword/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
+    indeks = models.Student.objects.filter(uzytkownik = uzytkownik.id)[0].indeks
+    send_mail(tytul, tresc, 'pwrtracker@gmail.com', [indeks + "@student.pwr.wroc.pl"], fail_silently=False)
+
+# wyswietlenie formularza by ustawic nowe haslo
+def ustawNoweHaslo(request, aktywator, nick):
+    try:
+        uzytkownik = uz(nick)
+        if uzytkownik.aktywator == aktywator:
+            request.session['komunikat'] = '4'
+            request.session['nick'] = nick
+            return HttpResponseRedirect("/")
+        else:
+            return HttpResponse("Wyświetlenie formularza by ustawić nowe hasło zakoćzyło się niepowodzeniem. Spróbuj jeszcze raz")	
+    except:
+        return HttpResponse("Wyświetlenie formularza by ustawić nowe hasło zakoćzyło się niepowodzeniem. Spróbuj jeszcze raz")
+    
+def zapiszNoweHaslo(request):
+    if post(request) & ('fld_passNew' in request.POST.keys()) & ('fld_passNewRepeat' in request.POST.keys()):
+        password = request.POST['fld_passNew']
+        password2 = request.POST['fld_passNewRepeat']
+        nick = request.session['nick']
+        hasloOk = pasuje('^(?!.*(.)\1{3})((?=.*[\d])(?=.*[A-Za-z])|(?=.*[^\w\d\s])(?=.*[A-Za-z])).{8,20}$', password)
+        hasloOk = hasloOk & (password == password2)
+        if hasloOk == False:
+            return HttpResponseRedirect('Haslo nieprawidlowe')
+        else:
+            try:
+                uzytkownik = uz(nick)
+                if (sha256_crypt.verify(password, uzytkownik.haslo)):
+                    return HttpResponse("Haslo nie może być takie same jak poprzednie")
+                else:
+                    haslo = sha256_crypt.encrypt(password)
+                    uzytkownik.haslo = haslo
+                    uzytkownik.dataOstZmianyHasla = datetime.date.today();
+                    uzytkownik.save()
+                #del request.session['komunikat']
+            except:
+                return HttpResponse("Nie ma takiego uzytkownika")
+    return HttpResponse("ok")
 
 # Przeslanie aktywatora ponownie - wygenerowanie nowego
 def przeslijAktywatorPonownie(request):
-	if post(request) & 'fld_login' in request.POST.keys():
-		nick = request.POST['fld_login']
+	if post(request) & ('fld_login_ver' in request.POST.keys()):
+		nick = request.POST['fld_login_ver']
 		try:
 			uzytkownik = uz(nick)
 			if (uzytkownik.czyAktywowano == False):
@@ -423,11 +482,11 @@ def przeslijAktywatorPonownie(request):
 				uzytkownik.save()
 				wyslijPotwierdzenie(uzytkownik)
 			else:
-				return HttpResponse("Twoje konto jest już aktywne")
+				return HttpResponse("Juz aktywne")
 		except:
 			return HttpResponse("Nie ma takiego uzytkownika")
-	return HttpResponse("Wysłano aktywator ponownie")
-	
+        return HttpResponse("ok")
+
 
 # Wylogowanie z serwisu - usunięcie sesji
 def wylogowanie(request):
@@ -486,7 +545,7 @@ def zaladujNewsy(request):
 	wczoraj = datetime.date.today() - datetime.timedelta(days=1)
 	ileWydarzen = uzytkownik.ileMoichWydarzen
 	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia')[:ileWydarzen]
-	wydarzenia = models.Wydarzenie.objects.all()
+	wydarzenia = filtrujNoweWydarzenia(request)
 	wydarzeniaUz = uzytkownik.wydarzenie_set.all()
 	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
 	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
@@ -521,7 +580,20 @@ def dodajShout(request, wiadomosc):
 		shout.save()
 	return HttpResponseRedirect("/media/html/shoutbox.html")
 
+############### WYDARZENIA ################################################################
 
+def filtrujNoweWydarzenia(request):
+    student = studSesja(request)
+    uzytkownik = uzSesja(request)
+    kierStudenta = student.kierunek
+    wydzStudenta = student.kierunek.wydzial
+    semStudenta = student.semestr
+    rodzStudenta = student.rodzajStudiow
+    wydarzenia = models.Wydarzenie.objects.filter((Q(dodal__kierunek = kierStudenta) & Q(rodzajWydarzenia = 3)) | (Q(dodal__kierunek__wydzial = wydzStudenta) & Q(rodzajWydarzenia = 2)) |
+                                                  (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) |
+                                                  (Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5)) )
+    return wydarzenia
+    
 
 ############### PLAN ZAJEC ################################################################
 
@@ -594,8 +666,8 @@ def tworzenieZajec(i, nowaData, plan, output):      # tworze json i dodaje go do
                     "start": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(plan[i].grupa.godzinaOd.hour) + ":" + str(plan[i].grupa.godzinaOd.minute),
                     "end": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(plan[i].grupa.godzinaDo.hour) + ":" + str(plan[i].grupa.godzinaDo.minute),
                     "title": "(" + plan[i].grupa.kurs.rodzaj + ") " +  plan[i].grupa.kurs.nazwa + "<br>" + plan[i].grupa.prowadzacy.tytul + " " +
-                                plan[i].grupa.prowadzacy.imie + " " + plan[i].grupa.prowadzacy.nazwisko + "<br>" + plan[i].grupa.miejsce
-                    }
+                                plan[i].grupa.prowadzacy.imie + " " + plan[i].grupa.prowadzacy.nazwisko + "<br>" + plan[i].grupa.miejsce  + ", " + plan[i].grupa.godzinaOd.strftime('%H:%M') + "-" + plan[i].grupa.godzinaDo.strftime('%H:%M')
+                                            }
     output.get("events").append(event)
     
 
@@ -681,7 +753,56 @@ def konsultacjeWykladowcy(request, idw):
 	response.write('</i>')
 	return response
 
+def pobierzZajeciaWykladowcy(request, idw, start, end):
+    prowadzacy = models.Prowadzacy.objects.get(id = idw)
+    wynik = ""          #Zmienna tymczasowa
+    output = {          # Wynik jaki zostanie wyslany jsonem
+        "events": []
+    }
+    start = start.split("-")        # rozdzielam przeslana mi date startu
+    end = end.split("-")            # rozdzielam przeslana mi date konca
+    startDate = datetime.date(int(start[0]),int(start[1])+1,int(start[2]))  # tworze date jako obiekt datetime.date
+    endDate = datetime.date(int(end[0]),int(end[1])+1,int(end[2]))
+    czyParzysty = czyParzystyTydzien(startDate)                             # sprawdzam czy tydzien jest tygodniem parzystym
+    grupyPn = models.Grupa.objects.filter(prowadzacy = prowadzacy, dzienTygodnia = 'pn')
+    grupyWt = models.Grupa.objects.filter(prowadzacy = prowadzacy, dzienTygodnia = 'wt')
+    grupySr = models.Grupa.objects.filter(prowadzacy = prowadzacy, dzienTygodnia = 'śr')
+    grupyCzw = models.Grupa.objects.filter(prowadzacy = prowadzacy, dzienTygodnia = 'cz')
+    grupyPi = models.Grupa.objects.filter(prowadzacy = prowadzacy, dzienTygodnia = 'pt')
+    for i in range(0, 5):       # petla od 0 do 4 
+        nowaData = startDate + datetime.timedelta(days=i)   # dodaje do daty poczatkowej okreslona ilosc dni, aby odnalezc wszystkie dni tygodnia
+        if nowaData.strftime("%w") == '1':        #poniedzialek
+            utworzZajeciaProw(grupyPn, output, nowaData, czyParzysty, wynik)     # utworzenie zajec z poniedzialku
+        if nowaData.strftime("%w") == '2':        #wtorek
+            utworzZajeciaProw(grupyWt, output, nowaData, czyParzysty, wynik)
+        if nowaData.strftime("%w") == '3':        #sroda
+            utworzZajeciaProw(grupySr, output, nowaData, czyParzysty, wynik)
+        if nowaData.strftime("%w") == '4':        #czwartek
+            utworzZajeciaProw(grupyCzw, output, nowaData, czyParzysty, wynik)
+        if nowaData.strftime("%w") == '5':        #piatek
+            utworzZajeciaProw(grupyPi, output, nowaData, czyParzysty, wynik)
+    
+    #return HttpResponse(wynik)
+    return HttpResponse(simplejson.dumps(output), mimetype="application/json")
 
+def utworzZajeciaProw(grupy, output, nowaData, czyParzysty, wynik):
+    for i in range(0, len(grupy)):       # przechodze po liscie zajec
+        if (grupy[i].godzinaOd != None):         # sprawdzam czy maja godzine i 
+            if (grupy[i].parzystosc == ''):      # czy nie maja okreslonej parzystosci
+                tworzenieZajecProw(i, nowaData, grupy, output)                                   # tworze dla znalezionych zajec json
+            else:
+                if((grupy[i].parzystosc == 'TN') & (czyParzysty == False)):            # sprawdzam czy tydzien jest nie parzysty i dodaje te zajecia
+                    tworzenieZajecProw(i, nowaData, grupy, output)
+                if((grupy[i].parzystosc == 'TP') & (czyParzysty == True)):             # sprawdzam czy tydzien jest parzysty i dodaje te zajecia
+                    tworzenieZajecProw(i, nowaData, grupy, output)
+
+def tworzenieZajecProw(i, nowaData, grupy, output):      # tworze json i dodaje go do listy events
+    event = {"id": str(i),
+                    "start": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(grupy[i].godzinaOd.hour) + ":" + str(grupy[i].godzinaOd.minute),
+                    "end": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(grupy[i].godzinaDo.hour) + ":" + str(grupy[i].godzinaDo.minute),
+                    "title": "(" + grupy[i].kurs.rodzaj + ") " +  grupy[i].kurs.nazwa + "<br>" + grupy[i].miejsce + "<br>" + grupy[i].godzinaOd.strftime('%H:%M') + "-" + grupy[i].godzinaDo.strftime('%H:%M')
+                    }
+    output.get("events").append(event)
 
 ############### KALENDARZ #################################################################
 
@@ -691,6 +812,8 @@ def zaladujKalendarz(request):
 		return render_to_response('calendar.html')
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
+
+############### Przypominanie hasła #######################################################
 
 
 
@@ -732,7 +855,9 @@ def wyslijEmail(request):
 		return HttpResponse('Wysłano wiadomości')
 
 
-
+# Zaladowanie strony map.html do diva na stronie glownej
+def zaladujZmianaHasla(request):
+	return render_to_response('changePassword.html')
 
 ##########################################################################################
 #ANDROID

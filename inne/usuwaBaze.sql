@@ -1,13 +1,12 @@
 ﻿BEGIN;
 DROP TABLE "Shoutbox";
-DROP TABLE "KierunkiStudenta";
-DROP TABLE "Kierunek";
-DROP TABLE "Wydzial";
 DROP TABLE "GrupyStudentow";
-DROP TABLE "Student";
 DROP TABLE "AktualneWydarzenie";
 DROP TABLE "Kalendarz";
 DROP TABLE "Wydarzenie";
+DROP TABLE "Student";
+DROP TABLE "Kierunek";
+DROP TABLE "Wydzial";
 DROP TABLE "ZmianaDat";
 DROP TABLE "NotatkaDoPlanu";
 DROP TABLE "Tydzien";

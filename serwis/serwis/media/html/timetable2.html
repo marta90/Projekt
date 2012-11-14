@@ -63,12 +63,12 @@
     
     $(document).ready(function() {
       $.support.cssTransitions = false;
-      $('#planZajec').weekCalendar({
+      $('#timetable-scheme2').weekCalendar({
 			//height: function($calendar){
 			//	return $(window).height() - $("h1").outerHeight();
 			//},
             height: function($calendar){
-              return 570;
+              return 503;
             },
 			eventRender : function(calEvent, $event) {
 				if(calEvent.end.getTime() < new Date().getTime()) {
@@ -157,7 +157,7 @@
   </script>
 {% if czyJestPlan %}
 
-  <div id='planZajec' ></div>
+  <div id='timetable-scheme2' ></div>
   
 {% else %}
     <div>Nie ma wczytanego planu.</div>

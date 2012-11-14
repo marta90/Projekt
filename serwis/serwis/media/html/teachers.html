@@ -1,4 +1,8 @@
-﻿<style type="text/css">
+﻿		<link rel='stylesheet' type='text/css' href='css/planZajec/jquery-ui-1.8.11.custom.css' />
+		<link rel='stylesheet' type='text/css' href='css/planZajec/jquery.weekcalendar.css' />
+        <script type='text/javascript' src='media/js/planZajec/jquery.weekcalendar.js'></script>
+
+<style type="text/css">
     .divinactive {visibility: hidden; height: 0px; }
     .divactive {visibility: visible; height: auto; padding-bottom: 10px;}
 </style>
@@ -37,9 +41,69 @@
     function find(){
          var nazwa = document.getElementById("name").value;
 		 nazwa = encodeURIComponent(nazwa);
-         $("#teachers-list").load("findTeacher/" + nazwa);
-         
+         $("#teachers-list").load("findTeacher/" + nazwa)
     }
+	
+	
+	function showPlan(idA){
+		var eventData = {
+			events : []
+		};
+		var idUrl = idA.id;
+        var idDiv = "p" + idUrl;
+		var klasa = $('#'+idDiv).attr('class');
+		if(klasa == 'divinactive'){
+			$('#'+idDiv).attr({'class':'divactive'});
+			
+			$('#'+idDiv).weekCalendar({
+				height: function($calendar){
+				  return 503;
+				},
+				eventRender : function(calEvent, $event) {
+					if(calEvent.end.getTime() < new Date().getTime()) {
+						$event.css("backgroundColor", "#aaa");
+						$event.find(".time").css({"backgroundColor": "#999", "border":"1px solid #888"});
+					}
+				},
+				data: function(start, end, callback){
+				  request = createRequest();
+				  if (request == null)
+					alert("Unable to create request");
+				  else {
+					var url= "/getTeachersLessons/" + idUrl + "/" + start.getFullYear() + '-' + start.getMonth() + '-' + start.getDate() + "/" + end.getFullYear() + '-' + end.getMonth() + '-' + end.getDate();
+					request.onreadystatechange = function(){
+					  if (request.readyState == 4) {
+						if (request.status == 200) {
+						  obiekt = JSON.parse(request.responseText)
+						  for (var i=0;i<obiekt.events.length;i++){
+							var event = obiekt.events[i];
+							var start = event.start.split(":");
+							var end = event.end.split(":");
+							var j = {
+							  'id': event.id,
+							  'start': new Date(start[0], start[1], start[2], start[3], start[4]),
+							  'end': new Date(end[0], end[1], end[2], end[3], end[4]),
+							  'title': event.title,
+							}
+							eventData.events.push(j);
+						  }
+						  //setTimeout(function(){callback(eventData); }, 3000);
+						  callback(eventData);
+						}
+					  }
+					};
+					request.open("GET", url, true);
+					request.send(null);
+				  }
+				  
+				}
+			});
+		$('#'+idDiv).weekCalendar('today');
+		}else{
+            $('#'+idDiv).attr({'class':'divinactive'});
+			$('.wc-container').remove();
+		}
+	}
 </script>
 
 
@@ -90,11 +154,14 @@
 {{ tekst }}
 {% for p in prowadzacy %}
     <p style = "line-height: 0.1;">
-<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
+<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a> <a href=# id= {{ p.id }} onclick="showPlan(this)"> pokaz plan.</a>
     </p>
 <div id = d{{p.id}} class="divinactive">
     Tutaj będą koncultacje<br>
     powyższego wykładowcy
+</div>
+<div id = p{{p.id}} class="divinactive">
+
 </div>
 <!-- DO NOWEGO SPRINTU
 <div id = a{{p.id}}e class="divinactive">

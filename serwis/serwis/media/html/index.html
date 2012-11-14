@@ -13,23 +13,63 @@
 		
 		<title>PWrTracker.pl</title>
 		<script type="text/javascript">
-			window.onload = initPage;
-			window.onbeforeunload = wyloguj;
-			nickOk = false;
-			indexOk = false;
+				window.onload = initPage;
+				window.onbeforeunload = wyloguj;
+				nickOk = false;
+				indexOk = false;
+					
+				function initPage() {
+					loadContent('{{ strona }}');
+					
+					
+					isJavaScripted();
+				}
+				function wyloguj( ){
+					location.href = 'logOut'; 
+				}
+				function isJavaScripted() {
+					document.getElementById("no-js").style.display='none';
+				}
 				
-			function initPage() {
-				loadContent('{{ strona }}');
-				
-				
-				isJavaScripted();
-			}
-			function wyloguj( ){
-				location.href = 'logOut'; 
-			}
-			function isJavaScripted() {
-				document.getElementById("no-js").style.display='none';
-			}
+				function lostPassword(){
+						$('#repeatPass').append('<span id="load"><img src="img/ajax-loader.gif"></img></span>');
+						$.post('/lostPassword', { fld_login: $('#fld_login').val()},
+								function(msg) {
+										$('#load').remove();
+										if (msg=="ok"){
+												alert("Na twoją skrzynkę pocztową wysłaliśmy maila z instrukcją dotyczącą zmiany hasła.");
+										}
+										if (msg=="Nie ma takiego uzytkownika"){
+												alert("Nie ma takiego użytkownika");
+										}
+								});
+				}
+				function changePass(){
+						var reg = /^(?!.*(.)\1{3})((?=.*[\d])(?=.*[A-Za-z])|(?=.*[^\w\d\s])(?=.*[A-Za-z])).{8,20}$/;
+						if($('#fld_passNew').val() != $('#fld_passNewRepeat').val()){
+								$('#btn_changePass').after("<div class='error' id='shortError'>Wprowadziłeś źle drugie hasło!</div>");
+						} else if (reg.test($('#fld_passNew').val()) == false){
+								alert("Hasło musi spełniać następujące warunki\n-nie może mieć ponad trzy takie same znaki pod rząd\n-musi zawierać numery i znaki specjalne\n-musi zawierać duże znaki\n-musi zawierać małe znaki\n-musi mieć od 8 do 20 znaków");
+						} else {
+								$.post('/changePassword', { fld_passNew: $('#fld_passNew').val(), fld_passNewRepeat: $('#fld_passNewRepeat').val() },
+										function(msg) {
+											if(msg == 'Haslo nieprawidlowe'){
+												alert("Podane hasło jest nieprawidłowe.");
+											}
+											if (msg == 'Nie ma takiego uzytkownika'){
+												alert("Nie ma takiego użytkownika w systemie.");
+											}
+											if (msg == 'Haslo nie może być takie same jak poprzednie'){
+												alert("Hasło jest takie same jak poprzednie!");
+											}
+											if (msg == 'ok'){
+												alert('Zmiana zostały zapisane. Możesz teraz zalogować się używając nowego hasła.');
+												$('#blad').fadeOut("slow");
+												//loadContent("index");
+											}
+								});
+						}
+				}
 		
 		</script>
 	</head>
@@ -52,7 +92,7 @@
 						</tr>
 						<tr>
 							<td><div class="header-login-text"><input type="checkbox" name="cbox_remember" id="cbox_remember" />Zapamiętaj</div></td>
-							<td><div class="header-login-text"><a href="lostpassword.html">Przypomnij hasło</a></div></td>
+							<td><div class="header-login-text"><a style="cursor: pointer" onclick="lostPassword()" id="repeatPass">Przypomnij hasło</a></div></td>
 							<td></td>
 						</tr>
 					</table>
@@ -68,20 +108,22 @@
 				</div>
 			</div>
 			{% endif %}
-			{% if blad %}
-			<div style="display: block; float: right; width: 300px; margin-top: 70px; margin-right: -245px; background-color: #3777b3; color: #ffffff">
-			{{ tekstBledu }}
-			{% if zmianaHasla %}
-			<div id="tutajBedzieZmianaHasla">
-				<form method="post" action="changePassword">
-					Nowe hasło:<input type="password" name="fld_passNew" id="fld_passNew"/> </br>
-					Powtórz hasło:<input type="password" name="fld_passNewRepeat" id="fld_passNewRepeat"/> </br>
-					<input type="submit" name="btn_changePass" id="btn_changePass" value=">" />
-				</form>
+			<div id="blad">
+				{% if blad %}
+						<div style="display: block; float: right; width: 300px; margin-top: 70px; margin-right: -245px; background-color: #3777b3; color: #ffffff">
+								{{ tekstBledu }}
+								{% if zmianaHasla %}
+										<div id="tutajBedzieZmianaHasla">
+											
+												Nowe hasło:<input type="password" name="fld_passNew" id="fld_passNew"/> </br>
+												Powtórz hasło:<input type="password" name="fld_passNewRepeat" id="fld_passNewRepeat"/> </br>
+												<input type="submit" name="btn_changePass" id="btn_changePass" value=">" onclick="changePass()" />
+							
+										</div>
+								{% endif %}
+						</div>
+				{% endif %}
 			</div>
-			{% endif %}
-			</div>
-			{% endif %}
 			<div id="header-menu">
 				<a id="portal" class="header-menu-box" onclick="loadContent(this.id)"><img src="img/portal.png" alt="" width="50" height="50" /><br />Portal</a><!-- 
 				 --><a id="timetable2" class="header-menu-box" onclick="loadContent(this.id)"><img src="img/timetable.png" alt="" width="50" height="50" /><br />Plan zajęć</a><!-- 

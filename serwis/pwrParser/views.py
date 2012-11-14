@@ -45,8 +45,8 @@ def pobierzPlan(user, password):
 
     commands.add_extra_header('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.6')
     commands.clear_cookies()        # Czyszczenie ciastek
-    #commands.reset_browser()        #restart przegladarki
-    #commands.reset_output()
+    commands.reset_browser()        #restart przegladarki
+    commands.reset_output()
     commands.go("https://edukacja.pwr.wroc.pl/EdukacjaWeb/studia.do")   # Przechodzimy do edukacji
     
     commands.showlinks()            # DO USUNIECIA! Pokazuje linki

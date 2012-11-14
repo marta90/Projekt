@@ -18,8 +18,12 @@ urlpatterns = patterns('',
     (r'^sendEmail$', views.wyslijEmail),                        #widok obslugujacy wysylanie maila do admina
     (r'^registration$', views.rejestruj),                       #widok obslugujacy przejscie do strony "registration.html"
     (r'^register$', views.zarejestruj),                         #widok obslugujacy transakcje rejestrowania
-    (r'^rememberPassword$', views.przypomnijHaslo),             
-    (r'^confirm/(.*)/(.*)$', views.potwierdzRejestracje),    #potwierdzenie rejestracji poprzez link aktywacyjny
+    (r'^lostPassword$', views.przypomnijHaslo),
+    (r'^newPassword/(.*)/(.*)$', views.ustawNoweHaslo),
+    #(r'^saveNewPassword$', views.zapiszNoweHaslo),
+    (r'^repeatVerification$', views.przeslijAktywatorPonownie),
+    (r'^changePassword$', views.zapiszNoweHaslo),
+    (r'^confirm/(.*)/(.*)$', views.potwierdzRejestracje),       #potwierdzenie rejestracji poprzez link aktywacyjny
     (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
     
     (r'^giveLessons/(.*)/(.*)$', views.pobierzZajecia),
@@ -27,7 +31,8 @@ urlpatterns = patterns('',
     (r'^shout/(.*)$', views.dodajShout),
     (r'^getTeachers/(.)$', views.wykladowcaNaLitere),
     (r'^getTutorial/(.*)$', views.konsultacjeWykladowcy),
-    (r'^findTeacher/(.*)$', views.znajdzWykladowce), 
+    (r'^findTeacher/(.*)$', views.znajdzWykladowce),
+    (r'^getTeachersLessons/(.*)/(.*)/(.*)$', views.pobierzZajeciaWykladowcy),
     
     #ANDROID
     (r'^test$', views.test),                                                        #klasa do testow
@@ -53,6 +58,7 @@ urlpatterns = patterns('',
     (r'^media/html/map.html$', views.zaladujMape),
     (r'^media/html/account.html$', views.zaladujKonto),
     (r'^media/html/registration.html$', views.zaladujRejestracje),
+    (r'^media/html/changePassword.html$', views.zaladujZmianaHasla),
     
     (r'^css/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/css')}),
     (r'^img/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/img')}),

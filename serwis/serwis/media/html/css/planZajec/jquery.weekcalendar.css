@@ -1,16 +1,18 @@
 .wc-container {
-  font-size: 14px;
+  font-size: 12px;
   font-family: arial, helvetica;
 }
 
 .wc-toolbar {
-  padding: 0.2em;
-  font-size:0.8em;
+  /*padding: 0.2em;*/
+  font-size:0.7em;
 }
 
 .wc-toolbar .wc-nav {
   float:left;
 }
+
+
 
 .wc-toolbar .wc-display {
   float: right;
@@ -22,7 +24,7 @@
 }
 
 .wc-toolbar .wc-title {
-  font-size: 20px;
+  font-size: 15px;
   text-align: center;
   padding:0;
   margin:0;
@@ -41,6 +43,7 @@
   background: #eee;
   border-width:1px 0;
   border-style:solid;
+  line-height: 12px;
 }
 .wc-header table{
     width: 100%;
@@ -58,7 +61,7 @@
 
 .wc-header .wc-day-column-header {
     text-align: center;
-    padding: 0.4em;
+    padding: 2px;
 }
 
 .wc-header .wc-user-header{
@@ -149,6 +152,10 @@ table.wc-time-slots {
 .wc-header .wc-today.ui-state-active.wc-day-column-first{border-left-width:3px;}
 .wc-header .wc-today.ui-state-active.wc-day-column-last{border-right-width:3px;}
 
+/*.wc-today{*/
+/*  font-size: 15px;*/
+/*}*/
+
 .wc-full-height-column{
     display:block;
 /*  width:100%;*/
@@ -210,7 +217,7 @@ table.wc-time-slots {
   /* Netscape */ -moz-opacity: 0.8;
   /* Safari 1 */ -khtml-opacity: 0.8;
     position: absolute;
-    text-align: center;
+    text-align: left;
     overflow: hidden;
     cursor: pointer;
     color: #fff;
@@ -246,7 +253,7 @@ table.wc-time-slots {
     position: relative;
 }
 .wc-title {
-  font-size: 12px;
+  font-size: 11px;
   font-family: sans-serif;
 }
 
@@ -265,6 +272,10 @@ table.wc-time-slots {
 .free-busy-free{}
 .free-busy-busy{
   background:url("./libs/css/smoothness/images/ui-bg_flat_0_aaaaaa_40x100.png") repeat scroll 50% 50% #666666;
+}
+
+.wc-nav{
+  font-size: 10px;
 }
 
 /** hourLine */

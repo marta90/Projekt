@@ -43,7 +43,30 @@
 			}
 			
 		});
+		$('#subRepeatVer').click(function(){
+			$.post('/repeatVerification', { fld_login_ver: $('#fld_login_ver').val()},
+								function(msg) {
+									if(msg == "Juz aktywne"){
+										alert("Twoje konto zostało już wcześniej aktywowane");
+									}
+									if(msg == "Nie ma takiego uzytkownika"){
+										alert("Nie ma takiego uzytkownika");
+									}
+									if(msg == "ok"){
+										alert("Aktywator został ponownie wysłany do użytkownika");
+									}
+									loadContent("portal");
+								});
+		});
 	});
+	function wysunAktywator(){
+		if ($("#repeatVer").css('display')=='none'){
+			$("#repeatVer").fadeIn("slow");
+		} else {
+			$("#repeatVer").fadeOut("slow");
+		}
+		
+	}
 </script>
 	
 				<form method="post" action="/registration" id ="form_register">
@@ -68,6 +91,9 @@
 				</form>
 				<span style="color: red;">{{ alert }} </span>
 				<br><br><br>
-				<a href="activation.html" class="CLASS">Nie doszedł mail aktywacyjny?</a>
-				
+				<a onclick="wysunAktywator()" style="cursor: pointer" class="CLASS">Nie doszedł mail aktywacyjny?</a>
+				<div id="repeatVer" style="display:none">
+					<label for="fld_login_ver">Podaj login:</label><input class="CLASS" type="text" name="fld_login_ver" id="fld_login_ver"/>
+					<input type="submit" value="Wyślij" id="subRepeatVer"/>
+				</div>
 				<!-- po wyslaniu formularza idzie do registration.html z portal.html w srodku -->

@@ -38,7 +38,7 @@
         alwaysDisplayTimeMinutes: true,
         use24Hour: true,
         daysToShow: 5,
-        minBodyHeight: 100,
+        minBodyHeight: 450,
         firstDayOfWeek: function(calendar) {
                   if ($(calendar).weekCalendar('option', 'daysToShow') != 5) {
                     return 0;
@@ -1508,7 +1508,7 @@
 
           eventClass = calEvent.id ? 'wc-cal-event' : 'wc-cal-event wc-new-cal-event';
           eventHtml = '<div class=\"' + eventClass + ' ui-corner-all\">';
-          eventHtml += '<div class=\"wc-time ui-corner-top\"></div>';
+          //eventHtml += '<div class=\"wc-time ui-corner-top\"></div>';						ZAKOMENTOWALEM BY NIE BYLO GODZIN!
           eventHtml += '<div class=\"wc-title\"></div></div>';
 
           $weekDay.each(function() {
@@ -1916,7 +1916,7 @@
 		 this.options.deletable(calEvent,$calEvent)) {
 	      suffix = '<div class="wc-cal-event-delete ui-icon ui-icon-close"></div>';
 	  }
-          $calEvent.find('.wc-time').html(this.options.eventHeader(calEvent, this.element) + suffix);
+          //$calEvent.find('.wc-time').html(this.options.eventHeader(calEvent, this.element) + suffix);				ZAKOMENTOWALEM BY NIE BYLO GODZIN!
           $calEvent.find('.wc-title').html(this.options.eventBody(calEvent, this.element));
           $calEvent.data('calEvent', calEvent);
           this.options.eventRefresh(calEvent, $calEvent);
