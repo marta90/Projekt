@@ -33,15 +33,19 @@
 				}
 				
 				function lostPassword(){
-						$('#repeatPass').append('<span id="load"><img src="img/ajax-loader.gif"></img></span>');
+						$('#forLoader').append('<div id="load" style="display: inline;"><img src="img/ajax-loader.gif"></div>');
 						$.post('/lostPassword', { fld_login: $('#fld_login').val()},
 								function(msg) {
 										$('#load').remove();
 										if (msg=="ok"){
 												alert("Na twoją skrzynkę pocztową wysłaliśmy maila z instrukcją dotyczącą zmiany hasła.");
+												$('#blad').fadeOut("slow");
 										}
 										if (msg=="Nie ma takiego uzytkownika"){
-												alert("Nie ma takiego użytkownika");
+												alert("Wprowadź użytkownika poprawnie.");
+										}
+										if (msg=="Dane nie zostały wysłane."){
+												alert("Dane nie zostały wysłane do serwera.")
 										}
 								});
 				}
@@ -132,7 +136,7 @@
 						<tr>
 							<td><div class="header-login-text"><input type="checkbox" name="cbox_remember" id="cbox_remember" />Zapamiętaj</div></td>
 							<td><div class="header-login-text"><a style="cursor: pointer" onclick="lostPassword()" id="repeatPass">Przypomnij hasło</a></div></td>
-							<td></td>
+							<td style="width: 40px; margin-top: 3px; " id="forLoader"></img></div></td>
 						</tr>
 					</table>
 				</form>

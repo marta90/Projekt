@@ -449,9 +449,11 @@ def przypomnijHaslo(request):
 			uzytkownik.aktywator = wygenerujAktywator()
 			uzytkownik.save()
 			wyslijPrzypHaslo(uzytkownik)
+                        return HttpResponse("ok")
 		except:
 			return HttpResponse("Nie ma takiego uzytkownika")
-	return HttpResponse("ok")
+        else:
+            return HttpResponse("Dane nie zostały wysłane.")
 
 # Wyslanie maila z przypomnieniem hasła
 def wyslijPrzypHaslo(uzytkownik):
@@ -572,7 +574,7 @@ def zaladujNewsy(request):
 	wczoraj = datetime.date.today() - datetime.timedelta(days=1)
 	ileWydarzen = uzytkownik.ileMoichWydarzen
 	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia')[:ileWydarzen]
-	wydarzenia = models.Wydarzenie.objects.all()
+	wydarzenia = filtrujNoweWydarzenia(request)
 	wydarzeniaUz = uzytkownik.wydarzenie_set.all()
 	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
 	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
