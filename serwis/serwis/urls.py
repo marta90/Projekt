@@ -28,12 +28,12 @@ urlpatterns = patterns('',
     
     (r'^giveLessons/(.*)/(.*)$', views.pobierzZajecia),
 
-	(r'^sendEmailAccount$', views.wyslijEmailZProsba),
+    (r'^sendEmailAccount$', views.wyslijEmailZProsba),
     (r'^shout/(.*)$', views.dodajShout),
     (r'^getTeachers/(.)$', views.wykladowcaNaLitere),
     (r'^getTutorial/(.*)$', views.konsultacjeWykladowcy),
     (r'^findTeacher/(.*)$', views.znajdzWykladowce),
-	(r'^changeAccountSettings$', views.edytujDane),
+    (r'^changeAccountSettings$', views.edytujDane),
     (r'^addEventToCalendar/(.*)$', views.dodajWydDoKalendarza),
     (r'^getTeachersLessons/(.*)/(.*)/(.*)$', views.pobierzZajeciaWykladowcy),
     
@@ -47,11 +47,11 @@ urlpatterns = patterns('',
    # (r'^getBuildingsAndroid$', views.budynkiAND),
    # (r'^getCoursesAndroid$', views.kursyAND),  
     (r'^shoutAndroid$', views.dodajWShoutboxieAND),
-	(r'^logInAndroid$', views.logowanieAND),
+    (r'^logInAndroid$', views.logowanieAND),
     (r'^getShoutboxAndroid$', views.shoutboxAND),
     (r'^getCalendarAndroid$', views.kalendarzAND),
     (r'^getTimetableAndroid$', views.planAND),
-	(r'^changePswdLoginAndroid$', views.zmianaHaslaPrzyLogowaniuAND),
+    (r'^changePswdLoginAndroid$', views.zmianaHaslaPrzyLogowaniuAND),
     (r'^sendActivatorAndroid$', views.przeslijAktywatorPonownieAND),
     
     # MEDIA

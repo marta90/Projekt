@@ -1,4 +1,4 @@
-/*
+﻿/*
  * jQuery.weekCalendar v2.0-dev
  *
  * for support join us at the google group:
