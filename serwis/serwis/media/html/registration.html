@@ -1,98 +1,107 @@
-﻿<script type="text/javascript" src="media/js/ajax.js"></script>
-<!--<!--[if lt IE 8]>-->
-<!--<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE8.js"></script>-->
-<!--<![endif]-->
-<script type="text/javascript" src="media/js/jquery-1.8.2.js"></script>
-<script type="text/javascript" src="media/js/myJS.js"></script>
-<script type="text/javascript" src="media/js/myValidate.js"></script>
-<link rel="stylesheet" type="text/css" href="css/default.css" />
+
 
 <script type="text/javascript">	
-	
+	var ajax;
+	var firstSpec = false;
+	var firstSem = false;
+	getSpecializations(document.getElementById('select_faculty'));
 </script>
+						
+				<div id="reg-form">
+					<fieldset style="overflow:hidden; background-color: transparent ">
+						<legend>Rejestracja</legend>
+					<form method="post" action="/register" id ="form_register" class="formRegister" onsubmit="return checkFormReg()" >
 
-	<form method="post" action="/register" id ="form_register" class="formRegister">
-		<fieldset>
-			<legend>Rejestracja</legend>
-			
-			<div id="nick">
-				<label for="fld_nick">Nick:</label>
-				<div><input class="CLASS" type="text" name="fld_nick" id="fld_nick" value={{ nick }} readonly=true/></div>
-			</div>
-			
-			<div id="index">
-				<label for="fld_index">Indeks:</label>
-				<div><input class="CLASS" type="text" name="fld_index" id="fld_index" value={{ index }} readonly=true/></div>
-			</div>
-			
-			<div id="name">
-				<label for="fld_name">Imię:</label>
-				<div><input class="CLASS" type="text" name="fld_name" id="fld_name"/></div>
-			</div>
-			
-			<div id="lastName">
-				<label for="fld_lastName">Nazwisko:</label>
-				<div><input class="required" type="text" name="fld_lastName" id="fld_lastName"/></div>
-			</div>
-			
-			<div id="pass">
-				<label for="fld_pass">Hasło:</label>
-				<div><input class="CLASS" type="password" name="fld_pass" id="fld_pass" minlength="3"/></div>
-			</div>
-			
-			<div id="passRepeat">
-				<label for="fld_passRepeat">Powtórz hasło:</label>
-				<div><input class="CLASS" type="password" name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></div>
-			</div>
-			
-			<div id="faculty">
-				<label for="select_faculty">Wydział:</label>
-				<select class="CLASS" name="select_faculty" id="select_faculty" onchange='giveSpec(this)'>
-					<option value='0'>Wybierz wydział...</option>
-						{% for wydz in wydzialy %}
-							<option value={{ wydz.id }}>{{ wydz.nazwa }}</option>
-						{% endfor %}
-				</select> 
-			</div>
-			
-			<div id="specialization">
-				<label for="select_specialization">Kierunek studiów:</label>
-				<div>
-					<select class="CLASS" name="select_specialization" id="select_specialization" disabled=false style=width:200px onchange='findSem()'>
-						<!-- Uzupełni JavaScript -->
-					</select> 
+						<table class="table-reg">
+							<tr>
+								<td class="table-left-side">Nick:</td>
+								<td class="table-right-side"><input class="portal-input"  type="text" name="fld_nick" id="fld_nick" value={{ nick }} readonly=true/></td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Indeks:</td>
+								<td class="table-right-side"><input class="portal-input" type="text" name="fld_index" id="fld_index" value={{ index }} readonly=true/></td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Imię:</td>
+								<td class="table-right-side"><input class="portal-input" type="text" onblur='updateNameR();' name="fld_name" id="fld_name"/></td>
+								<td> &nbsp
+									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Imię musi składać się z co najmniej 2 znaków.<br /> &nbsp &nbsp - Dopuszczalne znaki specjalne to \' \' oraz \'-\'.' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">
+										<img src="media/html/img/i.png" width="18" height="18"/>
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Nazwisko:</d>
+								<td class="table-right-side"><input class="portal-input" type="text" onblur='updateLastNameR();' name="fld_lastName" id="fld_lastName"/></td>
+								<td> &nbsp
+									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Nazwisko musi składać się z co najmniej 2 znaków.<br /> &nbsp &nbsp - Dopuszczalne znaki specjalne to \' \' oraz \'-\'.' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">		
+										<img src="media/html/img/i.png" width="18" height="18"/>
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Hasło:</td>
+								<td class="table-right-side"><input class="portal-input" type="password" onblur='updatePassR();' name="fld_passF" id="fld_passF" minlength="3"/></td>
+								<td> &nbsp
+									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Hasło musi mieścić się w przedziale od 8 do 20 znaków.<br /> &nbsp &nbsp - Hasło musi zawierać (minimum 3 z podanych):<br /> &nbsp &nbsp &nbsp ~  małe litery<br /> &nbsp &nbsp &nbsp ~  wielkie litery<br /> &nbsp &nbsp &nbsp ~  cyfry<br /> &nbsp &nbsp &nbsp ~  znaki specjalne' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">		
+										<img src="media/html/img/i.png" width="18" height="18"/>
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Powtórz hasło:</td>
+								<td class="table-right-side"><input class="portal-input" type="password" onblur='updatePass2R();' name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></td>
+								<td> &nbsp
+									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Hasło musi mieścić się w przedziale od 8 do 20 znaków.<br /> &nbsp &nbsp - Hasło musi zawierać (minimum 3 z podanych):<br /> &nbsp &nbsp &nbsp ~  małe litery<br /> &nbsp &nbsp &nbsp ~  wielkie litery<br /> &nbsp &nbsp &nbsp ~  cyfry<br /> &nbsp &nbsp &nbsp ~  znaki specjalne' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">		
+										<img src="media/html/img/i.png" width="18" height="18"/>
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Wydział:</td>
+								<td class="table-right-side">
+								<select class="portal-select-input" name="select_faculty" id="select_faculty" onchange='getSpecializations(this);'>
+								{% for wydz in wydzialy %}
+									<option value={{ wydz.id }}>{{ wydz.nazwa }}</option>
+								{% endfor %}
+								</select> </td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Kierunek studiów:</td>
+								<td class="table-right-side">
+								<select class="portal-select-input" name="select_specialization" id="select_specialization" style=width:200px onchange='getSemesters();'>
+								</select> 
+								</td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Rodzaj studiów:</td>
+								<td class="table-right-side">
+								<select class="portal-select-input" name="select_type" id="select_type" onchange='getSemesters();'>
+									<option value="1">I-go stopnia</option>
+									<option value="2">II-go stopnia</option>
+								</select>
+								</td>
+							</tr>
+							<tr>
+								<td class="table-left-side">Numer semestru:</td>
+								<td class="table-right-side"><select class="portal-select-input" name="select_semester" id="select_semester"  style=width:200px >
+								
+								</select> </td>
+							</tr>
+						</table>
+						<div>
+						<br />
+							<span id='c1' style="background-color: transparent;" ><input type="checkbox" name="cbox_rules" id="cbox_rules" /></span>Akceptuję <a href="rules.html">regulamin</a>
+						<br />
+						<span id='c2' style="background-color: transparent; " ><input type="checkbox" name="cbox_permission" id="cbox_permission"/></span> Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z ustawą z dnia 29 sierpnia 1997 r. o ochronie danych osobowych (tekst jedn.: Dz. U. z 2002 r. Nr 101, poz. 926 z późn. zm.).
+						</div>
+						<div class="reg-center">
+							<input class="reg-submit" type="submit" name="btn_submit" id="btn_submit" value="Zarejestruj" />
+						</div>
+						
+					</form>
+						</fieldset>
 				</div>
-			</div>
 			
-			<div id="type">
-				<label for="select_type">Rodzaj studiów:</label>
-				<div>
-					<select class="CLASS" name="select_type" id="select_type" disabled=false onchange='findSem()'>
-						<option value="1">I-go stopnia</option>
-						<option value="2">II-go stopnia</option>
-					</select>
-				</div>
-			</div>
 			
-			<div id="semester">
-				<label for="fld_semester">Nr semestru:</label>
-				<div>
-					<select class="CLASS" name="select_semester" id="select_semester" disabled=false style=width:200px >
-						<!-- Uzupełni JavaScript -->
-					</select> 
-				</div>
-			</div>
 			
-			<div id="rules">
-					<div><input class="checkbox" type="checkbox" name="cbox_rules" id="cbox_rules" /><label for="cbox_rules">Regulamin</label></div>
-			</div>
-			
-			<div id="permission">
-				<div><input class="checkbox" type="checkbox" name="cbox_permission" id="cbox_permission" /><label for="cbox_permission">Zgoda na przetwarzanie danych osobowych</label></div>
-			</div>
-			
-			<input class="submit" type="submit" name="btn_submit" id="btn_submit" value="Zarejestruj" />
-		</fieldset>
-	</form>
-
-	<!-- po wyslaniu formularza wraca na index.html z portal.html w srodku -->

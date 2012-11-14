@@ -1,0 +1,648 @@
+html {
+	height: 100%;
+}
+
+body {
+	min-width: 960px;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: #dddddd;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 14px;
+	line-height: 20px;
+}
+
+a {
+	color: #000000;
+	outline: none;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #000000;
+	text-decoration: underline;
+}
+
+img {
+	border: none;
+}
+
+#no-js {
+	z-index: 1000;
+	position: absolute;
+	margin-top: 70px;
+	margin-left: 5px;
+	font-size: 10px;
+}
+
+#header {
+	position: absolute;
+	min-width: 960px;
+	width: 100%;
+	height: 70px;
+	background: #449def;
+	background-image:-webkit-linear-gradient(#449def, #3777b3);
+	background-image:-moz-linear-gradient(top, #449def, #3777b3);
+	background-image: -o-linear-gradient(#449def, #3777b3);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#449def', endColorstr='#3777b3')";
+	background-image: -ms-linear-gradient(#449def, #3777b3);
+	background-image: linear-gradient(#449def, #3777b3);
+}
+
+#header-logo {
+	float: left;
+	width: 240px;
+	height: 50px;
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+#header-login-form {
+	display: block; /* display: block; / display: none; */
+	float: right;
+	width: 237px;
+	height: 50px;
+	margin-top: 15px;
+	margin-right: 10px;
+}
+
+.header-login-table {
+	border-width: 0px;
+	border-spacing: 0px;
+	border-style: none;
+}
+
+.header-login-table th {
+	border-width: 0px;
+	padding: 0px;
+	border-style: none;
+}
+
+.header-login-table td {
+	float: left;
+	width: 98px;
+	height: 25px;
+	border-width: 0px;
+	padding: 0px;
+	border-style: none;
+	line-height: 24px;
+}
+
+.header-login-input {
+	float: left;
+	width: 80px;
+	height: 16px;
+	margin: 0px 0px 0px 5px;
+	padding: 2px 3px;
+	background: #eeeeee;
+	color: black;
+	border: 1px solid #d9d9d9;
+	border-color: #c9c9c9 #d9d9d9 #e8e8e8;
+	border-radius: 1px;
+	outline: none;
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	-webkit-transition: all 0.1s ease-out;
+	-moz-transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
+	-webkit-background-clip: padding-box;
+}
+
+.header-login-submit {
+	float: left;
+	width: 30px;
+	height: 22px;
+	margin: 0px 0px 0px 5px;
+	background: #eeeeee;
+	color: black;
+	border: 1px solid #d9d9d9;
+	border-color: #c9c9c9 #d9d9d9 #e8e8e8;
+	border-radius: 1px;
+	outline: none;
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	-webkit-transition: all 0.1s ease-out;
+	-moz-transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
+	-webkit-background-clip: padding-box;
+}
+
+.header-login-text {
+	font-size: 12px;
+}
+
+#header-logged-in-menu {
+	display: block; /* display: block; / display: none; */
+	float: right;
+	width: 60px;
+	height: 60px;
+	margin-top: 5px;
+	margin-right: 10px;
+}
+
+#header-logged-in-menu a:link {
+	font-weight: bold;
+	color: #ffffff;
+}
+
+#header-logged-in-menu a:hover {
+	font-weight: bold;
+	color: #ffffff;
+}
+
+#header-logged-in-menu a:visited {
+	font-weight: bold;
+	color: #ffffff;
+}
+
+#header-account {
+	font-size: 18px;
+}
+
+#header-logout {
+	margin-top: 20px;
+	font-size: 12px;
+}
+
+#header-menu {
+	display: block;
+	position: relative;
+	width: 47%;
+	height: 100%;
+	margin: 0px auto;
+}
+
+.header-menu-box {
+	display: inline-block;
+	width: 89px;
+	height: 69px;
+	margin: -1px 0 0 -1px;
+	background: #449def;
+	background-image:-webkit-linear-gradient(#449def, #3777b3);
+	background-image:-moz-linear-gradient(top, #449def, #3777b3);
+	background-image: -o-linear-gradient(#449def, #3777b3);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#449def', endColorstr='#3777b3')";
+	background-image: -ms-linear-gradient(#449def, #3777b3);
+	background-image: linear-gradient(#449def, #3777b3);
+	font-weight: bold;
+	line-height: 14px;
+	border: 1px solid #3777b3;
+}
+
+.header-menu-box:hover {
+	height: 69px;
+	background: #3777b3;
+	background-image:-webkit-linear-gradient(#449def, #2f6699);
+	background-image:-moz-linear-gradient(top, #449def, #2f6699);
+	background-image: -o-linear-gradient(#449def, #2f6699);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#449def', endColorstr='#2f6699')";
+	background-image: -ms-linear-gradient(#449def, #2f6699);
+	background-image: linear-gradient(#449def, #2f6699);
+	text-decoration: none;
+}
+
+#main {
+	width: 960px;
+	min-height: 100%;
+	margin: 0 auto;
+	background: #eeeeee;
+	background-image:-webkit-linear-gradient(#ffffff, #bbbbbb);
+	background-image:-moz-linear-gradient(top, #ffffff, #bbbbbb);
+	background-image: -o-linear-gradient(#ffffff, #bbbbbb);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#bbbbbb')";
+	background-image: -ms-linear-gradient(#ffffff, #bbbbbb);
+	background-image: linear-gradient(#ffffff, #bbbbbb);
+}
+
+#main-skipper {
+	padding-top: 70px;
+}
+
+#main-content {
+	overflow: auto;
+	padding: 5px 5px 45px 5px;
+	font-size: 12px;
+	line-height: 14px;
+}
+
+#footer {
+	width: 100%;
+	height: 40px;
+	margin: -40px auto;
+	background: #666666;
+	background-image:-webkit-linear-gradient(#666666, #444444);
+	background-image:-moz-linear-gradient(top, #666666, #444444);
+	background-image: -o-linear-gradient(#666666, #444444);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#444444')";
+	background-image: -ms-linear-gradient(#666666, #444444);
+	background-image: linear-gradient(#666666, #444444);
+}
+
+/*	====================  */
+
+#template {
+	overflow: auto;
+	z-index: 1000;
+	display: none;
+	position: absolute;
+	float: left;
+	width: 0px;
+	height: 0px;
+	margin: 0 auto;
+	padding: 0;
+	background: #ffffff;
+	background-image:-webkit-linear-gradient(#666666, #555555); /* chrome 10+ safari 5.1+ */
+	background-image:-moz-linear-gradient(top, #666666, #555555); /* firefox do 15 */
+	background-image: -o-linear-gradient(#666666, #555555); /* opera 11.1+ */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#555555')"; /* ie8+ */
+	background-image: -ms-linear-gradient(#666666, #555555); /* ie10 */
+	background-image: linear-gradient(#666666, #555555);
+	text-align: center;
+	text-decoration: none;
+	font-family: sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 20px;
+	list-style: none;
+	color: #000000;
+	background-image: url('../img/.png');
+	background-repeat: repeat-x;
+	background-position: top left;
+	border: 1px solid #000000;
+	border-bottom: 1px solid #cccccc;
+	border-radius: 10px 10px;
+}
+
+/*	====================  */
+
+#portal-hello {
+	width: 500px;
+	height: 100px;
+	margin: 0 auto;
+	border: 1px solid #3777b3;
+	border-radius: 10px 10px;
+}
+
+#portal-description {
+	float: left;
+	width: 740px;
+	height: 300px;
+	margin-top: 10px;
+	border: 1px solid #3777b3;
+	border-radius: 10px 10px;
+}
+
+#portal-registration {
+	float: right;
+	width: 200px;
+	height: 200px;
+	margin-top: 60px;
+	border: 1px solid #3777b3;
+	border-radius: 10px 10px;
+}
+
+.box-title {
+	background: #3777b3;
+	color: #ffffff;
+}
+
+#portal-shoutbox {
+	border: 1px solid #3777b3;
+}
+
+#portal-shoutbox-scroll {
+	overflow: auto;
+	height: 120px;
+}
+
+#portal-important-msgs {
+	margin-top: 5px;
+	border: 1px solid #3777b3;
+}
+
+#portal-important-msgs-scroll {
+	overflow: auto;
+	height: 91px;
+}
+
+.portal-text {
+	width: 100%;
+	text-align: left;
+	border-bottom: 1px solid #cccccc;
+}
+
+.box-img-add {
+	float: left;
+	width: 28px;
+	height: 28px;
+	background-image: url('../img/important_off.png');
+}
+
+.box-img-add:hover {
+	background-image: url('../img/important_on.png');
+}
+
+.box-img-add-on {
+	float: left;
+	width: 28px;
+	height: 28px;
+	background-image: url('../img/important_on.png');
+}
+
+.box-img-del {
+	float: left;
+	width: 28px;
+	height: 28px;
+	background-image: url('../img/delete_important_off.png');
+}
+
+.box-img-del:hover {
+	background-image: url('../img/delete_important_on.png');
+}
+
+.box-img-del-off {
+	float: left;
+	width: 28px;
+	height: 28px;
+	background-image: url('../img/delete_important_off.png');
+}
+
+.box-date {
+	float: left;
+	width: 65px;
+	height: 28px;
+	text-align: center;
+	font-size: 10px;
+	font-weight: bold;
+	/*line-height: 14px;*/
+}
+
+.box-text {
+	margin-left: 93px;
+	padding-top: 14px;
+	/*font-size: 12px;
+	line-height: 14px;*/
+}
+
+#portal-write-text {
+	
+}
+
+#portal-my-events {
+	float: left;
+	width: 470px;
+	margin-top: 5px;
+	border: 1px solid #3777b3;
+}
+
+#portal-my-events-scroll {
+	overflow: auto;
+	height: 116px;
+}
+
+#portal-new-events {
+	float: right;
+	width: 470px;
+	margin-top: 5px;
+	border: 1px solid #3777b3;
+}
+
+#portal-new-events-scroll {
+	overflow: auto;
+	height: 116px;
+}
+
+.portal-event-text {
+	width: 100%;
+	text-align: left;
+	border-bottom: 1px solid #bbbbbb;
+}
+
+.box-event-date {
+	float: left;
+	width: 70px;
+	height: 28px;
+	text-align: center;
+	font-size: 10px;
+	font-weight: bold;
+	/*line-height: 14px;*/
+}
+
+.box-event-text {
+	/*font-size: 12px;
+	line-height: 14px;*/
+}
+
+.box-event-where {
+	max-width: 280px;
+	margin-left: 70px;
+	/*font-size: 12px;
+	line-height: 14px;*/
+}
+
+.box-event-where-new {
+	max-width: 252px;
+	margin-left: 98px;
+	/*font-size: 12px;
+	line-height: 14px;*/
+}
+
+.box-event-who {
+	float: right;
+	max-width: 115px;
+	margin-top: -14px;
+	margin-right: 5px;
+	/*font-size: 12px;
+	line-height: 14px;*/
+}
+
+.box-img-add-event {
+	float: left;
+	width: 28px;
+	height: 28px;
+	background-image: url('../img/delete_important_off.png');
+}
+
+.box-img-add-event:hover {
+	background-image: url('../img/delete_important_on.png');
+}
+
+.box-img-update-event {
+	float: left;
+	width: 28px;
+	height: 28px;
+	background-image: url('../img/delete_important_off.png');
+}
+
+.box-img-update-event:hover {
+	background-image: url('../img/delete_important_on.png');
+}
+
+/*	====================  */
+
+#left-box {
+	float: left;
+	width: 160px;
+	height: 445px;
+	border: 1px solid #3777b3;
+	border-radius: 5px 5px;
+}
+
+#left-box ul, ul li {
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	list-style: none;
+}
+
+#left-box li {
+	border-bottom: 1px solid #cccccc;
+}
+
+#right-box {
+	float: right;
+	width: 780px; /* 750+30 */
+	min-height: 445px; /* 420+15+10 za rogi; 450 bezpieczna granica; 500 max; UŻYTE MIN-HEIGHT */
+	border: 1px solid #3777b3;
+	border-radius: 5px 5px;
+}
+
+/*	====================  */
+
+#timetable-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#timetable-content {
+	
+}
+
+#timetable-scheme {
+	position: absolute;
+	width: 950px;
+	height: 525px;
+	/*margin-top: 20px;*/
+	/*margin-left: 30px;*/
+	margin: 0;
+}
+
+.timetable-class {
+	overflow: auto;
+	position: absolute;
+	width: 144px;
+	height: 41px;
+	margin-top: 0px;
+	margin-left: 300px;
+	padding: 2px 2px 0 2px;
+	text-align: left;
+	font-size: 10px;
+	line-height: 10px;
+	border: 1px solid #3777b3;
+	border-radius: 5px 5px;
+}
+
+#timetable-add-class {
+	position: absolute;
+	width: 780px;
+	margin-top: 210px;
+}
+
+#timetable-notes {
+	
+}
+
+.timetable-note {
+	width: 100%;
+	text-align: left;
+	border-bottom: 1px solid #aaaaaa;
+}
+
+/*	====================  */
+
+#calendar-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#calendar-content {
+	
+}
+
+/*	====================  */
+
+#teachers-scroll {
+	overflow: auto;
+	height: 415px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#teachers-content {
+	
+}
+
+/*	====================  */
+
+#map-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#map-content {
+	
+}
+
+#map-menu {
+	float: left;
+	width: 150px; /* ustawić potem tą długość! */
+	border-top: 1px solid #999;
+	border-right: 1px solid #999;
+	border-left: 1px solid #999;
+}
+
+#map-menu li a {
+	display: block;
+	padding: 10px 15px;
+	background: #ccc;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #999;
+	text-decoration: none;
+	color: #000;
+}
+
+#map-menu li a:hover, #map-menu li a.active {
+	background: #999;
+	color: #fff;
+}
+
+#map-menu li ul {
+	display: none;
+}
+
+#map-menu li ul li a {
+	padding: 10px 25px;
+	background: #ececec;
+	border-bottom: 1px dotted #ccc;
+}
+
+/*	====================  */
+
+#account-scroll {
+	overflow: auto;
+	height: 440px; /* ustawić potem tą długość! */
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#account-content {
+	
+}

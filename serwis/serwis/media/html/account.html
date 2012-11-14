@@ -1,5 +1,178 @@
 <script type="text/javascript">
-    $(document).ready(function(){
+	var firstSpec = true;
+	var firstSem = true;
+	var eventsNumber = '{{ uzytkownik.ileMoichWydarzen }}';
+	{% for s in studenci %}
+	{% if forloop.first %}
+	var facultySt = '{{ s.kierunek.wydzial.id }}';
+	var specializationSt = '{{ s.kierunek.id }}';
+	var semesterSt = '{{ s.semestr }}';
+	var levelSt = '{{ s.rodzajStudiow }}';
+	var nameSt = '{{ uzytkownik.imie }}';
+	var lastNameSt = '{{ uzytkownik.nazwisko }}';
+	{% endif %}
+	{% endfor %}
+
+
+	selectItemByValue('sbox_events', eventsNumber);	
+	getSpecializations(document.getElementById('select_faculty'));
+
+	function size_dict(d)
+	{
+		c=0;
+		for (i in d)
+		++c;
+		return c
+	}
+	
+	
+	function sendEmailAccount()
+	{
+		var tresc = document.getElementById('textarea_request').value;
+		$.post("sendEmailAccount", {'textarea_request': tresc}, function(data)
+			   {
+					if (data =='Ok')
+					{
+						document.getElementById('textarea_request').value = "";
+						checkTextarea();
+						document.getElementById('response_text').style.color = 'black';
+						document.getElementById('response_text').innerHTML = 'Wiadomość została wysłana do Administratora.';
+				   }
+				   else
+				   {
+					document.getElementById('textarea_request').value = "";
+					checkTextarea();
+					document.getElementById('response_text').style.color = 'red';
+					document.getElementById('response_text').innerHTML = 'Podczas wysyłanie wystąpił błąd. Spróbuj ponownie później.';
+				   }
+			   }
+			   );	
+	}
+	function sendAccountSettings()
+	{
+		try
+		{
+			var dane= {};
+			var nameF = document.getElementById('fld_name').value;
+			var lastNameF = document.getElementById('fld_lastName').value;
+			var oldPassF = document.getElementById('fld_old_pass').value;
+			var newPassF = document.getElementById('fld_new_pass').value;
+			var newPass2F = document.getElementById('fld_new_pass2').value;
+			var eventsF = document.getElementById('sbox_events').value;
+			var facultyF = document.getElementById('select_faculty').value;
+			var specialF = document.getElementById('select_specialization').value;
+			var semesterF = document.getElementById('select_semester').value;
+			var typeF = document.getElementById('select_type').value;
+			
+			if (nameF != nameSt)
+				dane['imie'] = nameF
+				
+			if (lastNameF != lastNameSt)
+				dane['nazwisko'] = lastNameF
+				
+			if (eventsF != eventsNumber)
+				dane['ileWydarzen'] = eventsF
+						
+			if (specialF != specializationSt || semesterF != semesterSt || typeF != levelSt)
+			{
+				dane['kierunek'] = specialF
+				dane['semestr'] = semesterF
+				dane['stopien'] = typeF
+			}
+		
+			var oldPassEmpty = oldPassF == '';
+			var newPassEmpty = newPass2F =='';
+			var newPassOk = newPassF == newPass2F ? true:false;
+			
+			
+			var changes = size_dict(dane)>0;
+		
+			if (changes)
+			{
+				//Nowe haslo jest puste
+				if(newPassEmpty && newPassOk)
+				{
+					alert('Zaraz zostaną zapisane zmiany');
+					sendAccountData(dane);
+					
+				}
+				//Podano nowe haslo
+				else if(!newPassEmpty && newPassOk && !oldPassEmpty)
+				{
+					dane['stareHaslo'] = oldPassF;
+					dane['haslo'] = newPassF;
+					dane['haslo2'] = newPass2F;
+					alert('Zaraz zostaną zapisane zmiany');
+					sendAccountData(dane);
+					
+				}
+				//Nowe hasla sie nie zgadzaja
+				else if(!newPassOk)
+				{
+					alert('Hasla sie od siebie roznia!');
+				}
+				else if(oldPassEmpty)
+				{
+					alert('Nowe hasło nie zostanie zapisane, bo nie podałeś starego hasła');
+					sendAccountData(dane);
+				}
+			}
+			else
+			{
+				//Nowe haslo jest puste
+				if(newPassEmpty && newPassOk)
+				{
+					alert('Nie wprowadzileś żadnych zmian');
+				}
+				// Wprowadzono nowe haslo
+				else if(!newPassEmpty && newPassOk && !oldPassEmpty)
+				{
+					dane['stareHaslo'] = oldPassF;
+					dane['haslo'] = newPassF;
+					dane['haslo2'] = newPass2F;
+					alert('Zaraz zostaną zapisane zmiany');
+					sendAccountData(dane);
+				}
+				//Nowe hasla sie nie zgadzaja
+				else if(!newPassOk)
+				{
+					alert('Hasła się od siebie różnią!');
+				}
+				else if(oldPassEmpty)
+				{
+					alert('Nowe hasło nie zostanie zapisane, bo nie podałeś starego hasła');
+				}
+			}
+		}
+		catch(err)
+		{
+
+		}
+	}
+	
+	function sendAccountData(dane)
+	{
+		$.post("changeAccountSettings", dane, function(data)
+			   {
+					if (data !='')
+					{
+						var x = data.split(" ");
+						for(i=0;i<x.length-1;i++)
+						{
+							alert(x[i]);
+						}
+				   }
+				   else
+				   {
+						alert('Poprawnie zapisano zmiany');
+				   }
+			   }
+			   );
+	}
+	//$('account-scroll').niceScroll({touchbehavior: true, grabcursorenabled: false});
+	$("html").getNiceScroll().resize();
+	
+	    $(document).ready(function(){
         $('#subPlanButt').click(function(){
             $('#parserPWR').append('<br><span id="load">Wczytuję...<img src="img/ajax-loader.gif"></img></span>');
             $.ajax({
@@ -14,24 +187,24 @@
                 } else {
                   loadContent("timetable2");
                 }
-                $('#load').remove();  
+                $('#load').remove();
               },
               error: function(error) {
-                  $('#load').remove();  
+                  $('#load').remove();
                   //$.ajax({
-                  //  type: 'POST',
-                  //  url: '/generujPlan',
-                  //  data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
-                  //  success : function(msg) {
-                  //    if (msg=="no"){
-                  //      alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
-                  //    } else if (msg =="problem") {
-                  //      alert("Sprawdz Edukacje!")
-                  //    } else {
-                  //      loadContent("timetable2");
-                  //      czyNieKoniec = false
-                  //    }
-                  //  },
+                  // type: 'POST',
+                  // url: '/generujPlan',
+                  // data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
+                  // success : function(msg) {
+                  // if (msg=="no"){
+                  // alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+                  // } else if (msg =="problem") {
+                  // alert("Sprawdz Edukacje!")
+                  // } else {
+                  // loadContent("timetable2");
+                  // czyNieKoniec = false
+                  // }
+                  // },
                   //});
                   alert("Wystąpił błąd w połączniu z edukacją. Proszę spróbuj ponownie, lub sprawdź, czy nie wpisujesz złego loginu lub hasła.");
                 
@@ -39,429 +212,204 @@
             });
 
             //$.post('/generujPlan', { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
-            //  function(msg) {
-            //    if (msg=="no"){
-            //      alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
-            //    } else if (msg =="problem") {
-            //      alert("Sprawdz Edukacje!")
-            //    } else {
-            //      loadContent("timetable2");
-            //    }
-            //  });
+            // function(msg) {
+            // if (msg=="no"){
+            // alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+            // } else if (msg =="problem") {
+            // alert("Sprawdz Edukacje!")
+            // } else {
+            // loadContent("timetable2");
+            // }
+            // });
         });
     });
+	
+	/* TUTAJ TRZEBA ROZWAZYC W JAKIM DIVIE JEST!!!
     $(document).keypress(function(event){
  
       var keycode = (event.keyCode ? event.keyCode : event.which);
-      if(keycode == '13'){  //Jesli wystapi klikniecie enter
+      if(keycode == '13'){ //Jesli wystapi klikniecie enter
         $('#subPlanButt').trigger('click');	
       }
      
     });
-</script>
+*/
 				
-				<div id="left-box">
+</script>
+				<div id="left-box-account">
 					<div id="account-scroll">
-						<ul>
-							<li><a href="#" id="acc-timetable">Plan zajęć</a></li><!-- ID potrzebne do obsługi js? jak nie, wywalić -->
-							<li><a href="#" id="acc-settings">Ustawienia</a></li>
-							<li><a href="#" id="acc-admin">Administracja</a></li>
+						<ul id="account-menu">
+							<li><a href='javascript:;' id="acc-settings" onclick = 'showChoice(this);'>Ustawienia</a></li>
+							<li><a href='javascript:;' id="acc-timetable" onclick = 'showChoice(this);'>Plan zajęć</a></li>
+							<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li>
 						</ul>
 					</div>
 				</div>
 				<div id="right-box">
 					<div id="account-content">
-						<b>PLAN ZAJĘĆ:</b>
-						Aby wygenerować plan zajęć podaj swój login oraz hasło wykorzystywane w portalu Edukacja.CL
-						<!--<form method="post" action="/generujPlan">-->
-            <div id='parserPWR'>
-							<label for="userPWR">Login:</label><input type="text" name="userPWR" id="userPWR"></input><br>
-							<label for="passPWR">Hasło:</label><input type="password" name="passPWR" id="passPWR"></input><br>
-							<input type="submit" id="subPlanButt" />
-            </div>
-						<!--</form>-->
+					
+						<!-- TIMETABLE_ACCOUNT -->
+						<div id='timetable_account' style="display: none" class="account-form">
+							<div id='parserPWR'>
+								<table class="table-account">
+									<tr>
+										<td class="table-left-side">Login:</td>
+										<td class="table-right-side"><input class="account-input" type="text" name="userPWR" id="userPWR" value="" /></td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Hasło:</td>
+										<td class="table-right-side"><input class="account-input" type="password" name="passPwr" id="passPWR" value="" /></td>
+									</tr>
+								</table>
+							</div>
+							<div class="account-center">
+								<input class="account-submit" type="submit" name="subPlanButt" id="subPlanButt" value="Wczytaj" />
+							</div>
+						</div>
 						
-						<!--
-						<br /><br />
-						Wklej tu kod źródłowy z portalu edukacja.CL (i tu dalej instrukcja...):
-						<textarea class="CLASS" id="textarea_source_code" rows="4" cols="50"></textarea>
-						<br />
-						<input class="CLASS" type="submit" name="btn_source_code" id="btn_source_code" value="Wczytaj" />
-						(po zapisaniu alert że się udało)
-						<br /><br />
-						Dodawanie zajęć ręcznie: (po co te ECTSy w Kursie niby? i gdzie KOD KURSU? jak nie ma - dodać!)
-						<br /><br />
-						Kod kursu:
-						<input class="CLASS" type="text" name="fld_course_code" id="fld_course_code" value="" />
-						<br />
-						Kod grupy:
-						<input class="CLASS" type="text" name="fld_group_code" id="fld_group_code" value="" />
-						<br />
-						(w tym momencie czary mary w JSie i sprawdza się w bazie, czy jest taki kurs - jak tak, to wypełnia pozostałe pola, które wcześniej mają być NIEAKTYWNE
-						[mój pomysł na nie powtarzanie się kursów])
-						<br />
-						Nazwa kursu:
-						<input class="CLASS" type="text" name="fld_course_name" id="fld_course_name" value="" />
-						<br />
-						Typ kursu:
-						<div>
-							<select id="sbox_type">
-								<option>Wykład</option>
-								<option>Cwiczenia</option>
-								<option>Laboratorium</option>
-								<option>Seminarium</option>
-								<option>Projekt</option>
-								<option>Inne</option>
-							</select>
+											
+						<!-- SETTINGS_ACCOUNT -->
+						<div id = 'settings_account' style="display:block;" class="account-form">
+							<p>Dane osobowe</p>
+							<table class="table-account">
+								<tr>
+									<td class="table-left-side">Nick:</td>
+									<td class="table-right-side"><b> &nbsp {{ uzytkownik.nick }}</b></td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Indeks: </td>
+									<td class="table-right-side"> &nbsp {% for s in studenci %}{% if forloop.first %}<b>{{ s.indeks }}</b>{% endif %}{% endfor %}</td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Imię:</td>
+									<td class="table-right-side"><input class="account-input" type="text" name="fld_name" id="fld_name" value="{{ uzytkownik.imie }}" /></td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Nazwisko:</td>
+									<td class="table-right-side"><input class="account-input" type="text" name="fld_lastName" id="fld_lastName" value="{{ uzytkownik.nazwisko }}" /></td>
+								</tr>
+							</table>
+                          
+                            <div class="account-space">
+							</div>
+							<p>Dane studenta</p>
+							
+							{% for s in studenci %}
+							<table class="table-account">
+								<tr>
+									<td class="table-left-side">Wydział:</td>
+									<td class="table-right-side">
+										<select class="account-settings-changes-select-input" id="select_faculty"  onchange='getSpecializations(this);'>
+										{% for wydz in wydzialy %}
+											<option value={{ wydz.id }} {% if wydz.id == s.kierunek.wydzial.id %} selected='selected' {% endif %}>{{ wydz.nazwa }}</option>
+										{% endfor %}
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Kierunek:</td>
+									<td class="table-right-side">
+										<select class="account-settings-changes-select-input" id="select_specialization" onchange='getSemesters();'>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Semestr:</td>
+									<td class="table-right-side">
+										<select class="account-settings-changes-select-input" id="select_semester">
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Stopień:</td>
+									<td class="table-right-side">
+										<select class="account-settings-changes-select-input" id="select_type" onchange='getSemesters();'>
+											<option value="1">I-go stopnia</option>
+											<option value="2">II-go stopnia</option>
+										</select>
+									</td>
+								</tr>
+							</table>
+							{% endfor %}
+							<div class="account-space">
+							</div>
+							<p>Jakiś tekst z opisem...</p>
+							<p>Z ilu dni w przód chcesz widzieć swoje zbliżające się wydarzenia (pomijając aktualny dzień)?
+								<select class="account-settings-days-select-input" id="sbox_events">
+									<option>0</option>
+									<option>1</option>
+									<option>3</option>
+									<option>7</option>
+									<option>14</option>
+									<option>28</option>
+								</select>
+							</p>
+							<div class="account-space">
+							</div>
+
+							<p>Zmiana hasła</p>
+							<table class="table-account">
+								<tr>
+									<td class="table-left-side">Stare hasło:</td>
+									<td class="table-right-side"><input class="account-input" type="password" name="fld_old_pass" id="fld_old_pass" value="" /></td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Nowe hasło:</td>
+									<td class="table-right-side"><input class="account-input" type="password" name="fld_new_pass" id="fld_new_pass" value="" /></td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Potwierdzenie hasła:</td>
+									<td class="table-right-side"><input class="account-input" type="password" name="fld_new_pass2" id="fld_new_pass2" value="" /></td>
+								</tr>
+							</table>
+
+							<div class="account-center">
+								<input class="account-submit" type="button" name="btn_settings" id="btn_settings" onclick="sendAccountSettings();" value="Zapisz" />
+							</div>
+							<div class="account-space">
+							</div>
+
+							<p>Jeśli chcesz zmienić dane, do których nie masz dostępu w ustawieniach, prosimy o notatkę wraz z wyjaśnieniem na ten temat (250 znaków):</p>
+							<input type="text" class="account-counter" id="textarea_request_char" style="width: 400px" readonly=true value = "250/250" /><br />
+							<textarea class="account-textarea" id="textarea_request" name ="textarea_request" onkeyup='checkTextarea();'></textarea>
+							<div class="account-center">
+								<input class="account-submit" type="button" name="btn_request" id="btn_request" onclick='sendEmailAccount();' disabled = 'disabled' value="Wyślij" />
+								<p id='response_text'> <br></p>
+							</div>
 						</div>
-						<br />
-						Prowadzący:
-						<input class="CLASS" type="text" name="fld_teacher" id="fld_teacher" value="" />
-						<br />
-						Dzień tygodnia:
-						<div>
-							<select id="sbox_days">
-								<option>Poniedziałek</option>
-								<option>Wtorek</option>
-								<option>Środa</option>
-								<option>Czwartek</option>
-								<option>Piątek</option>
-								<option>Sobota</option>
-								<option>Niedziela</option>
-							</select>
-						</div>
-						<br />
-						Parzystość:
-						<div>
-							<select id="sbox_week">
-								<option>Co tydzień</option>
-								<option>Tydzień parzysty</option>
-								<option>Tydzień nieparzysty</option>
-							</select>
-						</div>
-						<br />
-						Od:
-						<div>
-							<select id="sbox_hours_from">
-								<option>07</option>
-								<option>08</option>
-								<option>09</option>
-								<option>10</option>
-								<option>11</option>
-								<option>12</option>
-								<option>13</option>
-								<option>14</option>
-								<option>15</option>
-								<option>16</option>
-								<option>17</option>
-								<option>18</option>
-								<option>19</option>
-								<option>20</option>
-								<option>21</option>
-							</select>
-							:
-							<select id="sbox_minutes_from">
-								<option>00</option>
-								<option>05</option>
-								<option>10</option>
-								<option>15</option>
-								<option>20</option>
-								<option>25</option>
-								<option>30</option>
-								<option>35</option>
-								<option>40</option>
-								<option>45</option>
-								<option>50</option>
-								<option>55</option>
-							</select>
-						</div>
-						Do:
-						<div>
-							<select id="sbox_hours_to">
-								<option>07</option>
-								<option>08</option>
-								<option>09</option>
-								<option>10</option>
-								<option>11</option>
-								<option>12</option>
-								<option>13</option>
-								<option>14</option>
-								<option>15</option>
-								<option>16</option>
-								<option>17</option>
-								<option>18</option>
-								<option>19</option>
-								<option>20</option>
-								<option>21</option>
-							</select>
-							:
-							<select id="sbox_minutes_to">
-								<option>00</option>
-								<option>05</option>
-								<option>10</option>
-								<option>15</option>
-								<option>20</option>
-								<option>25</option>
-								<option>30</option>
-								<option>35</option>
-								<option>40</option>
-								<option>45</option>
-								<option>50</option>
-								<option>55</option>
-							</select>
-						</div>
-						<br />
-						Budynek:
-						<input class="CLASS" type="text" name="fld_building" id="fld_building" value="" />
-						<br />
-						Sala:
-						<input class="CLASS" type="text" name="fld_room" id="fld_room" value="" />
-						<br /><br />
-						<input class="CLASS" type="submit" name="btn_add_class" id="btn_add_class" value="Dodaj" />
-						<br /><br />
-						Edycja zajęć: (kto może to robić w końcu? jak to ogarniesz to napisz do mnie)
-						<br /><br />
-						Kod kursu:
-						<input class="CLASS" type="text" name="fld_edit_course_code" id="fld_edit_course_code" value="" />
-						<br />
-						Kod grupy:
-						<input class="CLASS" type="text" name="fld_edit_group_code" id="fld_edit_group_code" value="" />
-						<br />
-						(w tym momencie czary mary w JSie i sprawdza się w KURSACH UŻYTKOWNIKA, czy jest taki kurs - jak tak, to wypełnia pozostałe pola, które wcześniej mają być NIEAKTYWNE)
-						<br />
-						Nazwa kursu:
-						<input class="CLASS" type="text" name="fld_edit_course_name" id="fld_edit_course_name" value="" />
-						<br />
-						Typ kursu:
-						<div>
-							<select id="sbox_edit_type">
-								<option>Wykład</option>
-								<option>Cwiczenia</option>
-								<option>Laboratorium</option>
-								<option>Seminarium</option>
-								<option>Projekt</option>
-								<option>Inne</option>
-							</select>
-						</div>
-						<br />
-						Prowadzący:
-						<input class="CLASS" type="text" name="fld_edit_teacher" id="fld_edit_teacher" value="" />
-						<br />
-						Dzień tygodnia:
-						<div>
-							<select id="sbox_edit_days">
-								<option>Poniedziałek</option>
-								<option>Wtorek</option>
-								<option>Środa</option>
-								<option>Czwartek</option>
-								<option>Piątek</option>
-								<option>Sobota</option>
-								<option>Niedziela</option>
-							</select>
-						</div>
-						<br />
-						Parzystość:
-						<div>
-							<select id="sbox_edit_week">
-								<option>Co tydzień</option>
-								<option>Tydzień parzysty</option>
-								<option>Tydzień nieparzysty</option>
-							</select>
-						</div>
-						<br />
-						Od:
-						<div>
-							<select id="sbox_edit_hours_from">
-								<option>07</option>
-								<option>08</option>
-								<option>09</option>
-								<option>10</option>
-								<option>11</option>
-								<option>12</option>
-								<option>13</option>
-								<option>14</option>
-								<option>15</option>
-								<option>16</option>
-								<option>17</option>
-								<option>18</option>
-								<option>19</option>
-								<option>20</option>
-								<option>21</option>
-							</select>
-							:
-							<select id="sbox_edit_minutes_from">
-								<option>00</option>
-								<option>05</option>
-								<option>10</option>
-								<option>15</option>
-								<option>20</option>
-								<option>25</option>
-								<option>30</option>
-								<option>35</option>
-								<option>40</option>
-								<option>45</option>
-								<option>50</option>
-								<option>55</option>
-							</select>
-						</div>
-						Do:
-						<div>
-							<select id="sbox_edit_hours_to">
-								<option>07</option>
-								<option>08</option>
-								<option>09</option>
-								<option>10</option>
-								<option>11</option>
-								<option>12</option>
-								<option>13</option>
-								<option>14</option>
-								<option>15</option>
-								<option>16</option>
-								<option>17</option>
-								<option>18</option>
-								<option>19</option>
-								<option>20</option>
-								<option>21</option>
-							</select>
-							:
-							<select id="sbox_edit_minutes_to">
-								<option>00</option>
-								<option>05</option>
-								<option>10</option>
-								<option>15</option>
-								<option>20</option>
-								<option>25</option>
-								<option>30</option>
-								<option>35</option>
-								<option>40</option>
-								<option>45</option>
-								<option>50</option>
-								<option>55</option>
-							</select>
-						</div>
-						<br />
-						Budynek:
-						<input class="CLASS" type="text" name="fld_edit_building" id="fld_edit_building" value="" />
-						<br />
-						Sala:
-						<input class="CLASS" type="text" name="fld_edit_room" id="fld_edit_room" value="" />
-						<br /><br />
-						<input class="CLASS" type="submit" name="btn_edit_class" id="btn_edit_class" value="Zmień" />
-						<br /><br />
-						
-						-->
-						<div style="text-align: left; padding-left: 20px;">
-						
-						<b>USTAWIENIA:</b>
-						<br /><br />
-						Nick:
-						{{ uzytkownik.nick }}
-						<br /><br />
-						Imię:
-						<input class="CLASS" type="text" name="fld_name" id="fld_name" value="{{ uzytkownik.imie }}" />
-						<br /><br />
-						Nazwisko:
-						<input class="CLASS" type="text" name="fld_lastName" id="fld_lastName" value="{{ uzytkownik.nazwisko }}" />
-						
-						<br /><br />
-						Indeks:
-						<input class="CLASS" type="text" name="fld_lastName" id="fld_lastName" value="{% for s in studenci %}{% if forloop.first %}{{ s.indeks }}{% endif %}{% endfor %}" />
-						
-						<br /><br />
-						Podaj stare hasło:
-						<input class="CLASS" type="password" name="fld_old_pass" id="fld_old_pass" value="" />
-						<br />
-						Podaj nowe hasło:
-						<input class="CLASS" type="password" name="fld_new_pass" id="fld_new_pass" value="" />
-						<br />
-						Podaj nowe hasło jeszcze raz:
-						<input class="CLASS" type="password" name="fld_new_pass2" id="fld_new_pass2" value="" />
-						<br /><br />
-						(jeśli pole 'stare hasło' jest puste przyjmujemy, że użytkownik nie chce zmienić hasła zapisując zmiany)
-						<br /><br /><br />
-						<div>
-							Z ilu dni w przód chcesz widzieć swoje zbliżające się wydarzenia (pomijając aktualny dzień)?
-							<select id="sbox_events">
-								<option>0</option>
-								<option>1</option>
-								<option>3</option>
-								<option>7</option>
-								<option>14</option>
-								<option>28</option>
-							</select>
-						</div>
-						<br /><br />
-						Zmiana wydziału/kierunku (raz na semestr!!! jak to w końcu zaprogramujemy? że kiedy?<br />
-						i shoutbox też się zmienia chyba sam z siebie i tak jest ok.
-						a co z czyszczeniem shoutboxa, planu zajęć, kalendarza, konsultacji?<br />
-						wydział i kierunek w select boxach niech będą ustawione na takie jakie są dla danego konta plus przy zapisie,<br />
-						jeśli zmieniły się te dane niech będzie alert 'Czy na pewno'):
-						<br /><br />
-						<div>
-							<select id="sbox_department">
-								<option>Wydział Architektury</option>
-								<option>itd., zgodnie z numeracją</option>
-							</select>
-						</div>
-						<div>
-							<select id="sbox_specialization">
-								<option>Architektura</option>
-								<option>itd., alfabetycznie</option>
-							</select>
-						</div>
-						<div>
-							<select id="sbox_semester">
-								<option>1</option>
-								<option>...</option>
-							</select>
-						</div>
-						<br />
-						(tutaj można wykorzystać męczarnie Mateusza, już zrobił takie coś w jsie przy rejestracji chyba czy gdzieś tam.
-						nie wiem co w końcu z tymi semestrami, niech tu będzie tak jak tam gdzie to zrobił Mateusz)
-						<br /><br />
-						(w 2. wydaniu tu będzie jeszcze dodawanie kolejnego kierunku)
-						<br /><br />
-						<input class="CLASS" type="submit" name="btn_settings" id="btn_settings" value="Zapisz" />
-						(jak się uda - alert)
-						<br /><br /><br />
-						Jeśli chcesz zmienić dane, do których nie masz dostępu w ustawieniach, prosimy o notatkę wraz z wyjaśnieniem na ten temat (250 znaków):
-						<br />
-						(fajnie by było jakby ta liczba znaków się zmniejszała - do zrobienia w jsie)
-						<textarea class="CLASS" id="textarea_request" rows="4" cols="50"></textarea>
-						<br />
-						<input class="CLASS" type="submit" name="btn_request" id="btn_request" value="Wyślij" />
-						(jak się uda - alert)
-						<br /><br />
-						<b>ADMINISTRACJA:</b>
-						<br />
-						(tylko dla opiekunów)
-						<br /><br />
-						
-						<div class="CLASS">
-							<input type="radio" name="write_rights" value="block" />Zablokuj możliwość pisania/edycji
-						</div>
-						<div>
-							na czas:
-							<select id="sbox_block_time">
-								<option>1 dzień</option>
-								<option>1 tydzień</option>
-								<option>1 miesiąc</option>
-							</select>
-						</div>
-						<div class="CLASS">
-							<input type="radio" name="write_rights" value="unblock" />Przywróć pełne prawa użytkownika
-						</div>
-						<br />
-						(jeszcze coś? Lepiej im nie dawać możliwości banowania ludzi)
-						<br /><br />
-						Nick:
-						<input class="CLASS" type="text" name="fld_rights_nick" id="fld_rights_nick" value="" />
-						<input class="CLASS" type="submit" name="btn_rights" id="btn_rights" value="OK" />
-						(jak się uda - alert)
-						<br /><br />
-						(dobrze by było gdyby nie można było zmieniać czasu gdy nie jest zaznaczone blokowanie [do zrobienia w js], prócz tego po kliknięciu OK niech wyświetla się jakiś alert
-						'Czy na pewno chcesz ...')
+							
+							
+						<!-- ADMINISTRATION_ACCOUNT -->
+						<div id = 'administration_account' style="display: none" class="account-form">
+							<p>Jakiś tekst z opisem...</p>
+							<table class="table-account">
+								<tr>
+									<td class="table-left-side"><input type="radio" name="radio_write_rights" value="block" /></td>
+									<td class="table-right-side">Zablokuj możliwość pisania/edycji
+										<br />
+										na czas:
+										<select class="account-admin-select-input" id="sbox_block_time">
+											<option>1 dzień</option>
+											<option>1 tydzień</option>
+											<option>1 miesiąc</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="table-left-side"><input type="radio" name="radio_write_rights" value="unblock" /></td>
+									<td class="table-right-side">Przywróć pełne prawa użytkownika</td>
+								</tr>
+								<tr>
+									<td class="table-left-side">Nick:</td>
+									<td class="table-right-side"><input class="account-input" type="text" name="fld_rights_nick" id="fld_rights_nick" value="" /></td>
+								</tr>
+							</table>
+							<div class="account-center">
+								<input class="account-submit" type="submit" name="btn_rights" id="btn_rights" value="OK" />
+							</div>
 						</div>
 					</div>
 				</div>
-				
+
+	
+	

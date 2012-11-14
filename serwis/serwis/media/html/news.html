@@ -23,9 +23,23 @@
 	}
 	scrollDown();
 	document.getElementById("fld_sbox_text").focus();
+	portalScroll();
 	setTimeout(refresh, 5000);
 
+	function addEvent(idWyd)
+	{
+
+		$.get("addEventToCalendar/" + idWyd , function(data)
+		{
+			if (data =='Ok')
+			{
+				loadContent('news');
+		   }
+
+		  }
+		);
 		  
+	}
 </script>
 					
 					
@@ -36,7 +50,7 @@
 
 						{% for r in rozmowy reversed %}
 						<div class="portal-text">
-							<div class="box-img-add-on"></div>
+							
 							<div class="box-date">
 								{% if r.data|date:"SHORT_DATE_FORMAT" ==  dzisiaj|date:"SHORT_DATE_FORMAT" %}
 									Dzisiaj
@@ -59,12 +73,12 @@
 					
 
 						<div id="portal-write-text">
-							<input class="CLASS" type="text" name="fld_sbox_text" id="fld_sbox_text" onkeydown="if (event.keyCode == 13) shout()" value="" style="width: 870px;" /><!-- jak się dorobi do tego klasę to wywalić WIDTH -->
-							<input class="CLASS" type="submit" name="btn_sbox_send" id="btn_sbox_send" onclick="shout()" value="Wyślij" />
+							<input class="portal-write-text-input" type="text" name="fld_sbox_text" id="fld_sbox_text" onkeydown="if (event.keyCode == 13) shout()" value=""/><!-- jak się dorobi do tego klasę to wywalić WIDTH -->
+							<input class="portal-write-text-submit" type="submit" name="btn_sbox_send" id="btn_sbox_send" onclick="shout()" value="Wyślij" />
 						</div>
 
 				</div>
-				<div id="portal-important-msgs">
+				<!--<div id="portal-important-msgs">
 					<div class="box-title">Ważne wiadomości</div>
 					<div id="portal-important-msgs-scroll">
 						<div class="portal-text">
@@ -93,7 +107,7 @@
 							<div class="box-text"><b>Stefan: </b>Żeby to zrobić standardowo nie może być w ogóle linku i obrazka w htmlu w box-img-del i sama klasa musi się nazywać box-img-del-off</div>
 						</div>
 					</div>
-				</div>
+				</div>-->
 				<div id="portal-my-events">
 					<div class="box-title">Moje wydarzenia</div>
 					<div id="portal-my-events-scroll">
@@ -112,7 +126,7 @@
 					<div id="portal-new-events-scroll">
 					{% for w in wydarzenia %}
 						<div class="portal-event-text"><!-- TU JEST 20 ZAMIAST 28 !!!!!!!!!!!!!!!!!!!!!1 -->
-							<a href="#" class="box-img-add-event"><!-- <img src="static/img/blank.png" alt="" title="" width="28" height="20" /> --></a>
+							<div class="box-img-add-event"><a href="#" onclick="addEvent('{{w.id}}');"><img src="media/html/img/blank.png" alt="" title="" width="28" height="28" /></a></div>
 							<div class="box-event-date">
 								{% if w.dataWydarzenia == now %}
 									dzisiaj
@@ -122,10 +136,10 @@
 								
 								{{ w.godzinaOd|time:"H:i"  }} - {{ w.godzinaDo|time:"H:i"  }}</div>
 							<div class="box-event-text"><a href="#" title="">{{ w.nazwa }}</a></div>
-							<div class="box-event-where-new">miejsce???</div>
-							<div class="box-event-who">{{ w.dodal.nick }}</div>
+							<div class="box-event-who">{{ w.dodal.uzytkownik.nick }}</div>
+							<div class="box-event-where-new"> &nbsp </div>
 						</div>
 					{% endfor %}	
-					
+					</div>
 					</div>
 				</div>

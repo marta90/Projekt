@@ -1,48 +1,120 @@
 <style type="text/css">
-    .ok {color: green}
-    .notOk {color: red}
+
+#obrazek {
+margin-top:2px;
+right: 10px;
+height: 16px;
+width: 16px;
+overflow:hidden;
+background: #fff url('media/html/img/status.gif') 0px 0 no-repeat; 
+}
+
+#obrazek2 {
+margin-top:2px;
+right: 10px;
+height: 16px;
+width: 16px;
+overflow:hidden;
+background: #fff url('media/html/img/status.gif') 0px 0 no-repeat; 
+}
+
+#obrazek3 {
+margin-top:2px;
+right: 10px;
+height: 16px;
+width: 16px;
+overflow:hidden;
+background: #fff url('media/html/img/status.gif') 0px 0 no-repeat; 
+}
+
+#obrazek4 {
+margin-top:2px;
+right: 10px;
+height: 16px;
+width: 16px;
+overflow:hidden;
+background: #fff url('media/html/img/status.gif') 0px 0 no-repeat; 
+}
+
+#obrazek.thinking { background-position: 0px -19px; }
+#obrazek.approved { background-position: 0px -35px; }
+#obrazek.denied { background-position: 0px -52px; }
+
+#obrazek2.thinking { background-position: 0px -19px; }
+#obrazek2.approved { background-position: 0px -35px; }
+#obrazek2.denied { background-position: 0px -52px; }
+
+#obrazek3.thinking { background-position: 0px -19px; }
+#obrazek3.approved { background-position: 0px -35px; }
+#obrazek3.denied { background-position: 0px -52px; }
+
+#obrazek4.thinking { background-position: 0px -19px; }
+#obrazek4.approved { background-position: 0px -35px; }
+#obrazek4.denied { background-position: 0px -52px; }
 </style>
 
 <script type="text/javascript">
 	// WALIDACJA NICKU I INDEXU
-	$(document).ready(function(){
+	$(document).ready(function()
+	{
 		// Zdarzenie nastepujace po nacisnieciu klawisz dla pola "Imię"
-		$('#fld_loginCheck').keyup(function()
+		$('#fld_loginCheck').keyup(
+		function()
 		{
-			var reg = /^[a-zA-Z][a-zA-Z0-9-_]{3,32}$/;
-			// Login ma zla dlugosc
-			if(reg.test($(this).val()) == false)
+			document.getElementById("obrazek").className = "thinking";
+			document.getElementById("obrazek2").className = "thinking";
+			
+			setTimeout(
+			function()
 			{
-				document.getElementById('loginRequirements').className = 'notOk';
-				document.getElementById('loginUnique').className = 'notOk';
-				checkButton();
-			}
-			// Login ma dobra dlugosc
-			else
-			{
-				document.getElementById('loginRequirements').className = 'ok';
-				checkUsername();	//jesli pasuje login to sprawdzamy czy isnieje juz taki w bazie
-			}
+				var login = '#fld_loginCheck';
+				var reg = /^[a-zA-Z][a-zA-Z0-9-_]{2,32}$/;
+				// Login ma zla dlugosc
+				if(reg.test($(login).val()) == false)
+				{
+					document.getElementById("obrazek").className = "denied";
+					document.getElementById("obrazek2").className = "denied";
+					checkButton();
+				}
+				// Login ma dobra dlugosc
+				else
+				{
+					document.getElementById("obrazek").className = "approved";
+					checkUsername();	//jesli pasuje login to sprawdzamy czy isnieje juz taki w bazie
+				}
+			}, 2000);
 			
 		});
 
 		// Sprawdzanie na bierzaco czy indeks sklada sie z 6 cyfr
 		$('#fld_indexNumber').keyup(function()
 		{
-			var reg = /^[0-9]{6}$/;
-			
-			if(reg.test($(this).val()) == false)
+			document.getElementById("obrazek3").className = "thinking";
+			document.getElementById("obrazek4").className = "thinking";
+			setTimeout(
+			function()
 			{
-				document.getElementById('indexLength').className = 'notOk';
-				checkButton();
-			}
-			else
-			{
-				document.getElementById('indexLength').className = 'ok';
-				checkIndexNumber();		//jesli pasuje indeks to sprawdzamy czy isnieje juz taki w bazie
-			}
-			
+				var indeks = '#fld_indexNumber';
+				var reg = /^[0-9]{6}$/;
+				if(reg.test($(indeks).val()) == false)
+				{
+					document.getElementById("obrazek3").className = "denied";
+					document.getElementById("obrazek4").className = "denied";
+					checkButton();
+				}
+				else
+				{
+					document.getElementById("obrazek3").className = "approved";
+					checkIndexNumber();		//jesli pasuje indeks to sprawdzamy czy isnieje juz taki w bazie
+				}
+				}, 2000);
+				
 		});
+
+	
+	
+	
+	
 		$('#subRepeatVer').click(function(){
 			$.post('/repeatVerification', { fld_login_ver: $('#fld_login_ver').val()},
 								function(msg) {
@@ -59,6 +131,8 @@
 								});
 		});
 	});
+	
+	
 	function wysunAktywator(){
 		if ($("#repeatVer").css('display')=='none'){
 			$("#repeatVer").fadeIn("slow");
@@ -80,11 +154,51 @@
 						<input class="CLASS" type="submit" name="btn_register" id="btn_register" value="Zarejestruj" disabled=true/>
 						<br />
 						<br />
-						<div style="text-align: left">
-						<p id = 'loginRequirements' class = 'notOk'>Login musi mieć od 3 do 32 znaków i nie może zawierać znaków specjalnych ani zaczynać się od cyfry. <p>
-						<p id = 'loginUnique' class = 'notOk'>Login musi być unikalny. <p>
-						<p id = 'indexLength' class = 'notOk'>Indeks musi składać się z 6 cyfr. <p>
-						<p id = 'indexUnique' class = 'notOk'>Indeks nie może znajdować się w bazie. <p>
+						<div id = "requirementsDiv" style="text-align: center; max-width: 620px; margin-left: auto; margin-right: auto;">
+						<fieldset  style="background-color: #fff;">
+						<legend><b> Wymagania </b></legend>
+							<table style="text-align: left; background-color: #fff; margin-left: auto; margin-right: auto">
+														
+
+								<tr>
+									<td>
+										<div id="obrazek" class = 'denied'></div>
+									</td>
+									<td>
+										Login musi mieć od 3 do 32 znaków i nie może zawierać znaków specjalnych ani zaczynać się od cyfry.
+									</td>
+								</tr>
+								
+								<tr>
+									<td>
+										<div id="obrazek2" class = 'denied'></div>
+									</td>
+									<td>
+										Login musi być unikalny.
+									</td>
+								</tr>
+															
+								<tr>
+									<td>
+										<div id="obrazek3" class = 'denied'></div>
+									</td>
+									<td id>
+										Indeks musi składać się z 6 cyfr.
+									</td>
+								</tr>
+																						
+								<tr>
+									<td>
+										<div id="obrazek4" class = 'denied'></div>
+									</td>
+									<td>
+										Indeks nie może znajdować się w bazie. 
+									</td>
+								</tr>
+									
+								
+							</table>
+						</fieldset>
 						</div>
 
 					</div>

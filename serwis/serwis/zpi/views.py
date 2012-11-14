@@ -18,8 +18,6 @@ from twill import commands
 from django.db.models import Q
 
 from django.utils import simplejson
-
-
 ############### FUNKCJE POMOCNICZE ########################################################
 
 # Pobranie uzytkownika po nicku
@@ -66,6 +64,12 @@ def usunPolskieZnaki(text):
 	return ''.join( pltoang_tab.get(char, char) for char in text )
 
 
+def saWPoscie(request, dane):
+	for d in dane:
+		if d not in request.POST.keys():
+			return False
+		else:
+			return True
 
 ############### STRONA GLOWNA #############################################################
 
@@ -104,21 +108,20 @@ def glowna(request):
 		
 		# Wymagana zmiana hasla
 		elif kom == '4':
-                        del request.session['komunikat']
-                        #usunSesje(request)
+			del request.session['komunikat']
 			tekst = 'Teraz możesz zmienić swoje hasło.'
 			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst, 'zmianaHasla':True})
 		
 		##################################
 		# Rejestracja
-		# Wyswietlenie rejestracjia
+		# Wyswietlenie rejestracji
 		elif kom == '5':
 			#usunSesje(request)
 			return render_to_response('index.html', {'strona':'registration', 'logowanie':True})
 	else:
-            if 'content' not in request.session.keys():
-                request.session['content'] = 'portal'
-            return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True})
+		if 'content' not in request.session.keys():
+			request.session['content'] = 'portal'
+        return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True})
 
 ############### REJESTRACJA ##############################################################
 
@@ -130,6 +133,9 @@ def zaladujRejestracje(request):
 	usunSesje(request)
 	return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz})
 
+
+
+
 # Wyswietlenie rejestracji
 def rejestruj(request):
 	if post(request):
@@ -140,19 +146,38 @@ def rejestruj(request):
 	else:
 		return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.")
 
-
+'''
 #Pobranie kierunków dla okreslonych wydzialow. Potrzebne przy rejestracji
 def pobierzKierunki(request, idWydz):
 	kierunki = models.Kierunek.objects.filter(wydzial__id=idWydz)
-	odp = '<option value=0>Wybierz kierunek...</option>'
+	odp = ''
 	for k in kierunki:
-		odp = odp + '<option value=\'' + str(k.id) +'\'>' + str(k.id) + k.nazwa + '</option>'
+		odp = odp + '<option value=\'' + str(k.id) +'\'>' + k.nazwa + '</option>'
+	return HttpResponse(odp)
+'''
+
+def pobierzKierunki(request, idWydzialu):
+	kierunki = models.Kierunek.objects.filter(wydzial__id = idWydzialu)
+	odp = ""
+	for k in kierunki:
+		odp = odp + 'obj.options[obj.options.length] = new Option(\''+ k.nazwa +'\' , \'' + str(k.id) + '\'); '
 	return HttpResponse(odp)
 
+def pobierzSemestry(request, idSpec, idTyp):
+	kierunek = models.Kierunek.objects.get(id = idSpec)
+	odp = ""
+	if idTyp == "1":
+		for i in range(1, kierunek.liczbaSemestrow1st + 1):
+			odp = odp + 'obj.options[obj.options.length] = new Option(\''+ str(i) +'\' , \'' + str(i) + '\'); '
+	if idTyp == "2":
+		for i in range(1, kierunek.liczbaSemestrow2stPoInz + 1):
+			odp = odp + 'obj.options[obj.options.length] = new Option(\''+ str(i) +'\' , \'' + str(i) + '\'); '
+	return HttpResponse(odp)
 
+'''
 #Pobieranie Semestrów dla poszczególnych kierunków i typu studiów. Potrzebne przy rejestracji
 def pobierzSemestry(request, idSpec, idTyp):
-	kierunek = kier(idSpec)
+	kierunek = models.Kierunek.objects.get(id = idSpec)
 	odp = ""
 	if idTyp == "1":
 		for i in range(1, kierunek.liczbaSemestrow1st + 1):
@@ -161,7 +186,7 @@ def pobierzSemestry(request, idSpec, idTyp):
 		for i in range(1, kierunek.liczbaSemestrow2stPoInz + 1):
 			odp = odp + '<option value=\'' + str(i) +'\'>' + str(i) + '</option>'
 	return HttpResponse(odp)
-
+'''
 
 # Rejestracja użytkownika
 @transaction.commit_on_success
@@ -330,11 +355,10 @@ def wygenerujAktywator():
 
 # Wyslanie maila z kodem potwierdzajacym rejestracje
 def wyslijPotwierdzenie(uzytkownik):
-        tytul = "PwrTracker - potwierdzenie rejestracji"
-        tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
-        tresc = tresc + "http://127.0.0.1:8000/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
-        indeks = models.Student.objects.filter(uzytkownik = uzytkownik.id)[0].indeks
-        send_mail(tytul, tresc, 'pwrtracker@gmail.com', [indeks + "@student.pwr.wroc.pl"], fail_silently=False)
+	tytul = "PwrTracker - potwierdzenie rejestracji"
+	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
+	tresc = tresc + "http://87.99.21.160:7272/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
+	#send_mail(tytul, tresc, 'pwrtracker@gmail.com', [uzytkownik.mail], fail_silently=False)
 
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
@@ -346,7 +370,7 @@ def potwierdzRejestracje(request, aktywator, nick):
 			uzytkownik.save()
 			return HttpResponse("Udało się aktywować")
 		else:
-			return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	
+			HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	
 	except:
 		return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")		
 
@@ -355,41 +379,44 @@ def potwierdzRejestracje(request, aktywator, nick):
 
 # Logowanie	
 def logowanie(request):
-    if post(request):
-            nickPost = request.POST['fld_login']
-            hasloPost = request.POST['fld_pass']
-            try:
-                    uzytkownik = models.Uzytkownik.objects.get(nick = nickPost)
-                    haslo = uzytkownik.haslo
-                    zgodnosc = sha256_crypt.verify(hasloPost, haslo)
-                    if(zgodnosc):
-                            if jestStudentem(uzytkownik):
-                                    domyslny = uzytkownik.domyslny
-                                    student = models.Student.objects.get(id = domyslny)
-                                    if uzytkownik.czyAktywowano:
-                                            if czyZmienicHaslo(uzytkownik):
-                                                    request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
-                                                    request.session['komunikat'] = '4' # zmiana hasla
-                                            else:
-                                                    request.session['studentId'] = student.id
-                                                    request.session['content'] = 'news'
-                                    else:
-                                            request.session['komunikat'] = '3' # konto nieaktywne
-                            else:
-                                    if czyZmienicHaslo(uzytkownik):
-                                        request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
-                                        request.session['komunikat'] = '4'  # zmiana hasla
-                                    else:
-                                            request.session['admin'] = nickPost
-                                            request.session['content'] = 'news'
-                    else:
-                                    request.session['komunikat'] = '2' # bledny login lub haslo
-            except:
-                            request.session['komunikat'] = '2' # bledny login lub haslo
-                            pass
-    else:
-                    request.session['komunikat'] = '1' # blad wyslania
-    return HttpResponseRedirect("/")
+	if post(request):
+		nickPost = request.POST['fld_login']
+		hasloPost = request.POST['fld_pass']
+		try:
+			uzytkownik = models.Uzytkownik.objects.get(nick = nickPost)
+			haslo = uzytkownik.haslo
+			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
+			print('Haslo w poscie ' + hasloPost)
+			print('Haslo w bazie ' + haslo)
+			if(zgodnosc):
+				print('zgodnosc przy logowaniu')
+				if jestStudentem(uzytkownik):
+					domyslny = uzytkownik.domyslny
+					student = models.Student.objects.get(id = domyslny)
+					if uzytkownik.czyAktywowano:
+						if czyZmienicHaslo(uzytkownik):
+							request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
+							request.session['komunikat'] = '4' # zmiana hasla
+						else:
+							request.session['studentId'] = student.id
+							request.session['content'] = 'news'
+					else:
+						request.session['komunikat'] = '3' # konto nieaktywne
+				else:
+					if czyZmienicHaslo(uzytkownik):
+						request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
+						request.session['komunikat'] = '4' # zmiana hasla
+					else:
+						request.session['admin'] = nickPost
+						request.session['content'] = 'news'
+			else:
+					request.session['komunikat'] = '2' # bledny login lub haslo
+		except:
+				request.session['komunikat'] = '2' # bledny login lub haslo
+				pass
+	else:
+			request.session['komunikat'] = '1' # blad wyslania
+	return HttpResponseRedirect("/")
 
 
 # Sprawdzenie czy dany uzytkownik jest studentem	
@@ -410,21 +437,21 @@ def czyZmienicHaslo(uzytkownik):
 		return True
 	else:
 		return False
-
+	
 
 # Funkcja do oprogramowania
 # Przypomnienie hasla
 def przypomnijHaslo(request):
-    if post(request) & ('fld_login' in request.POST.keys()):
-        nick = request.POST['fld_login']
-        try:
-            uzytkownik = uz(nick)
-            uzytkownik.aktywator = wygenerujAktywator()
-            uzytkownik.save()
-            wyslijPrzypHaslo(uzytkownik)
-        except:
-            return HttpResponse("Nie ma takiego uzytkownika")
-    return HttpResponse("ok")
+	if post(request) & ('fld_login' in request.POST.keys()):
+		nick = request.POST['fld_login']
+		try:
+			uzytkownik = uz(nick)
+			uzytkownik.aktywator = wygenerujAktywator()
+			uzytkownik.save()
+			wyslijPrzypHaslo(uzytkownik)
+		except:
+			return HttpResponse("Nie ma takiego uzytkownika")
+	return HttpResponse("ok")
 
 # Wyslanie maila z przypomnieniem hasła
 def wyslijPrzypHaslo(uzytkownik):
@@ -486,7 +513,7 @@ def przeslijAktywatorPonownie(request):
 		except:
 			return HttpResponse("Nie ma takiego uzytkownika")
         return HttpResponse("ok")
-
+	
 
 # Wylogowanie z serwisu - usunięcie sesji
 def wylogowanie(request):
@@ -545,7 +572,7 @@ def zaladujNewsy(request):
 	wczoraj = datetime.date.today() - datetime.timedelta(days=1)
 	ileWydarzen = uzytkownik.ileMoichWydarzen
 	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia')[:ileWydarzen]
-	wydarzenia = filtrujNoweWydarzenia(request)
+	wydarzenia = models.Wydarzenie.objects.all()
 	wydarzeniaUz = uzytkownik.wydarzenie_set.all()
 	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
 	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
@@ -580,7 +607,18 @@ def dodajShout(request, wiadomosc):
 		shout.save()
 	return HttpResponseRedirect("/media/html/shoutbox.html")
 
-############### WYDARZENIA ################################################################
+
+def dodajWydDoKalendarza(request, idWyd):
+	try:
+		uzytkownik = uzSesja(request)
+		wydarzenie = models.Wydarzenie.objects.get(id = idWyd)
+		if (wydarzenie not in uzytkownik.wydarzenie_set.all()):
+			kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = wydarzenie.opis)
+			kalendarz.save()
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+		
 
 def filtrujNoweWydarzenia(request):
     student = studSesja(request)
@@ -593,9 +631,10 @@ def filtrujNoweWydarzenia(request):
                                                   (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) |
                                                   (Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5)) )
     return wydarzenia
-    
+
 
 ############### PLAN ZAJEC ################################################################
+
 
 # Zaladowanie strony timetable.html do diva na stronie glownej
 def zaladujPlan(request):
@@ -677,6 +716,7 @@ def czyParzystyTydzien(data):           # sprawdzam czy tydzien jest parzysty
     else:
         return False
 
+
 ############### WYKLADOWCY #################################################################
 
 # Zaladowanie strony teachers.html do diva na stronie glownej - wyswietlenie wykladowcow na litere A
@@ -750,8 +790,10 @@ def konsultacjeWykladowcy(request, idw):
 	else:
 		response.write('Brak informacji o konsultacjach')
 	#response.write('</i> &nbsp &nbsp   <img id = "a' +idw +'" src="media/html/img/edit.png" height=20px width=20px onclick="editIt(this);">')
-	response.write('</i>')
+	response.write('</i><br>')
+	response.write(' <a href=# id= "' + idw + '" onclick="showPlan(this)">----> Zobacz plan </a>')
 	return response
+
 
 def pobierzZajeciaWykladowcy(request, idw, start, end):
     prowadzacy = models.Prowadzacy.objects.get(id = idw)
@@ -813,8 +855,6 @@ def zaladujKalendarz(request):
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
-############### Przypominanie hasła #######################################################
-
 
 
 ############### MAPA ######################################################################
@@ -827,16 +867,249 @@ def zaladujMape(request):
 
 ############### EDYCJA KONTA ##############################################################
 
+def zaladujZmianaHasla(request):
+	return render_to_response('changePassword.html')
+
+def testphp(request):
+	for x in request.POST:
+		print(request.POST[x])
+	return HttpResponse('ok')
+
 # Zaladowanie strony account.html do diva na stronie glownej
 def zaladujKonto(request):
 	student = studSesja(request)
 	uzytkownik = student.uzytkownik
 	studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
-	return render_to_response('account.html', {'studenci':studenci, 'uzytkownik':uzytkownik})
+	wydzialy = models.Wydzial.objects.all()
+	return render_to_response('account.html', {'studenci':studenci, 'uzytkownik':uzytkownik, 'wydzialy':wydzialy})
 
+
+def edytujDane(request):
+	if post(request):
+		print("----------------------------------------------")
+		print('W poscie otrzymano nastepujace klucze:')
+		student = studSesja(request)
+		uzytkownik = student.uzytkownik
+		bledy = []
+	
+		dane = request.POST.copy()
+		for d in dane:
+			print d
+			
+		print(" ")
+		
+		zmianaHasla = False
+		if 'imie' in dane:
+			print('Sprawdzam imie...')
+			if sprImie(dane['imie']):
+				uzytkownik.imie = dane['imie']
+				print('Imie ok')
+			else:
+				print('blad w imieniu')
+				bledy.append('imie ')
+		
+		if 'nazwisko' in dane:
+			print('Sprawdzam nazwisko...')
+			if sprNazwisko(dane['nazwisko']):
+				uzytkownik.nazwisko = dane['nazwisko']
+				print('Nazwisko ok')
+			else:
+				print('blad w nazwisku')
+				bledy.append('nazwisko ')
+		
+				
+		if 'haslo' in dane and 'haslo2' in dane and 'stareHaslo' in dane:
+			print('Sprawdzam hasla...')
+			if sprHasloZeStarym(dane['haslo'], dane['haslo2'], dane['stareHaslo'], uzytkownik.haslo):
+				if not sha256_crypt.verify(dane['haslo'], uzytkownik.haslo):
+					uzytkownik.haslo = sha256_crypt.encrypt(dane['haslo'])
+					zmianaHasla = True
+					print('Haslo ok')
+			else:
+				print('blad w hasle')
+				bledy.append('haslo ')
+		
+		
+				
+		if 'semestr' in dane and 'kierunek' in dane and 'stopien' in dane:
+			print('Sprawdzam semestr itp...')
+			if sprSemestr(dane['kierunek'], dane['stopien'], dane['semestr']):
+				student.semestr = int(dane['semestr'])
+				print('kierunek przed ' + str(student.kierunek_id))
+				print('kierunek w poscie ' + dane['kierunek'])
+				student.kierunek_id = int(dane['kierunek'])
+				print('kierunek po ' + str(student.kierunek_id))
+				student.rodzajStudiow = int(dane['stopien'])
+				print('Semestr ok')
+			else:
+				print('blad w semestrze lub podobnych')
+				bledy.append('semestr ')
+				
+				
+		if 'ileWydarzen' in dane:
+			print('Sprawdzam wydarzenia...')
+			if sprWydarzenia(dane['ileWydarzen']):
+				uzytkownik.ileMoichWydarzen = int(dane['ileWydarzen'])
+				print('Wydarzenia ok')
+			else:
+				print('blad w ilosci wydarzen')
+				bledy.append('ileWydarzen ')
+	
+		print ('Razem bledow')
+		print(len(bledy))
+		
+
+		
+		if len(bledy) == 0:
+			print('nie bylo bledow')
+			
+			if zmianaHasla:
+				uzytkownik.dataOstZmianyHasla = datetime.date.today()	
+			uzytkownik.ktoZmienilDane.id = student.uzytkownik.id
+			uzytkownik.dataOstZmianyDanych = datetime.date.today()
+			print('mhmm')
+			student.save()
+			uzytkownik.save()
+			
+			
+			
+		return HttpResponse(bledy)
+
+
+
+def edytujDane2(request):
+	if post(request):
+		student = studPost(request)
+		dane = ['fld_old_pass', 'fld_new_pass', 'fld_new_pass2', 'fld_name', 'fld_lastName', 'select_semester', 'select_specialization', 'select_type', 'sbox_events']
+		postPelny = saWPoscie(request, dane)
+		if postPelny:
+			stareHaslo = request.POST['fld_old_pass']
+			haslo = request.POST['fld_new_pass']
+			haslo2 = request.POST['fld_new_pass2']
+			imie = request.POST['fld_name']
+			nazwisko = request.POST['fld_lastName']
+			semestr = request.POST['select_semester']
+			kierunek = request.POST['select_specialization']
+			stopienStudiow = request.POST['select_type']
+			ileWydarzen = request.POST['sbox_events']
+			poprawnosc = sprawdzDaneDoEdycji(imie, nazwisko, haslo, haslo2, stareHaslo, semestr, kierunek, stopienStudiow, ileWydarzen, hasloUzytkownika)
+			if(poprawnosc):
+				
+				zmianaHasla = False
+				
+				if student.uzytkownik.imie != imie:
+					student.uzytkownik.imie = imie
+				
+				if student.uzytkownik.nazwisko != nazwisko:
+					student.uzytkownik.nazwisko = nazwisko
+				
+				if not sha256_crypt.verify(haslo, student.uzytkownik.haslo):
+					student.uzytkownik.haslo = sha256_crypt.encrypt(haslo)
+					zmianaHasla = True
+					
+				if student.semestr != semestr:
+					student.semestr = semestr
+					
+				if student.kierunek.id != kierunek:
+					student.kierunek.id = kierunek
+				
+				if student.rodzajStudiow != stopienStudiow:
+					student.rodzajStudiow = stopienStudiow
+					
+				if student.uzytkownik.ileMoichWydarzen != ileWydarzen:
+					student.uzytkownik.ileMoichWydarzen = ileWydarzen
+					
+				if zmianaHasla:
+					uzytkownik.dataOstZmianyHasla = datetime.date.today()
+				
+				student.uzytkownik.ktoZmienilDane = student.uzytkownik.id
+				student.uzytkownik.dataOstZmianyDanych = datetime.date.today()				
+				student.save()
+				student.uzytkownik.save()
+								
+				request.session['komRej'] = '1' # Pomyslny przebieg rejestracji
+				return HttpResponseRedirect('/')
+			else:
+				request.session['komRej'] = '2' # Dane nie spelniaja ograniczen
+				return HttpResponseRedirect('/')
+		else:
+			request.session['komRej'] = '3' # Nie podano wszystkich danych
+			return HttpResponseRedirect('/')
+	else:
+		request.session['komRej'] = '4' # Blad wysylania
+		return HttpResponseRedirect('/')
+
+
+def sprImie(imie):
+	imieOk = pasuje("^([a-zA-Z '-]+)$", imie)
+	return imieOk and len(imie)>=2
+
+
+def sprNazwisko(nazwisko):
+	nazwiskoOk = pasuje("^([a-zA-Z '-]+)$", nazwisko)
+	return nazwiskoOk and len(nazwisko)>=2
+
+def sprHasloZeStarym(haslo, haslo2, stareHaslo, hasloUz):
+	print('1')
+	hasloOk = pasuje('^(?!.*(.)\1{3})((?=.*[\d])(?=.*[A-Za-z])|(?=.*[^\w\d\s])(?=.*[A-Za-z])).{8,20}$', haslo)
+	print('2')
+	hasloOk = hasloOk and (haslo == haslo2)
+	print('3')
+	hasloOk = hasloOk and sha256_crypt.verify(stareHaslo, hasloUz)
+	print('4')
+	return hasloOk
+
+def sprWydarzenia(ileWydarzen):
+	wydarzeniaOk = (ileWydarzen == '0' or ileWydarzen == '1' or ileWydarzen == '3' or ileWydarzen == '7' or ileWydarzen == '14' or ileWydarzen == '28')
+	return wydarzeniaOk
+
+def sprSemestr(kierunek, stopien, semestr):
+	try:
+		kierunekOk = models.Kierunek.objects.get(id = kierunek)
+	except:
+		return False
+	
+	stopienInt = pasuje('\d+', stopien)
+	semestrInt = pasuje('\d+', semestr)
+	if ((stopienInt == False) | (semestrInt == False)):
+		return False	
+	if (int(stopien) == 1):
+		max = kierunekOk.liczbaSemestrow1st
+		if(int(semestr) > max | int(semestr) < 1 ):
+			return False
+	elif (int(stopien) == 2):
+		max = kierunekOk.liczbaSemestrow2stPoInz
+		if(int(semestr) > max | int(semestr) < 1 ):
+			return False
+	else:
+		return False
+	return True
+
+#Wysyłanie maila do admina
+def wyslijEmailZProsba(request):
+	try:
+		do = "pwrtracker@gmail.com"
+		od = "pwrtracker@gmail.com"
+		mailZwrotny = uzSesja(request).mail.encode('utf-8')
+		tresc = request.POST['textarea_request'].encode('utf-8')
+		'''
+		send_mail('Prośba o edycję konta', tresc+ "\n\nWiadomość wysłana od\n" + mailZwrotny, od, [do], fail_silently=False)
+		send_mail("PwrTracker - prośba o edycję danych.",
+				  "Wysłałeś wiadomość o następującej treści:\n\n" + tresc,
+				  od,
+				  [mailZwrotny],
+				  fail_silently=False)
+		'''
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+	
+	
 
 
 ############### INNE ######################################################################
+
+
 
 #Wysyłanie maila do admina
 def wyslijEmail(request):
@@ -855,10 +1128,6 @@ def wyslijEmail(request):
 		return HttpResponse('Wysłano wiadomości')
 
 
-# Zaladowanie strony map.html do diva na stronie glownej
-def zaladujZmianaHasla(request):
-	return render_to_response('changePassword.html')
-
 ##########################################################################################
 #ANDROID
 ##########################################################################################
@@ -868,38 +1137,46 @@ def zaladujZmianaHasla(request):
 def dodajWShoutboxieAND(request):
 	if post(request):
 		student = studPost(request)
-		wiadomosc = request.POST['message']
-		if wiadomosc != "":
-			shout = models.Shoutbox(student = student,
-									tresc = wiadomosc,
-									data = datetime.datetime.now(),
-									czyWazne = False)
-			shout.save()
-			return shoutboxAND(request)
-	return HttpResponse("Failed")
+		uzytkownik = student.uzytkownik
+		if not czyZmienicHaslo(uzytkownik):
+			wiadomosc = request.POST['message']
+			if wiadomosc != "":
+				shout = models.Shoutbox(student = student,
+										tresc = wiadomosc,
+										data = datetime.datetime.now(),
+										czyWazne = False)
+				shout.save()
+				return shoutboxAND(request)
+		else:
+			return HttpResponse('-4')
+	return HttpResponse("Fail")
 
 # Android - wyświetlenie wiadomości z shoutboxa
 def shoutboxAND(request):
 	if post(request):
 		student = studPost(request)
-		stopien = student.rodzajStudiow
-		semestr = student.semestr
-		kierunek = student.kierunek
-		shoutbox = models.Shoutbox.objects.filter(student__kierunek = kierunek,
-												  student__rodzajStudiow = stopien,
-												  student__semestr = semestr).order_by('data')[:10]
-		shoutbox = shoutbox.reverse()
-
-		idSt = shoutbox.values_list('student_id', flat = True)
-		studenci = models.Student.objects.filter(id__in = idSt)
-		idUzShoutboxa = studenci.values_list('uzytkownik_id', flat=True)
-		uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
-		obiekt = list(shoutbox) + list(uz) + list(studenci)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik', 'student'))
-		return HttpResponse(wynik, mimetype="application/json")
+		uzytkownik = student.uzytkownik
+		if not czyZmienicHaslo(uzytkownik):
+			stopien = student.rodzajStudiow
+			semestr = student.semestr
+			kierunek = student.kierunek
+			shoutbox = models.Shoutbox.objects.filter(student__kierunek = kierunek,
+													  student__rodzajStudiow = stopien,
+													  student__semestr = semestr).order_by('data')[:10]
+			shoutbox = shoutbox.reverse()
+	
+			idSt = shoutbox.values_list('student_id', flat = True)
+			studenci = models.Student.objects.filter(id__in = idSt)
+			idUzShoutboxa = studenci.values_list('uzytkownik_id', flat=True)
+			uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
+			obiekt = list(shoutbox) + list(uz) + list(studenci)
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik', 'student'))
+			return HttpResponse(wynik, mimetype="application/json")
+		else:
+			return HttpResponse('-4')
 	else:
-		return HttpResponse("Failed")
+		return HttpResponse("Fail")
 
 '''
 # Android - wyświetlenie wiadomości z shoutboxa
@@ -928,25 +1205,28 @@ def planAND(request):
 	if post(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
-		grupy = models.Grupa.objects.filter(uzytkownik = uzytkownik).order_by('godzinaOd')
-		idWykl = grupy.values_list('prowadzacy_id', flat=True)
-		idKurs = grupy.values_list('kurs_id', flat=True)
-		wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
-		kursy = models.Kurs.objects.filter(id__in = idKurs)
-		lista = list(grupy) + list(kursy) + list(wykladowcy)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
-																			   'dzienTygodnia',
-																			   'parzystosc',
-																			   'godzinaOd',
-																			   'godzinaDo',
-																			   'miejsce',
-																			   'kurs',
-																			   'nazwisko',
-																			   'imie',
-																			   'tytul',
-																			   'nazwa',
-																			   'rodzaj'))
+		if not czyZmienicHaslo(uzytkownik):
+			grupy = models.Grupa.objects.filter(uzytkownik = uzytkownik).order_by('godzinaOd')
+			idWykl = grupy.values_list('prowadzacy_id', flat=True)
+			idKurs = grupy.values_list('kurs_id', flat=True)
+			wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
+			kursy = models.Kurs.objects.filter(id__in = idKurs)
+			lista = list(grupy) + list(kursy) + list(wykladowcy)
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
+																				   'dzienTygodnia',
+																				   'parzystosc',
+																				   'godzinaOd',
+																				   'godzinaDo',
+																				   'miejsce',
+																				   'kurs',
+																				   'nazwisko',
+																				   'imie',
+																				   'tytul',
+																				   'nazwa',
+																				   'rodzaj'))
+		else:
+			return HttpResponse('-4')
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
 
@@ -957,12 +1237,15 @@ def mojeWydarzeniaAND(request):
 	if post(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
-		wczoraj = datetime.date.today() - datetime.timedelta(days=1)
-		ileWydarzen = uzytkownik.ileMoichWydarzen
-		wydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia', 'godzinaOd')[:ileWydarzen]
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
+		if not czyZmienicHaslo(uzytkownik):
+			wczoraj = datetime.date.today() - datetime.timedelta(days=1)
+			ileWydarzen = uzytkownik.ileMoichWydarzen
+			wydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia', 'godzinaOd')[:ileWydarzen]
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+			return HttpResponse(wynik, mimetype="application/json")
+		else:
+			return HttpResponse('-4')
 	return HttpResponse("Fail")
 
 
@@ -971,135 +1254,181 @@ def ostatnieWydarzeniaAND(request):
 	if post(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
-		wydarzenia = models.Wydarzenie.objects.all()
-		wydarzeniaUz = uzytkownik.wydarzenie_set.all()
-		# Tutaj trzeba wybrac odpowiednie wydarzenia!!!
-		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
-		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
-		idSt = wydarzenia.values_list('dodal_id', flat = True)
-		studenci = models.Student.objects.filter(id__in = idSt)
-		idUz = studenci.values_list('uzytkownik_id', flat=True)
-		uzytkownicy = models.Uzytkownik.objects.filter(id__in = idUz)
-		lista = list(wydarzenia) + list(studenci) + list(uzytkownicy)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('nazwa',
-																			   'opis',
-																			   'dataWydarzenia',
-																			   'godzinaOd',
-																			   'godzinaDo',
-																			   'dataDodaniaWyd',
-																			   'dodal_id',
-																			   'uzytkownik',
-																			   'nick'))
-		return HttpResponse(wynik, mimetype="application/json")
+		if not czyZmienicHaslo(uzytkownik):
+			wydarzenia = models.Wydarzenie.objects.all()
+			wydarzeniaUz = uzytkownik.wydarzenie_set.all()
+			# Tutaj trzeba wybrac odpowiednie wydarzenia!!!
+			wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
+			wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
+			idSt = wydarzenia.values_list('dodal_id', flat = True)
+			studenci = models.Student.objects.filter(id__in = idSt)
+			idUz = studenci.values_list('uzytkownik_id', flat=True)
+			uzytkownicy = models.Uzytkownik.objects.filter(id__in = idUz)
+			lista = list(wydarzenia) + list(studenci) + list(uzytkownicy)
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('nazwa',
+																				   'opis',
+																				   'dataWydarzenia',
+																				   'godzinaOd',
+																				   'godzinaDo',
+																				   'dataDodaniaWyd',
+																				   'dodal_id',
+																				   'uzytkownik',
+																				   'nick'))
+			return HttpResponse(wynik, mimetype="application/json")
+		else:
+			return HttpResponse('-4')
 	return HttpResponse("Fail")
 
 
 # Android - wyswietlenie listy wykladowcow, ich konsultacji oraz planu zajec
 def listaWykladowcowAND(request):
-	if post(request):
-		wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
-		konsultacje = models.Konsultacje.objects.all()
-		kategoria = models.KategoriaMiejsca.objects.get(id=1)
-		budynki = models.Miejsce.objects.filter(kategoria = kategoria)
-		grupy = models.Grupa.objects.all().order_by('godzinaOd')
-		kursy = models.Kurs.objects.all()
-		wydzialy = models.Wydzial.objects.all()
-		lista = list(kursy) + list(wykladowcy) + list(konsultacje) + list(grupy) +list(budynki)
-		
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(lista, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
+	wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
+	konsultacje = models.Konsultacje.objects.all()
+	kategoria = models.KategoriaMiejsca.objects.get(id=1)
+	budynki = models.Miejsce.objects.filter(kategoria = kategoria)
+	grupy = models.Grupa.objects.all().order_by('godzinaOd')
+	kursy = models.Kurs.objects.all()
+	wydzialy = models.Wydzial.objects.all()
+	lista = list(kursy) + list(wykladowcy) + list(konsultacje) + list(grupy) +list(budynki)
+	
+	json_serializer = serializers.get_serializer("json")()
+	wynik = json_serializer.serialize(lista, ensure_ascii=False)
+	return HttpResponse(wynik, mimetype="application/json")
 
 
 # Android - wyswietlanie wydarzen z kalendarza
 def kalendarzAND(request):
-    if post(request):
-        student = studPost(request)
-        uzytkownik = student.uzytkownik
-        wydarzenia = uzytkownik.wydarzenie_set.all().order_by('dataWydarzenia', 'godzinaOd')
-        json_serializer = serializers.get_serializer("json")()
-        wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
-        return HttpResponse(wynik, mimetype="application/json")
-    return HttpResponse("Fail")
-
-
-'''
-# Android - wyswietlenie konsultacji wykladowcow
-def konsultacjeWykladowcowAND(request):
 	if post(request):
-		konsultacje = models.Konsultacje.objects.all()
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(konsultacje, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		if not czyZmienicHaslo(uzytkownik):
+			wydarzenia = uzytkownik.wydarzenie_set.all().order_by('dataWydarzenia', 'godzinaOd')
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+			return HttpResponse(wynik, mimetype="application/json")
+		else:
+			return HttpResponse('-4')
 	return HttpResponse("Fail")
 
 
-# Android - wyswietlenie planów wykladowcow
-def planyWykladowcowAND(request):
+def logowanieAND(request):
 	if post(request):
-		grupy = models.Grupa.objects.all()
+		nickPost = request.POST['login']
+		hasloPost = request.POST['password']
+		try:
+			uzytkownik = models.Uzytkownik.objects.get(nick = nickPost)
+			haslo = uzytkownik.haslo
+			zgodnosc = sha256_crypt.verify(hasloPost, haslo)
+			if(zgodnosc):
+				if jestStudentem(uzytkownik):
+					domyslny = uzytkownik.domyslny
+					student = models.Student.objects.get(id = domyslny)
+					if uzytkownik.czyAktywowano:
+						if czyZmienicHaslo(uzytkownik):
+							return HttpResponse('-4') # zmiana hasla
+						else:
+							return HttpResponse(student.id)
+					else:
+						return HttpResponse('-3') # konto nieaktywne
+				else:
+					return HttpResponse('-5')
+			else:
+					return HttpResponse('-2') # bledny login lub haslo
+		except:
+				return HttpResponse('-2') # bledny login lub haslo
+	else:
+			return HttpResponse('-1') # blad wyslania
+
+
+def zmianaHaslaPrzyLogowaniuAND(request):
+	if post(request):
+		dane = request.POST.copy()
+		try:
+			uzytkownik = models.Uzytkownik.objects.get(nick = dane['login'])
+			print('znalazlo uzytkownika')
+		except:
+			return HttpResponse('-2') #bledny login lub haslo
+		starePasuje = sha256_crypt.verify(dane['oldPass'], uzytkownik.haslo)
+		if starePasuje:
+			print('stare haslo pasuje')
+			hasloOk = pasuje('^(?!.*(.)\1{3})((?=.*[\d])(?=.*[A-Za-z])|(?=.*[^\w\d\s])(?=.*[A-Za-z])).{8,20}$', dane['newPass'])
+			hasloOk = hasloOk and (dane['newPass'] == dane['newPass2'])
+			if hasloOk:
+				print('nowe haslo spelnia wymagania')
+				if not sha256_crypt.verify(dane['newPass'], uzytkownik.haslo):
+					uzytkownik.haslo = sha256_crypt.encrypt(dane['newPass'])
+					uzytkownik.dataOstZmianyDanych = datetime.date.today()
+					uzytkownik.save()
+					print('zapisano nowe haslo')
+					return HttpResponse('0')
+				else:
+					return HttpResponse('-6') #nowe haslo nie rozni sie od starego
+			else:
+				return HttpResponse('-7') # haslo nie spelnia wymagan
+		else:
+			return HttpResponse('-2') #bledny login lub haslo
+		
+	else:
+		return HttpResponse('-1') #blad wyslania
+	
+
+def przeslijAktywatorPonownieAND(request):
+	print('Wywolalo')
+	if post(request) and 'login' in request.POST.keys():
+		print('jest postem')
+		nick = request.POST['login']
+		try:
+			uzytkownik = uz(nick)
+			print('pobrano uzytkownika')
+			if (uzytkownik.czyAktywowano == False):
+				print('nieaktywne')
+				uzytkownik.aktywator = wygenerujAktywator()
+				print('tu sie nie wywalilo')
+				uzytkownik.save()
+				print('zapisalo')
+				wyslijPotwierdzenie(uzytkownik)
+				print('wyslalao potwierdzenie')
+			else:
+				return HttpResponse('-8') #konto jest aktywne
+		except:
+			return HttpResponse("-2") #bledny login
+	return HttpResponse("0") #wyslano aktywator ponownie
+
+def daneStudentaAND(request):
+	if post(request):
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		razemUzytStud = list(student) + list(uzytkownik)
 		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(grupy, ensure_ascii=False)
+		wynik = json_serializer.serialize(razemUzytStud, ensure_ascii=False)
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
 
 
-# Android - Wyslanie na androida listy budynków
-def budynkiAND(request):
-	if request.method == 'POST':
-		kategoria = models.KategoriaMiejsca.objects.get(id=1)
-		budynki = models.Miejsce.objects.filter(kategoria = kategoria)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(budynki, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-
-
-# Android - Wyslanie na androida listy budynków
-def kursyAND(request):
-	if request.method == 'POST':
-		kursy = models.Kurs.objects.all()
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(kursy, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
-
-'''
-
-
-
+def dodajWydDoKalendarzaAND(request):
+	try:
+		if post(request):
+			uzytkownik = uzPost(request)
+			wydarzenie = models.Wydarzenie.objects.get(id = request.POST['idWyd'])
+			if (wydarzenie not in uzytkownik.wydarzenie_set.all()):
+				kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = wydarzenie.opis) 
+				kalendarz.save()
+		return HttpResponse('Ok')     
+	except:
+		return HttpResponse("Fail")	
+	
 ############################################# TESTOWANIE ###################################
 
 
 
 # Klasa do testow
 def test(request):
-	if True:
-		student = models.Student.objects.get(id = 9)
-		uzytkownik = student.uzytkownik
-		grupy = models.Grupa.objects.filter(uzytkownik = uzytkownik).order_by('godzinaOd')
-		idWykl = grupy.values_list('prowadzacy_id', flat=True)
-		idKurs = grupy.values_list('kurs_id', flat=True)
-		wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
-		kursy = models.Kurs.objects.filter(id__in = idKurs)
-		lista = list(grupy) + list(kursy) + list(wykladowcy)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
-																			   'dzienTygodnia',
-																			   'parzystosc',
-																			   'godzinaOd',
-																			   'godzinaDo',
-																			   'miejsce',
-																			   'kurs',
-																			   'nazwisko',
-																			   'imie',
-																			   'tytul',
-																			   'nazwa',
-																			   'rodzaj'))
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
+	return render_to_response('index.html', {'strona':'test2', 'logowanie':True})
 
+def test2(request):
+	nick = 'ktosik'
+	indeks = '899888'
+	wydz = models.Wydzial.objects.all()
+	return render_to_response('registration.html', {'nick': nick, 'index': indeks, 'wydzialy': wydz})
 

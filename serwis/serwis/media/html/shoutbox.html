@@ -1,6 +1,5 @@
 {% for r in rozmowy reversed %}
 						<div class="portal-text">
-							<div class="box-img-add-on"></div>
 							<div class="box-date">
 								{% if r.data|date:"SHORT_DATE_FORMAT" ==  dzisiaj|date:"SHORT_DATE_FORMAT" %}
 									Dzisiaj
