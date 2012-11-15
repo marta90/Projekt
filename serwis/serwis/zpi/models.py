@@ -38,7 +38,7 @@ class Uzytkownik(models.Model):
     poziomDostepu = models.IntegerField(default = 0)
     czyAktywowano = models.BooleanField(default=False)
     aktywator = models.CharField(max_length = 250, null = True)
-    domyslny = models.IntegerField()
+    domyslny = models.IntegerField(null = True)
     def __unicode__(self):
         return self.nick
     class Meta:

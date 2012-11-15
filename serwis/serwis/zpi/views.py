@@ -195,7 +195,7 @@ def zarejestruj(request):
 	if post(request):
 		nick = 'fld_nick' in request.POST.keys()
 		indeks = 'fld_index' in request.POST.keys()
-		haslo = 'fld_pass' in request.POST.keys()
+		haslo = 'fld_passF' in request.POST.keys()
 		haslo2 = 'fld_passRepeat' in request.POST.keys()
 		imie = 'fld_name' in request.POST.keys()
 		nazwisko = 'fld_lastName' in request.POST.keys()
@@ -208,7 +208,7 @@ def zarejestruj(request):
 		if postPelny:
 			nick = request.POST['fld_nick']
 			indeks = request.POST['fld_index']
-			haslo = request.POST['fld_pass']
+			haslo = request.POST['fld_passF']
 			haslo2 = request.POST['fld_passRepeat']
 			imie = request.POST['fld_name']
 			nazwisko = request.POST['fld_lastName']
@@ -217,16 +217,16 @@ def zarejestruj(request):
 			stopienStudiow = request.POST['select_type']
 			poprawnosc = sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, stopienStudiow)
 			if(poprawnosc):
-				kierunek = kier(request.POST['select_specialization'])
+				kierunek = models.Kierunek.objects.get(id = request.POST['select_specialization'])
 				haslo = sha256_crypt.encrypt(haslo)
-				uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl")
-				uzytkownik.save(commit = False)
+				uzytkownik = models.Uzytkownik(nick = nick, imie = imie, nazwisko = nazwisko, haslo = haslo, mail = indeks + "@student.pwr.wroc.pl", aktywator = wygenerujAktywator())
+				uzytkownik.save()
 				uzytkownik.ktoWprowadzil = models.Uzytkownik.objects.get(id = uzytkownik.id)
 				uzytkownik.ktoZmienilDane = models.Uzytkownik.objects.get(id = uzytkownik.id)
 				uzytkownik.dataOstLogowania = datetime.date.today()
 				uzytkownik.dataOstZmianyHasla = datetime.date.today()
 				uzytkownik.dataOstZmianyDanych = datetime.date.today()
-				uzytkownik.aktywator = wygenerujAktywator()
+
 				student = models.Student(uzytkownik = models.Uzytkownik.objects.get(id = uzytkownik.id), indeks = indeks, kierunek = kierunek, rodzajStudiow = stopienStudiow, semestr = semestr)
 				student.save()
 				uzytkownik.domyslny = student.id
@@ -258,7 +258,7 @@ def sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, 
 	nazwiskoOk = pasuje("^([a-zA-Z '-]+)$", nazwisko)
 	if nazwiskoOk == False | len(nazwisko)<2:
 		return False
-		
+	print("Po zanwisku")
 	indeksOk = (indeksWolny(indeks) & indeksPoprawny(indeks))
 	if indeksOk == False:
 		return False
@@ -267,9 +267,9 @@ def sprawdzDane(nick, imie, nazwisko, indeks, haslo, haslo2, semestr, kierunek, 
 	hasloOk = hasloOk & (haslo == haslo2)
 	if hasloOk == False:
 		return False
-	
+	print("Po hasle")
 	try:
-		kierunekOk = kier(kierunek)
+		kierunekOk = models.Kierunek.objects.get(id = kierunek)
 	except:
 		return False
 	
@@ -357,8 +357,8 @@ def wygenerujAktywator():
 def wyslijPotwierdzenie(uzytkownik):
 	tytul = "PwrTracker - potwierdzenie rejestracji"
 	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
-	tresc = tresc + "http://87.99.21.160:7272/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
-	#send_mail(tytul, tresc, 'pwrtracker@gmail.com', [uzytkownik.mail], fail_silently=False)
+	tresc = tresc + "http://156.17.131.246:7272/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
+	send_mail(tytul, tresc, 'pwrtracker@gmail.com', [uzytkownik.mail], fail_silently=False)
 
 	
 # Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
@@ -368,7 +368,9 @@ def potwierdzRejestracje(request, aktywator, nick):
 		if uzytkownik.aktywator == aktywator:
 			uzytkownik.czyAktywowano = True
 			uzytkownik.save()
-			return HttpResponse("Udało się aktywować")
+			request.session['content'] = 'portal'
+			request.session['komRej'] = '5'
+			return HttpResponseRedirect("/")
 		else:
 			HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	
 	except:
@@ -459,7 +461,7 @@ def przypomnijHaslo(request):
 def wyslijPrzypHaslo(uzytkownik):
     tytul = "PwrTracker - przypomnienie hasła"
     tresc = "Witaj użytkowniku PwrTracker!\n\nAby ustawić nowe hasło w serwisie kliknij w poniższy link.\n"
-    tresc = tresc + "http://127.0.0.1:8000/newPassword/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
+    tresc = tresc + "http://156.17.131.246:7272/newPassword/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
     indeks = models.Student.objects.filter(uzytkownik = uzytkownik.id)[0].indeks
     send_mail(tytul, tresc, 'pwrtracker@gmail.com', [indeks + "@student.pwr.wroc.pl"], fail_silently=False)
 
@@ -540,7 +542,7 @@ def zaladujPortal(request):
 		kom = request.session['komRej']
 		# Poprawny przebieg rejestracji
 		if kom == '1':
-			tekst = "Na Twojego maila studenckiego został wysłany link z aktywacją konta. <br> Kliknij go, aby potwierdzić rejestrację w serwisie."
+			tekst = "PWRTracker - na Twojego maila studenckiego został wysłany link z aktywacją konta. Kliknij go, aby potwierdzić rejestrację w serwisie."
 
 		# Dane nie spelniaja ograniczen
 		elif kom == '2':
@@ -548,12 +550,15 @@ def zaladujPortal(request):
 		
 		# Nie przesłano wszystkich danych
 		elif kom == '3':
-			tekst = "Nie wysłano wszystkich danych. Spróbuj ponownie."
+			tekst = "Wystąpił błąd. Spróbuj ponownie."
 		
 		# Blad wysylania	
 		elif kom == '4':
 			tekst = "Wystąpił błąd podczas rejestracji. Spróbuj ponownie."
 		
+		elif kom == '5':
+			tekst = "Aktywacja przebiegła pomyślnie. Możesz się zalogować"
+			
 		usunSesje(request)
 		return render_to_response('portal.html', {'alert':tekst})	
 	else:
@@ -1094,14 +1099,14 @@ def wyslijEmailZProsba(request):
 		od = "pwrtracker@gmail.com"
 		mailZwrotny = uzSesja(request).mail.encode('utf-8')
 		tresc = request.POST['textarea_request'].encode('utf-8')
-		'''
+
 		send_mail('Prośba o edycję konta', tresc+ "\n\nWiadomość wysłana od\n" + mailZwrotny, od, [do], fail_silently=False)
 		send_mail("PwrTracker - prośba o edycję danych.",
 				  "Wysłałeś wiadomość o następującej treści:\n\n" + tresc,
 				  od,
 				  [mailZwrotny],
 				  fail_silently=False)
-		'''
+
 		return HttpResponse('Ok')
 	except:
 		return HttpResponse('Fail')

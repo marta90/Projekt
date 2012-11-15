@@ -58,7 +58,7 @@ function checkPass2R()
 
 function checkPassesR()
 {
-    var p1 = document.getElementById('fld_pass').value;
+    var p1 = document.getElementById('fld_passF').value;
     var p2 = document.getElementById('fld_passRepeat').value;
     return (p1 == p2);
 }
