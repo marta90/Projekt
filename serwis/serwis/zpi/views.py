@@ -1360,7 +1360,7 @@ def zmianaHaslaPrzyLogowaniuAND(request):
 				print('nowe haslo spelnia wymagania')
 				if not sha256_crypt.verify(dane['newPass'], uzytkownik.haslo):
 					uzytkownik.haslo = sha256_crypt.encrypt(dane['newPass'])
-					uzytkownik.dataOstZmianyDanych = datetime.date.today()
+					uzytkownik.dataOstZmianyHasla = datetime.date.today()
 					uzytkownik.save()
 					print('zapisano nowe haslo')
 					return HttpResponse('0')
@@ -1401,7 +1401,7 @@ def daneStudentaAND(request):
 	if post(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
-		razemUzytStud = list(student) + list(uzytkownik)
+		razemUzytStud = [student, uzytkownik]
 		json_serializer = serializers.get_serializer("json")()
 		wynik = json_serializer.serialize(razemUzytStud, ensure_ascii=False)
 		return HttpResponse(wynik, mimetype="application/json")

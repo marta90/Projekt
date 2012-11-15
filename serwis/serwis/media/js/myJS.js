@@ -202,7 +202,7 @@ function createSemesters()
 //Show content picked in left block
 function showChoice(myChoice)
 {
-	document.getElementById('acc-settings').setActive();
+
 	var timetableDiv = document.getElementById('timetable_account');
 	var settingsDiv = document.getElementById('settings_account');
 	var adminDiv = document.getElementById('administration_account');
