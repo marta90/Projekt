@@ -127,6 +127,7 @@ img {
 	height: 22px;
 	margin: 0px 0px 0px 5px;
 	background: #eeeeee;
+	background-image: url('../img/login_wide.png');
 	color: black;
 	border: 1px solid #d9d9d9;
 	border-color: #c9c9c9 #d9d9d9 #e8e8e8;
@@ -302,10 +303,11 @@ img {
 
 #portal-description {
 	float: left;
-	width: 640px;
+	width: 590px;
 	height: 280px;
 	margin-top: 10px;
-	border: 1px solid #aaa;
+	margin-left: 50px;
+	/*border: 1px solid #999;*/
 }
 
 #portal-registration {
@@ -668,50 +670,49 @@ img {
 
 /*	====================  */
 
-#teachers-scroll {
-	overflow: auto;
-	height: 415px; /* ustawić potem tą długość! */
-	margin-top: 2px;
-	margin-left: 5px;
-}
-
 #teachers-content {
-	width: 948px;/*950*/
-	/*height: 445px;*/
-	/*border: 1px solid #3777b3;*/
-	border-radius: 5px 5px;
+	
 }
 
 #teachers-search-box {
 	width: 946px;/*950*/
 	height: 26px;
-	border: 1px solid #3777b3;
-	border-radius: 5px 5px;
+	border: 1px solid #bbb
+	/*border-radius: 5px 5px;*/
 }
 
 #teachers-search {
 	float: left;
-	width: 300px;
+	/*width: 300px;*/
 }
 
 #teachers-letters {
 	float: left;
-	width: 500px;
+	width: 675px;
+	margin: 2px;
+	font-size: 20px;
+	line-height: 20px;
 }
 
-#teachers-scroll {
-	float: left;
-	overflow: auto;
-	/*min-width: 300px;*/
-	height: 415px; /* ustawić potem tą długość! */
+/*#teachers-scroll {*/
+/*	float: left;*/
+/*	overflow: auto;*/
+/*	/*min-width: 300px;*/*/
+/*	/*height: 500px; /* ustawić potem tą długość! */*/
+/*	margin: 0px;*/
+/*	padding: 0px;*/
+/*	/*border: 1px solid #3777b3;*/*/
+/*}*/
+
+#teachers-scroll-all {
+	/*float: left;*/
+	width: 100%;
 	margin: 0px;
 	padding: 0px;
-	/*border: 1px solid #3777b3;*/
 }
 
 #teachers-list {
 	display: block;
-	
 	margin: 0px;
 	padding: 0px;
 }
@@ -735,18 +736,56 @@ img {
 	list-style: none;
 }
 
-#teachers-consultations {
+/*#teachers-consultations {
 	width: 500px;
 	height: 60px;
 	background: #ddd;
-}
+}*/
 
-#teachers-timetable {
+/*#teachers-timetable {
 	width: 950px;
 	height: 450px;
 	background: #aaa;
+}*/
+
+.teachers-input {
+	float: left;
+	width: 170px;
+	height: 16px;
+	margin: 2px;
+	padding: 2px 3px;
+	background: #fff;
+	color: black;
+	border: 1px solid #d9d9d9;
+	border-color: #c9c9c9 #d9d9d9 #e8e8e8;
+	border-radius: 1px;
+	outline: none;
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	-webkit-transition: all 0.1s ease-out;
+	-moz-transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
+	-webkit-background-clip: padding-box;
 }
 
+.teachers-submit {
+	float: left;
+	width: 80px;
+	height: 22px;
+	margin: 2px;
+	background: #fff;
+	color: black;
+	border: 1px solid #3777b3;
+	border-color: #3777b3;
+	border-radius: 1px;
+	outline: none;
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	-webkit-transition: all 0.1s ease-out;
+	-moz-transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
+	-webkit-background-clip: padding-box;
+}
 /*	====================  */
 
 #map-scroll {
@@ -754,11 +793,6 @@ img {
 	height: 434px; /* ustawić potem tą długość! */
 	margin: 0;
 }
-
-#map-content {
-	
-}
-
 #map-menu {
 	float: left;
 	width: 200px;
@@ -815,7 +849,7 @@ img {
 /*	====================  */
 
 #account-scroll {
-	
+	overflow: auto;
 	height: 440px; /* ustawić potem tą długość! */
 	margin: 0;
 }
@@ -849,7 +883,7 @@ img {
 	background-image: linear-gradient(#cccccc, #bbbbbb);
 }
 
-#account-menu li a:hover, #account-menu li a.active {
+#account-menu li a:hover {
 	color: #ffffff;
 	background: #999999;
 	background-image: -webkit-linear-gradient(#aaaaaa, #888888);
@@ -860,6 +894,16 @@ img {
 	background-image: linear-gradient(#aaaaaa, #888888);
 }
 
+.account-menu-active {
+	color: #ffffff;
+	background: #999999;
+	background-image: -webkit-linear-gradient(#aaaaaa, #888888);
+	background-image: -moz-linear-gradient(top, #aaaaaa, #888888);
+	background-image: -o-linear-gradient(#aaaaaa, #888888);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#888888')";
+	background-image: -ms-linear-gradient(#aaaaaa, #888888);
+	background-image: linear-gradient(#aaaaaa, #888888);
+}
 
 /*	====================  */
 
@@ -1230,4 +1274,17 @@ img {
 	-moz-transition: all 0.1s ease-out;
 	transition: all 0.1s ease-out;
 	-webkit-background-clip: padding-box;
+}
+
+.portal-req-table {
+	text-align: left;
+	background-color: #fff;
+}
+
+.portal-fieldset {
+	background-color: #fff;
+}
+
+.alert-msg {
+	font-size: 12px;
 }

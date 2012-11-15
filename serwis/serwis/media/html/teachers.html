@@ -13,20 +13,28 @@
     function letter(idA){
         var litera = idA.id;
         $("#teachers-list").load("getTeachers/" + litera);
+
     }
      function showTutorial(idA){
         var idUrl = idA.id;
         var idDiv = "d" + idUrl;
+		var divAll = "all" + idUrl;
+		var idDiv2 = "p" + idUrl;
         
-        var klasa = document.getElementById(idDiv).className;
+        var klasa = document.getElementById(divAll).className;
         if(klasa == 'divinactive')
         {
             $("#"+idDiv).load("getTutorial/" + idUrl , function(){
-            document.getElementById(idDiv).className = 'divactive';
+            document.getElementById(divAll).className = 'divactive';
             });
+			$("html").getNiceScroll().resize();
         }
         else
-             document.getElementById(idDiv).className = 'divinactive';
+		{
+		    $('#'+idDiv2).attr({'class':'divinactive'});
+			$('.wc-container').remove();
+             document.getElementById(divAll).className = 'divinactive';
+		}
 
     }
     
@@ -89,6 +97,7 @@
 						  }
 						  //setTimeout(function(){callback(eventData); }, 3000);
 						  callback(eventData);
+						  $("html").getNiceScroll().resize();
 						}
 					  }
 					};
@@ -104,73 +113,75 @@
 			$('.wc-container').remove();
 		}
 	}
-		$("html").getNiceScroll().resize();
-		teachersScroll();
+	$("html").getNiceScroll().resize();
 </script>
 
 
 
-<b>
-    
- <p style="font-size: large">   
-<a id="A" href=# onclick="letter(this);">A</a>
-<a id="B" href=# onclick="letter(this);">B</a>
-<a id="C" href=# onclick="letter(this);">C</a>
-<a id="Ć" href=# onclick="letter(this);">Ć</a>
-<a id="D" href=# onclick="letter(this);">D</a>
-<a id="E" href=# onclick="letter(this);">E</a>
-<a id="F" href=# onclick="letter(this);">F</a>
-<a id="G" href=# onclick="letter(this);">G</a>
-<a id="H" href=# onclick="letter(this);">H</a>
-<a id="I" href=# onclick="letter(this);">I</a>
-<a id="J" href=# onclick="letter(this);">J</a>
-<a id="K" href=# onclick="letter(this);">K</a>
-<a id="L" href=# onclick="letter(this);">L</a>
-<a id="Ł" href=# onclick="letter(this);">Ł</a>
-<a id="M" href=# onclick="letter(this);">M</a>
-<a id="N" href=# onclick="letter(this);">N</a>
-<a id="O" href=# onclick="letter(this);">O</a>
-<a id="Ó" href=# onclick="letter(this);">Ó</a>
-<a id="P" href=# onclick="letter(this);">P</a>
-<a id="Q" href=# onclick="letter(this);">Q</a>
-<a id="R" href=# onclick="letter(this);">R</a>
-<a id="S" href=# onclick="letter(this);">S</a>
-<a id="Ś" href=# onclick="letter(this);">Ś</a>
-<a id="T" href=# onclick="letter(this);">T</a>
-<a id="U" href=# onclick="letter(this);">U</a>
-<a id="V" href=# onclick="letter(this);">V</a>
-<a id="W" href=# onclick="letter(this);">W</a>
-<a id="X" href=# onclick="letter(this);">X</a>
-<a id="Y" href=# onclick="letter(this);">Y</a>
-<a id="Z" href=# onclick="letter(this);">Z</a>
-<a id="Ź" href=# onclick="letter(this);">Ź</a>
-<a id="Ż" href=# onclick="letter(this);">Ż</a>
-
- </p>
-
-
-<p>Wyszukaj <input type="text" name="name" id="name" onkeydown="if (event.keyCode == 13) find()"/> <button id = "findTeacher" onclick="find();">Wyszukaj</button></p>
-</b>
-<br>
-<div id = "teachers-list" style="text-align: left; width: 100%;">
-{{ tekst }}
-{% for p in prowadzacy %}
-    <p style = "line-height: 0.1;">
-<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a> 
-    </p>
-<div id = d{{p.id}} class="divinactive">
-    Tutaj będą koncultacje<br>
-    powyższego wykładowcy
-</div>
-<div id = p{{p.id}} class="divinactive">
-
-</div>
-<!-- DO NOWEGO SPRINTU
-<div id = a{{p.id}}e class="divinactive">
-<textarea rows="4" cols="50">
-At W3Schools you will find all the Web-building tutorials you need, from basic HTML to advanced XML, SQL, ASP, and PHP.
-</textarea> 
-</div>
--->
-{% endfor %}
-</div>
+				<div id="teachers-content">
+					<div id="teachers-search-box">
+						<div id="teachers-search">
+							<input class="teachers-input" type="text" name="name" id="name" onkeydown="if (event.keyCode == 13) find()"/>
+							<input class="teachers-submit" type="submit" name="btn_teachers_send" id="findTeacher" onclick="find();" value="Szukaj" />
+						</div>
+						<div id="teachers-letters">
+							<a id="A" href=# onclick="letter(this);">A</a>
+							<a id="B" href=# onclick="letter(this);">B</a>
+							<a id="C" href=# onclick="letter(this);">C</a>
+							<a id="Ć" href=# onclick="letter(this);">Ć</a>
+							<a id="D" href=# onclick="letter(this);">D</a>
+							<a id="E" href=# onclick="letter(this);">E</a>
+							<a id="F" href=# onclick="letter(this);">F</a>
+							<a id="G" href=# onclick="letter(this);">G</a>
+							<a id="H" href=# onclick="letter(this);">H</a>
+							<a id="I" href=# onclick="letter(this);">I</a>
+							<a id="J" href=# onclick="letter(this);">J</a>
+							<a id="K" href=# onclick="letter(this);">K</a>
+							<a id="L" href=# onclick="letter(this);">L</a>
+							<a id="Ł" href=# onclick="letter(this);">Ł</a>
+							<a id="M" href=# onclick="letter(this);">M</a>
+							<a id="N" href=# onclick="letter(this);">N</a>
+							<a id="O" href=# onclick="letter(this);">O</a>
+							<a id="Ó" href=# onclick="letter(this);">Ó</a>
+							<a id="P" href=# onclick="letter(this);">P</a>
+							<a id="Q" href=# onclick="letter(this);">Q</a>
+							<a id="R" href=# onclick="letter(this);">R</a>
+							<a id="S" href=# onclick="letter(this);">S</a>
+							<a id="Ś" href=# onclick="letter(this);">Ś</a>
+							<a id="T" href=# onclick="letter(this);">T</a>
+							<a id="U" href=# onclick="letter(this);">U</a>
+							<a id="V" href=# onclick="letter(this);">V</a>
+							<a id="W" href=# onclick="letter(this);">W</a>
+							<a id="X" href=# onclick="letter(this);">X</a>
+							<a id="Y" href=# onclick="letter(this);">Y</a>
+							<a id="Z" href=# onclick="letter(this);">Z</a>
+							<a id="Ź" href=# onclick="letter(this);">Ź</a>
+							<a id="Ż" href=# onclick="letter(this);">Ż</a>
+						</div>
+					</div>
+					<div id="teachers-scroll">
+						{{ tekst }}
+						<ul id="teachers-list">
+						{% for p in prowadzacy %}
+							<li>
+								<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
+								<div id = all{{p.id}} class="divinactive">
+									<div id = d{{p.id}}>
+										Tutaj są konsultacje<br />powyższego wykładowcy
+									</div>
+									<div id = p{{p.id}} class="divinactive">
+									
+									</div>
+								</div>
+								<!-- DO NOWEGO SPRINTU
+								<div id = a{{p.id}}e class="divinactive">
+								<textarea rows="4" cols="50">
+									tekst
+								</textarea> 
+								</div>
+								-->
+							</li>
+						{% endfor %}
+						</ul>
+					</div>
+				</div>

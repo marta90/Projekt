@@ -1,22 +1,23 @@
-﻿
-{{ tekst }}
-{% for p in prowadzacy %}
-    <p style = "line-height: 0.1; width: 100%;">
-<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a> 
-    </p>
-<div id = d{{p.id}} class="divinactive">
-    Tutaj będą koncultacje<br>
-    powyższego wykładowcy
-</div>
-<div id = p{{p.id}} class="divinactive">
-
-</div>
-<!-- DO NOWEGO SPRINTU
-<div id = a{{p.id}}e class="divinactive">
-<textarea rows="4" cols="50">
-At W3Schools you will find all the Web-building tutorials you need, from basic HTML to advanced XML, SQL, ASP, and PHP.
-</textarea> 
-</div>
--->
-{% endfor %}
-
+﻿						{{ tekst }}
+						<ul id="teachers-list">
+						{% for p in prowadzacy %}
+							<li>
+								<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
+								<div id = all{{p.id}} class="divinactive">
+									<div id = d{{p.id}}>
+										Tutaj są konsultacje<br />powyższego wykładowcy
+									</div>
+									<div id = p{{p.id}} class="divinactive">
+									
+									</div>
+								</div>
+								<!-- DO NOWEGO SPRINTU
+								<div id = a{{p.id}}e class="divinactive">
+								<textarea rows="4" cols="50">
+									tekst
+								</textarea> 
+								</div>
+								-->
+							</li>
+						{% endfor %}
+						</ul>

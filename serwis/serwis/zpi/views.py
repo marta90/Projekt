@@ -1426,7 +1426,14 @@ def dodajWydDoKalendarzaAND(request):
 
 # Klasa do testow
 def test(request):
-	return render_to_response('index.html', {'strona':'test2', 'logowanie':True})
+	if True:
+		student = models.Student.objects.get(id = 9)
+		uzytkownik = student.uzytkownik
+		razemUzytStud = [student, uzytkownik]
+		json_serializer = serializers.get_serializer("json")()
+		wynik = json_serializer.serialize(razemUzytStud, ensure_ascii=False)
+		return HttpResponse(wynik, mimetype="application/json")
+	return HttpResponse("Fail")
 
 def test2(request):
 	nick = 'ktosik'
