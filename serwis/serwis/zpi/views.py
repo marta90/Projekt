@@ -793,7 +793,7 @@ def konsultacjeWykladowcy(request, idw):
 		response.write('Brak informacji o konsultacjach')
 	#response.write('</i> &nbsp &nbsp   <img id = "a' +idw +'" src="media/html/img/edit.png" height=20px width=20px onclick="editIt(this);">')
 	response.write('</i><br>')
-	response.write(' <a href=# id= "' + idw + '" onclick="showPlan(this)">----> Zobacz plan </a>')
+	response.write(' <a href=# id= "' + idw + '" onclick="showPlan(this)">Zobacz plan! </a>')
 	return response
 
 

@@ -126,8 +126,8 @@ background: #fff url('media/html/img/status.gif') 0px 0 no-repeat;
 									}
 									if(msg == "ok"){
 										alert("Aktywator został ponownie wysłany do użytkownika");
+										$("#repeatVer").fadeOut("slow");
 									}
-									loadContent("portal");
 								});
 		});
 	});
@@ -144,71 +144,67 @@ background: #fff url('media/html/img/status.gif') 0px 0 no-repeat;
 		$("html").getNiceScroll().resize();
 </script>
 	
-				<form method="post" action="/registration" id ="form_register">
-					<div class="CLASS">
-						<label for="fld_loginCheck">Nazwa użytkownika:</label>
-						<div><input class="CLASS" type="text" name="fld_loginCheck" id="fld_loginCheck"/></div>
-						<br />
-						<label for="fld_indexNumber">Indeks:</label>
-						<div><input class="CLASS" type="text" name="fld_indexNumber" id="fld_indexNumber"/></div>
-						<br />
-						<input class="CLASS" type="submit" name="btn_register" id="btn_register" value="Zarejestruj" disabled=true/>
-						<br />
-						<br />
-						<div id = "requirementsDiv" style="text-align: center; max-width: 620px; margin-left: auto; margin-right: auto;">
-						<fieldset  style="background-color: #fff;">
-						<legend><b> Wymagania </b></legend>
-							<table style="text-align: left; background-color: #fff; margin-left: auto; margin-right: auto">
-														
-
+				<div id="portal-hello">
+					Witaj w serwisie PWrTracker!
+				</div>
+				<div id="portal-description">
+					<p>Znajdziesz tutaj ...</p>
+				</div>
+				<div id="portal-registration">
+					<fieldset class="portal-fieldset">
+						<legend><b> Rejestracja </b></legend>
+						<form method="post" action="/registration" id ="form_register">
+							<table class="table-reg-portal">
 								<tr>
-									<td>
-										<div id="obrazek" class = 'denied'></div>
-									</td>
-									<td>
-										Login musi mieć od 3 do 32 znaków i nie może zawierać znaków specjalnych ani zaczynać się od cyfry.
-									</td>
+									<td class="table-left-side">Nazwa użytkownika:</td>
+									<td class="table-right-side"><input class="portal-reg-input" type="text" name="fld_loginCheck" id="fld_loginCheck"/></td>
 								</tr>
-								
 								<tr>
-									<td>
-										<div id="obrazek2" class = 'denied'></div>
-									</td>
-									<td>
-										Login musi być unikalny.
-									</td>
+									<td class="table-left-side">Indeks:</td>
+									<td class="table-right-side"><input class="portal-reg-input" type="text" name="fld_indexNumber" id="fld_indexNumber"/></td>
 								</tr>
-															
-								<tr>
-									<td>
-										<div id="obrazek3" class = 'denied'></div>
-									</td>
-									<td id>
-										Indeks musi składać się z 6 cyfr.
-									</td>
-								</tr>
-																						
-								<tr>
-									<td>
-										<div id="obrazek4" class = 'denied'></div>
-									</td>
-									<td>
-										Indeks nie może znajdować się w bazie. 
-									</td>
-								</tr>
-									
-								
 							</table>
-						</fieldset>
-						</div>
+							<div class="portal-new-password-center">
+									<input class="portal-reg-submit" type="submit" name="btn_register" id="btn_register" value="Zarejestruj" disabled=true/>
+							</div>	
+						</form>
+									<p><a onclick="wysunAktywator()" style="cursor: pointer" class="CLASS">Nie doszedł mail aktywacyjny?</a></p>
+									<div id="repeatVer" style="display:none">
+										<label for="fld_login_ver">Podaj login:</label><input class="portal-small-input" type="text" name="fld_login_ver" id="fld_login_ver"/>
+										<input type="submit" value="Wyślij" class="portal-small-submit" id="subRepeatVer"/>
+									</div>
+							
+						
+					</fieldset>
+				</div>
+				
+				
+				<div id="portal-requirements">
+					<fieldset class="portal-fieldset">
+						<legend><b> Wymagania </b></legend>
+							<table class="portal-req-table">
+								<tr>
+									<td><div id="obrazek" class = 'denied'></div></td>
+									<td>Login musi mieć od 3 do 32 znaków i nie może zawierać znaków specjalnych ani zaczynać się od cyfry.</td>
+								</tr>
+								<tr>
+									<td><div id="obrazek2" class = 'denied'></div></td>
+									<td>Login musi być unikalny.</td>
+								</tr>					
+								<tr>
+									<td><div id="obrazek3" class = 'denied'></div></td>
+									<td>Indeks musi składać się z 6 cyfr.</td>
+								</tr>													
+								<tr>
+									<td><div id="obrazek4" class = 'denied'></div></td>
+									<td>Indeks nie może znajdować się w bazie.</td>
+								</tr>
+							</table>
+					</fieldset>
+				</div>
 
-					</div>
-				</form>
+					
 				<span style="color: red;">{{ alert }} </span>
 				<br><br><br>
-				<a onclick="wysunAktywator()" style="cursor: pointer" class="CLASS">Nie doszedł mail aktywacyjny?</a>
-				<div id="repeatVer" style="display:none">
-					<label for="fld_login_ver">Podaj login:</label><input class="CLASS" type="text" name="fld_login_ver" id="fld_login_ver"/>
-					<input type="submit" value="Wyślij" id="subRepeatVer"/>
-				</div>
+				
 				<!-- po wyslaniu formularza idzie do registration.html z portal.html w srodku -->
