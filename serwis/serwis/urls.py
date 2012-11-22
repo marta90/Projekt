@@ -23,11 +23,12 @@ urlpatterns = patterns('',
     #(r'^saveNewPassword$', views.zapiszNoweHaslo),
     (r'^repeatVerification$', views.przeslijAktywatorPonownie),
     (r'^changePassword$', views.zapiszNoweHaslo),
+    (r'^changePasswordAccount$', views.zmienHaslo),
     (r'^confirm/(.*)/(.*)$', views.potwierdzRejestracje),       #potwierdzenie rejestracji poprzez link aktywacyjny
     (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
     
     (r'^giveLessons/(.*)/(.*)$', views.pobierzZajecia),
-
+    (r'^addEvent$', views.dodajWydarzenie),
     (r'^sendEmailAccount$', views.wyslijEmailZProsba),
     (r'^shout/(.*)$', views.dodajShout),
     (r'^getTeachers/(.)$', views.wykladowcaNaLitere),
@@ -55,6 +56,11 @@ urlpatterns = patterns('',
     (r'^getTimetableAndroid$', views.planAND),
     (r'^changePswdLoginAndroid$', views.zmianaHaslaPrzyLogowaniuAND),
     (r'^sendActivatorAndroid$', views.przeslijAktywatorPonownieAND),
+    (r'^qrCodeAndroid$', views.dodajZQrAND),
+    (r'^qrCodeAndroid/(.*)/(.*)$', views.dodajZQrGetAND),
+    (r'^qrAndroid/(.*)$', views.qrAND),
+    (r'^addEventAndroid$', views.dodajWydarzenieAND),
+    (r'^switchSpec/(.*)$', views.zamienStudenta),
     
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),

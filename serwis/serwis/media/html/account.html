@@ -1,249 +1,332 @@
 <script type="text/javascript">
-	var firstSpec = true;
-	var firstSem = true;
-	var eventsNumber = '{{ uzytkownik.ileMoichWydarzen }}';
-	{% for s in studenci %}
-	{% if forloop.first %}
-	var facultySt = '{{ s.kierunek.wydzial.id }}';
-	var specializationSt = '{{ s.kierunek.id }}';
-	var semesterSt = '{{ s.semestr }}';
-	var levelSt = '{{ s.rodzajStudiow }}';
-	var nameSt = '{{ uzytkownik.imie }}';
-	var lastNameSt = '{{ uzytkownik.nazwisko }}';
-	{% endif %}
-	{% endfor %}
+var firstSpec = true;
+var firstSem = true;
+var eventsNumber = '{{ uzytkownik.ileMoichWydarzen }}';
+var nameSt = '{{ uzytkownik.imie }}';
+var lastNameSt = '{{ uzytkownik.nazwisko }}';
+var facultyNumber = "x";
 
 
-	selectItemByValue('sbox_events', eventsNumber);	
-	getSpecializations(document.getElementById('select_faculty'));
+var facultySt = {};
+var specializationSt = {};
+var semesterSt = {};
+var levelSt = {};
 
-	function size_dict(d)
+//$("html").getNiceScroll().resize();
+
+
+{% for s in studenci %}
+specializationSt['{{ s.id }}'] = '{{ s.kierunek.id }}';
+semesterSt['{{ s.id }}'] = '{{ s.semestr }}';
+levelSt['{{ s.id }}'] = '{{ s.rodzajStudiow }}';
+//getSpecializations(document.getElementById('select_faculty{{ forloop.counter }}'));
+{% endfor %}
+
+
+function refreshFromSpec(sel)
+{
+	var selName = sel.id;
+	facultyNumber = selName.substring(21);
+	getSemesters();
+}
+
+function refreshFromType(sel)
+{
+	var selName = sel.id;
+	facultyNumber = selName.substring(11);
+	getSemesters();
+}
+selectItemByValue('sbox_events', eventsNumber);	
+
+function size_dict(d)
+{
+	c=0;
+	for (i in d)
+	++c;
+	return c
+}
+
+function changePassword()
+{
+	var oldPassF = document.getElementById('fld_old_pass').value;
+	var newPassF = document.getElementById('fld_new_pass').value;
+	var newPass2F = document.getElementById('fld_new_pass2').value;
+	
+	var oldPassEmpty = oldPassF == '';
+	var newPassEmpty = newPassF =='';
+	var newPass2Empty = newPass2F =='';
+	var passEqual = newPassF == newPass2F ? true:false;
+	var allPassEqual = passEqual && (oldPassF == newPassF)
+	
+	if(oldPassEmpty && newPassEmpty && newPass2Empty ) // wszystkie pola są puste
 	{
-		c=0;
-		for (i in d)
-		++c;
-		return c
+		setTextResponse('responsePass', 'black', '<br>');
 	}
-	
-	
-	function sendEmailAccount()
+	else if (oldPassEmpty) // stare haslo jest puste, a inne nie
 	{
-		var tresc = document.getElementById('textarea_request').value;
+		//alert('Nie podałeś starego hasła. Popraw dane i spróbuj ponownie');
+		setTextResponse('responsePass', 'red', 'Nie podałeś starego hasła. Popraw dane i spróbuj ponownie.');
+	}
+	else if(!passEqual)// stare haslo jest podane, ale nowe się od siebie różnią
+	{
+		setTextResponse('responsePass', 'red', 'Hasła się od siebie różnią. Popraw dane i spróbuj ponownie');
+	}
+	else if(allPassEqual)	// wszystkie hasla są takie same
+	{
+		setTextResponse('responsePass', 'red', 'Nowe hasło musi być inne niż poprzednie.');
+	}
+	else if(!checkPassword(newPassF)) // haslo nie spelnia wymagan
+	{
+		setTextResponse('responsePass', 'red', 'Podane przez Ciebie hasło nie spełnia wymagań.');
+	}
+	else	// wszystko ok
+	{
+		var dane= {};
+		dane['stareHaslo'] = oldPassF;
+		dane['haslo'] = newPassF;
+		dane['haslo2'] = newPass2F;
+		changePasswordPOST(dane);
+	}
+}
+function changePasswordPOST(dane)
+{
+	$.post("changePasswordAccount", dane, function(data)
+	{
+		// 0 - poprawna zmiana hasła
+		// 1 - nowe hasło nie spełnia wymagań
+		// 2 - nowe hasło nie różni się od starego
+		// 3 - nowe hasła się od siebie różnią
+		// 4 - podane  hasło nie zgadza się z aktualnym
+		// 5 - inny blad
+		if (data == '0')
+		{
+			document.getElementById('fld_old_pass').value = "";
+			document.getElementById('fld_new_pass').value = "";
+			document.getElementById('fld_new_pass2').value = "";
+			setTextResponse('responsePass', 'black', 'Hasło zostało zmienione.');
+		}
+		else if (data == '1')
+		{
+			setTextResponse('responsePass', 'red', 'Podane przez Ciebie hasło nie spełnia wymagań.');
+		}
+		else if (data == '2')
+		{
+			setTextResponse('responsePass', 'red', 'Nowe hasło musi być inne niż poprzednie.');
+		}
+		else if (data == '3')
+		{
+			setTextResponse('responsePass', 'red', 'Hasła się od siebie różnią. Popraw dane i spróbuj ponownie.');
+		}
+		else if (data == '4')
+		{
+			setTextResponse('responsePass', 'red', 'Podane hasło nie zgadza się z aktualnym.');
+		}
+		else
+		{
+			document.getElementById('fld_old_pass').value = "";
+			document.getElementById('fld_new_pass').value = "";
+			document.getElementById('fld_new_pass2').value = "";
+			setTextResponse('responsePass', 'red', 'Wystąpił błąd, spróbuj ponownie.');
+		}
+	});
+}
+
+function checkPassword(valueF)
+{
+    var reg = /^(?!.*(.)\1{3})((?=.*[\d])(?=.*[A-Za-z])|(?=.*[^\w\d\s])(?=.*[A-Za-z])).{8,20}$/;
+    return (reg.test(valueF))
+}	
+	
+function sendEmailAccount()
+{
+	var tresc = document.getElementById('textarea_request').value;
+	if (tresc.length >0 && tresc.length <=250)
+	{
 		$.post("sendEmailAccount", {'textarea_request': tresc}, function(data)
-			   {
-					if (data =='Ok')
-					{
-						document.getElementById('textarea_request').value = "";
-						checkTextarea();
-						document.getElementById('response_text').style.color = 'black';
-						document.getElementById('response_text').innerHTML = 'Wiadomość została wysłana do Administratora.';
-				   }
-				   else
-				   {
-					document.getElementById('textarea_request').value = "";
-					checkTextarea();
-					document.getElementById('response_text').style.color = 'red';
-					document.getElementById('response_text').innerHTML = 'Podczas wysyłanie wystąpił błąd. Spróbuj ponownie później.';
-				   }
-			   }
-			   );	
-	}
-	function sendAccountSettings()
-	{
-		try
 		{
-			var dane= {};
-			var nameF = document.getElementById('fld_name').value;
-			var lastNameF = document.getElementById('fld_lastName').value;
-			var oldPassF = document.getElementById('fld_old_pass').value;
-			var newPassF = document.getElementById('fld_new_pass').value;
-			var newPass2F = document.getElementById('fld_new_pass2').value;
-			var eventsF = document.getElementById('sbox_events').value;
-			var facultyF = document.getElementById('select_faculty').value;
-			var specialF = document.getElementById('select_specialization').value;
-			var semesterF = document.getElementById('select_semester').value;
-			var typeF = document.getElementById('select_type').value;
-			
-			if (nameF != nameSt)
-				dane['imie'] = nameF
-				
-			if (lastNameF != lastNameSt)
-				dane['nazwisko'] = lastNameF
-				
-			if (eventsF != eventsNumber)
-				dane['ileWydarzen'] = eventsF
-						
-			if (specialF != specializationSt || semesterF != semesterSt || typeF != levelSt)
+			if (data =='Ok')
 			{
-				dane['kierunek'] = specialF
-				dane['semestr'] = semesterF
-				dane['stopien'] = typeF
+				document.getElementById('textarea_request').value = "";
+				checkTextarea();
+				setTextResponse('responseMail', 'black', 'Wiadomość została wysłana do Administratora.');
+		   }
+		   else
+		   {
+				document.getElementById('textarea_request').value = "";
+				checkTextarea();
+				setTextResponse('responseMail', 'red', 'Podczas wysyłanie wystąpił błąd. Spróbuj ponownie później.')
 			}
-		
-			var oldPassEmpty = oldPassF == '';
-			var newPassEmpty = newPass2F =='';
-			var newPassOk = newPassF == newPass2F ? true:false;
-			
-			
-			var changes = size_dict(dane)>0;
-		
-			if (changes)
-			{
-				//Nowe haslo jest puste
-				if(newPassEmpty && newPassOk)
-				{
-					alert('Zaraz zostaną zapisane zmiany');
-					sendAccountData(dane);
-					
-				}
-				//Podano nowe haslo
-				else if(!newPassEmpty && newPassOk && !oldPassEmpty)
-				{
-					dane['stareHaslo'] = oldPassF;
-					dane['haslo'] = newPassF;
-					dane['haslo2'] = newPass2F;
-					alert('Zaraz zostaną zapisane zmiany');
-					sendAccountData(dane);
-					
-				}
-				//Nowe hasla sie nie zgadzaja
-				else if(!newPassOk)
-				{
-					alert('Hasla sie od siebie roznia!');
-				}
-				else if(oldPassEmpty)
-				{
-					alert('Nowe hasło nie zostanie zapisane, bo nie podałeś starego hasła');
-					sendAccountData(dane);
-				}
-			}
-			else
-			{
-				//Nowe haslo jest puste
-				if(newPassEmpty && newPassOk)
-				{
-					alert('Nie wprowadzileś żadnych zmian');
-				}
-				// Wprowadzono nowe haslo
-				else if(!newPassEmpty && newPassOk && !oldPassEmpty)
-				{
-					dane['stareHaslo'] = oldPassF;
-					dane['haslo'] = newPassF;
-					dane['haslo2'] = newPass2F;
-					alert('Zaraz zostaną zapisane zmiany');
-					sendAccountData(dane);
-				}
-				//Nowe hasla sie nie zgadzaja
-				else if(!newPassOk)
-				{
-					alert('Hasła się od siebie różnią!');
-				}
-				else if(oldPassEmpty)
-				{
-					alert('Nowe hasło nie zostanie zapisane, bo nie podałeś starego hasła');
-				}
-			}
-		}
-		catch(err)
-		{
-
-		}
+		});
 	}
-	
-	function sendAccountData(dane)
+}
+
+
+function setTextResponse(filedId, color, tresc)
+{
+	document.getElementById(filedId).style.color = color;
+	document.getElementById(filedId).innerHTML = tresc;
+}
+
+function validateAccount()
+{
+	updateNameR();
+	updateLastNameR();
+	if(checkNameR() && checkLastNameR())
 	{
-		$.post("changeAccountSettings", dane, function(data)
-			   {
-					if (data !='')
-					{
-						alert('Dane nie są poprawne. Spróbuj jeszcze raz.');
-				   }
-				   else
-				   {
-						alert('Poprawnie zapisano zmiany');
-				   }
-			   }
-			   );
+		sendAccountSettings();
 	}
-	//$('account-scroll').niceScroll({touchbehavior: true, grabcursorenabled: false});
+	else
+	{
+		setTextResponse('responseAcc', 'red', 'Dane nie spełniają wymaganych ograniczeń.');
+	}
+}
+
+function sendAccountSettings()
+{
+	var dane= {};
+	var nameF = document.getElementById('fld_name').value;
+	var lastNameF = document.getElementById('fld_lastName').value;
+	var eventsF = document.getElementById('sbox_events').value;
+	var sid;
+	var specialF = {};
+	var semesterF = {};
+	var typeF = {};
 
 	
-	    $(document).ready(function(){
-        $('#subPlanButt').click(function(){
-            $('#parserPWR').append('<br><span id="load">Wczytuję...<img src="img/ajax-loader.gif"></img></span>');
-            $.ajax({
-              type: 'POST',
-              url: '/generujPlan',
-              data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
-              success : function(msg) {
-                if (msg=="no"){
-                  alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
-                } else if (msg =="problem") {
-                  alert("Sprawdz Edukacje!")
-                } else {
-                  loadContent("timetable2");
-                }
-                $('#load').remove();
-              },
-              error: function(error) {
-                  $('#load').remove();
-                  //$.ajax({
-                  // type: 'POST',
-                  // url: '/generujPlan',
-                  // data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
-                  // success : function(msg) {
-                  // if (msg=="no"){
-                  // alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
-                  // } else if (msg =="problem") {
-                  // alert("Sprawdz Edukacje!")
-                  // } else {
-                  // loadContent("timetable2");
-                  // czyNieKoniec = false
-                  // }
-                  // },
-                  //});
-                  alert("Wystąpił błąd w połączniu z edukacją. Proszę spróbuj ponownie, lub sprawdź, czy nie wpisujesz złego loginu lub hasła.");
-                
-              }
-            });
-
-            //$.post('/generujPlan', { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
-            // function(msg) {
-            // if (msg=="no"){
-            // alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
-            // } else if (msg =="problem") {
-            // alert("Sprawdz Edukacje!")
-            // } else {
-            // loadContent("timetable2");
-            // }
-            // });
-        });
-    });
+	{% for s in studenci %}
+		sid = '{{ s.id }}';
+		//SEPCIALIZATION
+		spCh = document.getElementById('select_specialization' + sid).value != specializationSt[sid];
+		semCh = document.getElementById('select_semester' + sid).value != semesterSt[sid];
+		typCh = document.getElementById('select_type' + sid).value != levelSt[sid];
+		
+		if(spCh || semCh || typCh)
+		{
+			dane['kierunek' + sid] = document.getElementById('select_specialization' + sid).value;
+			dane['semestr' + sid] = document.getElementById('select_semester' + sid).value;
+			dane['stopien' + sid] = document.getElementById('select_type' + sid).value;
+		}
+	{% endfor %}
 	
-	/* TUTAJ TRZEBA ROZWAZYC W JAKIM DIVIE JEST!!!
-    $(document).keypress(function(event){
+	
+
+	if (nameF != nameSt)
+		dane['imie'] = nameF
+		
+	if (lastNameF != lastNameSt)
+		dane['nazwisko'] = lastNameF
+		
+	if (eventsF != eventsNumber)
+		dane['ileWydarzen'] = eventsF
+				
+
+	var changes = size_dict(dane)>0;
+
+	if (changes)
+	{
+		sendAccountData(dane);
+	}
+	else
+	{
+		setTextResponse('responseAcc', 'black', '<br>');
+	}
+}
+
+
+function sendAccountData(dane)
+{
+	$.post("changeAccountSettings", dane, function(data)
+			{
+				if (data == 'Fail')
+				{
+					setTextResponse('responseAcc', 'red', 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.');
+				}
+				else if(data == 'Ok')
+				{
+					setTextResponse('responseAcc', 'black', 'Dane zostały zmienione.');
+				}
+			}
+			);
+}
+//$('account-scroll').niceScroll({touchbehavior: true, grabcursorenabled: false});
+
+
+	$(document).ready(function(){
+	$('#subPlanButt').click(function(){
+		$('#parserPWR').append('<br><span id="load">Wczytuję...<img src="img/ajax-loader.gif"></img></span>');
+		$.ajax({
+		  type: 'POST',
+		  url: '/generujPlan',
+		  data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
+		  success : function(msg) {
+			if (msg=="no"){
+			  alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+			} else if (msg =="problem") {
+			  alert("Sprawdz Edukacje!")
+			} else {
+			  loadContent("timetable2");
+			}
+			$('#load').remove();
+		  },
+		  error: function(error) {
+			  $('#load').remove();
+			  //$.ajax({
+			  // type: 'POST',
+			  // url: '/generujPlan',
+			  // data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
+			  // success : function(msg) {
+			  // if (msg=="no"){
+			  // alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+			  // } else if (msg =="problem") {
+			  // alert("Sprawdz Edukacje!")
+			  // } else {
+			  // loadContent("timetable2");
+			  // czyNieKoniec = false
+			  // }
+			  // },
+			  //});
+			  alert("Wystąpił błąd w połączniu z edukacją. Proszę spróbuj ponownie, lub sprawdź, czy nie wpisujesz złego loginu lub hasła.");
+			
+		  }
+		});
+
+		//$.post('/generujPlan', { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
+		// function(msg) {
+		// if (msg=="no"){
+		// alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+		// } else if (msg =="problem") {
+		// alert("Sprawdz Edukacje!")
+		// } else {
+		// loadContent("timetable2");
+		// }
+		// });
+	});
+});
+
+/* TUTAJ TRZEBA ROZWAZYC W JAKIM DIVIE JEST!!!
+$(document).keypress(function(event){
+
+  var keycode = (event.keyCode ? event.keyCode : event.which);
+  if(keycode == '13'){ //Jesli wystapi klikniecie enter
+	$('#subPlanButt').trigger('click');	
+  }
  
-      var keycode = (event.keyCode ? event.keyCode : event.which);
-      if(keycode == '13'){ //Jesli wystapi klikniecie enter
-        $('#subPlanButt').trigger('click');	
-      }
-     
-    });
+});
 */
-	$("html").getNiceScroll().resize();				
+			
 </script>
 				<div id="left-box-account">
 					<div id="account-scroll">
 						<ul id="account-menu">
 							<li><a href='javascript:;' id="acc-settings" onclick = 'showChoice(this);'>Ustawienia</a></li>
 							<li><a href='javascript:;' id="acc-timetable" onclick = 'showChoice(this);'>Plan zajęć</a></li>
-						<!-- 	<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li> -->
+							<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li> 
 						</ul>
 					</div>
 				</div>
 				<div id="right-box">
 					<div id="account-content">
-					
+						
 						<!-- TIMETABLE_ACCOUNT -->
 						<div id='timetable_account' style="display: none" class="account-form">
 						<p><u>Generowanie planu zajęć</u></p>
@@ -269,115 +352,163 @@
 											
 						<!-- SETTINGS_ACCOUNT -->
 						<div id = 'settings_account' style="display:block;" class="account-form">
-							<p><u>Dane osobowe</u></p>
-							<table class="table-account">
-								<tr>
-									<td class="table-left-side">Nick:</td>
-									<td class="table-right-side"><b> &nbsp {{ uzytkownik.nick }}</b></td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Indeks: </td>
-									<td class="table-right-side"> &nbsp {% for s in studenci %}{% if forloop.first %}<b>{{ s.indeks }}</b>{% endif %}{% endfor %}</td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Imię:</td>
-									<td class="table-right-side"><input class="account-input" type="text" name="fld_name" id="fld_name" value="{{ uzytkownik.imie }}" /></td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Nazwisko:</td>
-									<td class="table-right-side"><input class="account-input" type="text" name="fld_lastName" id="fld_lastName" value="{{ uzytkownik.nazwisko }}" /></td>
-								</tr>
-							</table>
-                          
-                            <div class="account-space">
-							</div>
-							<p><u>Dane studenta</u></p>
-							
-							{% for s in studenci %}
-							<table class="table-account">
-								<tr>
-									<td class="table-left-side">Wydział:</td>
-									<td class="table-right-side">
-										<select class="account-settings-changes-select-input" id="select_faculty"  onchange='getSpecializations(this);'>
-										{% for wydz in wydzialy %}
-											<option value={{ wydz.id }} {% if wydz.id == s.kierunek.wydzial.id %} selected='selected' {% endif %}>{{ wydz.nazwa }}</option>
-										{% endfor %}
-										</select>
-									</td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Kierunek:</td>
-									<td class="table-right-side">
-										<select class="account-settings-changes-select-input" id="select_specialization" onchange='getSemesters();'>
-										</select>
-									</td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Semestr:</td>
-									<td class="table-right-side">
-										<select class="account-settings-changes-select-input" id="select_semester">
-										</select>
-									</td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Stopień:</td>
-									<td class="table-right-side">
-										<select class="account-settings-changes-select-input" id="select_type" onchange='getSemesters();'>
-											<option value="1">I-go stopnia</option>
-											<option value="2">II-go stopnia</option>
-										</select>
-									</td>
-								</tr>
-							</table>
+							<fieldset>
+								<legend>Profil użytkownika</legend>
+								<p><u>Dane osobowe</u></p>
+								<table class="table-account">
+									<tr>
+										<td class="table-left-side">Nick:</td>
+										<td class="table-right-side"><b> &nbsp {{ uzytkownik.nick }}</b></td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Indeks: </td>
+										<td class="table-right-side"> &nbsp {% for s in studenci %}{% if forloop.first %}<b>{{ s.indeks }}</b>{% endif %}{% endfor %}</td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Imię:</td>
+										<td class="table-right-side"><input class="account-input" type="text" name="fld_name" id="fld_name" value="{{ uzytkownik.imie }}" /></td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Nazwisko:</td>
+										<td class="table-right-side"><input class="account-input" type="text" name="fld_lastName" id="fld_lastName" value="{{ uzytkownik.nazwisko }}" /></td>
+									</tr>
+								</table>
+							  
+								<div class="account-space">
+								</div>
+								<hr style="width: 400px;">
+								<p><u>Dane studenta</u></p>
+								{% for s in studenci %}
+								{% if ileKierunkow > 1 %}
+									Kierunek {{ forloop.counter }}:
+								{% endif %}
+								<table class="table-account"> 
+									<tr>
+										<td class="table-left-side">Wydział:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_faculty{{ s.id }}"  onchange='getSpecializations(this);'>
+											{% for wydz in wydzialy %}
+												<option value={{ wydz.id }} {% if wydz.id == s.kierunek.wydzial.id %} selected='selected' {% endif %}>{{ wydz.nazwa }}</option>
+											{% endfor %}
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Kierunek:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_specialization{{ s.id }}" onchange='refreshFromSpec(this);'>
+											{% for k in kierunki %}
+												{% ifequal k.wydzial.id s.kierunek.wydzial.id %}
+												<option value={{ k.id }} {% if k.id == s.kierunek.id %} selected='selected' {% endif %}>{{ k.nazwa }}</option>
+												{% endifequal %}
+											{% endfor %}
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Stopień:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_type{{ s.id }}" onchange='refreshFromType(this);'>
+												<option value="1" {% if s.rodzajStudiow == 1 %} selected='selected' {% endif %}>I-go stopnia</option>
+												<option value="2" {% if s.rodzajStudiow == 2 %} selected='selected' {% endif %}>II-go stopnia</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Semestr:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_semester{{ s.id }}">
+											{% for x in "1234567"|make_list %}
+												{% if s.rodzajStudiow == 1 %}
+													{% if forloop.counter <= s.kierunek.liczbaSemestrow1st %}
+														<option value='{{ forloop.counter }}' {% if s.semestr == forloop.counter  %} selected='selected' {% endif %}>{{ forloop.counter }}</option>
+													{% endif%}
+												{% else %}
+													{% if forloop.counter <= s.kierunek.liczbaSemestrow2stPoInz %}
+														<option value='{{ forloop.counter }}' {% if s.semestr == forloop.counter  %} selected='selected' {% endif %}>{{ forloop.counter }}</option>
+													{% endif%}												
+												{% endif %}
+											{% endfor %}
+											</select>
+										</td>
+									</tr>
+									
+								</table>
+							{% if ileKierunkow > 1 %}
+								{% if forloop.counter < ileKierunkow %}
+								<br>
+								{% endif %}
+							{% endif %}	
 							{% endfor %}
-							<div class="account-space">
-							</div>
-							<p><u>Personalizacja konta</u></p>
-							<p>Z ilu dni w przód chcesz widzieć swoje zbliżające się wydarzenia (pomijając aktualny dzień)?
-								<select class="account-settings-days-select-input" id="sbox_events">
-									<option>0</option>
-									<option>1</option>
-									<option>3</option>
-									<option>7</option>
-									<option>14</option>
-									<option>28</option>
-								</select>
-							</p>
-							<div class="account-space">
-							</div>
-
-							<p><u>Zmiana hasła</u></p>
-							<table class="table-account">
-								<tr>
-									<td class="table-left-side">Stare hasło:</td>
-									<td class="table-right-side"><input class="account-input" type="password" name="fld_old_pass" id="fld_old_pass" value="" /></td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Nowe hasło:</td>
-									<td class="table-right-side"><input class="account-input" type="password" name="fld_new_pass" id="fld_new_pass" value="" /></td>
-								</tr>
-								<tr>
-									<td class="table-left-side">Potwierdzenie hasła:</td>
-									<td class="table-right-side"><input class="account-input" type="password" name="fld_new_pass2" id="fld_new_pass2" value="" /></td>
-								</tr>
-							</table>
-
-							<div class="account-center">
-								<input class="account-submit" type="button" name="btn_settings" id="btn_settings" onclick="sendAccountSettings();" value="Zapisz" />
-							</div>
-							<div class="account-space">
-							</div>
-
-							<p>Jeśli chcesz zmienić dane, do których nie masz dostępu w ustawieniach, prosimy o notatkę wraz z wyjaśnieniem na ten temat (250 znaków):</p>
-							<input type="text" class="account-counter" id="textarea_request_char" style="width: 400px" readonly=true value = "250/250" /><br />
-							<textarea class="account-textarea" id="textarea_request" name ="textarea_request" onkeyup='checkTextarea();'></textarea>
-							<div class="account-center">
-								<input class="account-submit" type="button" name="btn_request" id="btn_request" onclick='sendEmailAccount();' disabled = 'disabled' value="Wyślij" />
-								<p id='response_text'> <br></p>
-							</div>
+								<div class="account-space">
+								</div>
+								
+								<hr style="width: 400px;">
+								<p><u>Personalizacja konta</u></p>
+								
+								<table class="table-account">
+									<tr>
+										<td class="table-left-side">Wydarzenia:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input"  id="sbox_events">
+												<option>0</option>
+												<option>1</option>
+												<option>3</option>
+												<option>7</option>
+												<option>14</option>
+												<option>28</option>
+											</select>
+									</tr>
+								</table>
+								
+	
+	
+								<div class="account-center">
+									<input class="account-submit" type="button" name="btn_settings" id="btn_settings" onclick="validateAccount();" value="Zapisz" />
+									<p id='responseAcc'> <br></p>
+								</div>
+								
+							</fieldset>
+							</fieldset>
+							<br />
+							<fieldset>
+								<legend>Zmiana hasła</legend>
+								<br />
+								<table class="table-account">
+									<tr>
+										<td class="table-left-side">Stare hasło:</td>
+										<td class="table-right-side"><input class="account-input" type="password" name="fld_old_pass" id="fld_old_pass" value="" /></td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Nowe hasło:</td>
+										<td class="table-right-side"><input class="account-input" type="password" name="fld_new_pass" id="fld_new_pass" value="" /></td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Potwierdzenie hasła:</td>
+										<td class="table-right-side"><input class="account-input" type="password" name="fld_new_pass2" id="fld_new_pass2" value="" /></td>
+										
+									</tr>
+								</table>
+								<div class="account-center">
+									<input class="account-submit" type="button" name="btn_pass" id="btn_pass" onclick="changePassword();" value="Zmień" />
+									<p id='responsePass'> <br></p>
+								</div>
+							</fieldset>
+							<br />
+							<fieldset>
+								<legend>Uwagi</legend>
+	
+								<p>Jeśli chcesz zmienić dane, do których nie masz dostępu w ustawieniach, prosimy o notatkę wraz z wyjaśnieniem na ten temat (250 znaków):</p>
+								<input type="text" class="account-counter" id="textarea_request_char" style="width: 400px" readonly=true value = "250/250" /><br />
+								<textarea class="account-textarea" id="textarea_request" name ="textarea_request" onkeyup='checkTextarea();'></textarea>
+								<div class="account-center">
+									<input class="account-submit" type="button" name="btn_request" id="btn_request" onclick='sendEmailAccount();' disabled = 'disabled' value="Wyślij" />
+									<p id='responseMail'> <br></p>
+								</div>
+							</fieldset>
 						</div>
-							
-							
+						
+						
 						<!-- ADMINISTRATION_ACCOUNT -->
 						<div id = 'administration_account' style="display: none" class="account-form">
 							<p>Jakiś tekst z opisem...</p>

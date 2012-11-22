@@ -77,10 +77,28 @@ def saWPoscie(request, dane):
 def glowna(request):
 	# Uzytkownik jest zalogowany
 	if jestSesja(request):
+		print('jest sesja')
 		nick = uzSesja(request).nick
 		if 'content' not in request.session.keys():
 			request.session['content'] = 'news'
-		return render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
+		
+		if 'login' in request.session.keys(): #trzeba dodac ciastko (lub usunac)
+			print('cps z ciastkami')
+			log = request.session['login']
+			if log == "": #usuwam ciastko
+				response = render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
+				response.delete_cookie('login')
+				del request.session['login']
+				return response
+			else: #dodaje ciastko
+				response = render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
+				print('zostanie nadane ciastko z loginem ---->' + log)
+				response.set_cookie('login', log)
+				del request.session['login']
+				return response
+		else:
+			print('loginu nie ma w ciastku')
+			return render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
 	
 	# Uzytkownik nie jest zalogowany oraz wystapil blad podczas logowania lub rejestracji
 	elif 'komunikat' in request.session:
@@ -121,7 +139,12 @@ def glowna(request):
 	else:
 		if 'content' not in request.session.keys():
 			request.session['content'] = 'portal'
-        return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True})
+		if 'login' in request.COOKIES.keys():
+			print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+			return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True, 'jestLogin':True, 'login':request.COOKIES['login']})
+		else:
+			print('yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy')
+			return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True})
 
 ############### REJESTRACJA ##############################################################
 
@@ -402,6 +425,14 @@ def logowanie(request):
 						else:
 							request.session['studentId'] = student.id
 							request.session['content'] = 'news'
+							uzytkownik.dataOstLogowania = datetime.datetime.now()
+							uzytkownik.save()
+							if 'cbox_remember' in request.POST.keys():
+								print('zapamietaj mnie!')
+								request.session['login'] = nickPost
+							else:
+								print('nie pamietaj')
+								request.session['login'] = ""
 					else:
 						request.session['komunikat'] = '3' # konto nieaktywne
 				else:
@@ -411,6 +442,14 @@ def logowanie(request):
 					else:
 						request.session['admin'] = nickPost
 						request.session['content'] = 'news'
+						uzytkownik.dataOstLogowania = datetime.datetime.now()
+						uzytkownik.save()
+						if 'cbox_remember' in request.POST.keys():
+							print('zapamietaj mnie!')
+							request.session['login'] = nickPost
+						else:
+							print('nie pamietaj')
+							request.session['login'] = ""
 			else:
 					request.session['komunikat'] = '2' # bledny login lub haslo
 		except:
@@ -576,16 +615,20 @@ def zaladujNewsy(request):
 											  student__rodzajStudiow = stopien).order_by('data')[:10]
 	shoutbox = shoutbox.reverse()
 	uzytkownik = student.uzytkownik
-	wczoraj = datetime.date.today() - datetime.timedelta(days=1)
+	studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
+	ileKierunkow = studenci.count()
+	dataMin = datetime.date.today()
 	ileWydarzen = uzytkownik.ileMoichWydarzen
-	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia')[:ileWydarzen]
-	wydarzenia = filtrujNoweWydarzenia(request)
-	wydarzeniaUz = uzytkownik.wydarzenie_set.all()
-	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
-	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd')[:10]
+	dataMax = dataMin + datetime.timedelta(days = ileWydarzen+1)
+	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gte = dataMin, dataWydarzenia__lte = dataMax).order_by('dataWydarzenia', 'godzinaOd')
+	wydarzenia = filtrujNoweWydarzenia(request) #zwraca wydarzenia odpowiednie tylko dla wybranego uzytkownika
+	wydarzeniaUz = uzytkownik.wydarzenie_set.all() #zbior wydarzen znajdujacych sie w kalendarzu uzytkownika
+	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) #pokazanie tylko tych wydarzen, ktorych nie ma w kalendarzu uzytkownika
+	wydarzenia = wydarzenia.filter(dataWydarzenia__gte = datetime.date.today())
+	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
 	dzisiaj = datetime.datetime.now()
 	wczoraj = dzisiaj - datetime.timedelta(days = 1)
-	return render_to_response('news.html', {'rozmowy':shoutbox, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj})
+	return render_to_response('news.html', {'rozmowy':shoutbox, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj, 'studenci':studenci, 'ileKierunkow':ileKierunkow})
 
 
 # Pobranie aktualnego shoutboxa - potrzebne przy odświeżaniu go
@@ -627,6 +670,10 @@ def dodajWydDoKalendarza(request, idWyd):
 		return HttpResponse('Fail')
 		
 
+def zamienStudenta(request, idS):
+	request.session['studentId'] = idS
+	return zaladujShoutbox(request)
+
 def filtrujNoweWydarzenia(request):
     student = studSesja(request)
     uzytkownik = uzSesja(request)
@@ -638,8 +685,19 @@ def filtrujNoweWydarzenia(request):
                                                   (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) |
                                                   (Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5)) )
     return wydarzenia
-
-
+'''
+def filtrujNoweWydarzenia(request):
+	#uzytkownik = uzSesja(request)
+	uzytkownik = models.Uzytkownik.objects.get(id = 8)
+	studenci = uzytkownik.student_set.all()
+	studenciId = studenci.values_list('id', flat = True)
+	kierStudenta = student.kierunek
+	wydzStudenta = student.kierunek.wydzial
+	semStudenta = student.semestr
+	rodzStudenta = student.rodzajStudiow
+	wydarzenia = models.Wydarzenie.objects.filter((Q(dodal__kierunek = kierStudenta) & Q(rodzajWydarzenia = 3)) | (Q(dodal__kierunek__wydzial = wydzStudenta) & Q(rodzajWydarzenia = 2)) | (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) | Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5))
+	return wydarzenia
+'''
 ############### PLAN ZAJEC ################################################################
 
 
@@ -858,11 +916,165 @@ def tworzenieZajecProw(i, nowaData, grupy, output):      # tworze json i dodaje 
 # Zaladowanie strony calendar.html do diva na stronie glownej
 def zaladujKalendarz(request):
 	if jestSesja(request):
-		return render_to_response('calendar.html')
+		uzytkownik = uzSesja(request)
+		grupy = uzytkownik.grupa_set.all()
+		return render_to_response('calendar.html', {'grupy':grupy})
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
 
+def dodajWydarzenie(request):
+	if post(request):
+		dane = request.POST.copy()
+		student = studSesja(request)
+		uzytkownik = student.uzytkownik
+		print('start')
+		nazwa = dane['name']
+		opis = dane['description']
+		godzinaOd = dane['startH']
+		minutaOd = dane['startM']
+		godzinaDo = dane['endH']
+		minutaDo = dane['endM']
+		rodzaj = dane['type']
+		grupaId = dane['class']
+		dzien = dane['day']
+		miesiac = dane['month']
+		rok = dane['year']
+		
+		print('pobralo dane')
+		if not sprNazweWyd(nazwa):
+			print("zla nazwa")
+			return HttpResponse('Fail')
+		else:
+			print('nazwa ok')
+		
+		if not sprOpisWyd(opis):
+			print("zly opis")
+			return HttpResponse('Fail')
+		else:
+			print('opis ok')
+		
+		if not sprGodzine(godzinaOd):
+			print("zla godzinaOd")
+			return HttpResponse('Fail')
+		else:
+			print('godzinaod ok')
+		
+		if not sprGodzine(godzinaDo):
+			print("zla godzinaDo")
+			return HttpResponse('Fail')
+		else:
+			print('godzinado ok')
+		
+		if not sprMinute(minutaOd):
+			print("zla minutaOd")
+			return HttpResponse('Fail')
+		else:
+			print('minutaod ok')
+		
+		if not sprMinute(minutaDo):
+			print("zla minutaDo")
+			return HttpResponse('Fail')
+		else:
+			print('minutado ok')
+			
+		if not sprRodzaj(rodzaj):
+			print("zly rodzaj")
+			return HttpResponse('Fail')
+		else:
+			print('rodzajok')
+		
+		if grupaId <> "0":
+			if not sprGrupe(grupaId, uzytkownik):
+				print("zla grupa")
+				return HttpResponse('Fail')
+		else:
+			grupaId = None
+		
+		
+		if not sprDate(dzien, miesiac, rok):
+			print("zla data")
+			return HttpResponse('Fail')
+		
+		print('wszystko niby ok')
+		dataWyd = datetime.date(int(rok), int(miesiac), int(dzien))
+		dataDodaniaWyd = datetime.date.today()
+		od = datetime.time(int(godzinaOd), int(minutaOd))
+		do = datetime.time(int(godzinaDo), int(minutaDo))
+		print('zaraz utworzy sie wydarzenie')
+		wydarzenie = models.Wydarzenie(nazwa = nazwa,
+									   opis = opis,
+									   dataWydarzenia = dataWyd,
+									   godzinaOd = od,
+									   godzinaDo = do,
+									   dataDodaniaWyd = dataDodaniaWyd,
+									   rodzajWydarzenia = int(rodzaj),
+									   grupa_id = grupaId,
+									   dodal_id = student.id)
+		wydarzenie.save()
+		
+		print(dane['add'])
+		if dane['add'] == 'yes':
+			print('dodaje do kalnedarza')
+			kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = opis)
+			kalendarz.save()
+			
+		return HttpResponse('Ok')
+	else:
+		return HttpResponse('Fail')
+		
+def sprNazweWyd(nazwa):
+	if len(nazwa) >0 and len(nazwa)<21:
+		return True
+	else:
+		return False
+	
+def sprOpisWyd(opis):
+	if len(opis) >0 and len(opis)<101:
+		return True
+	else:
+		return False
+	
+def sprGodzine(godzina):
+	integer = pasuje('\d+', godzina)
+	if integer and int(godzina)>=0 and int(godzina) <24:
+		return True
+	else:
+		return False
+
+def sprMinute(minuta):
+	integer = pasuje('\d+', minuta)
+	if integer and int(minuta)>=0 and int(minuta) <60:
+		return True
+	else:
+		return False
+	
+def sprRodzaj(rodzaj):
+	if rodzaj == "1" or rodzaj == "2" or rodzaj == "3" or rodzaj == "4" or rodzaj == "5" or rodzaj == "6" or rodzaj == "7":
+		return True
+	else:
+		return False
+	
+def sprGrupe(grupa, uzytkownik):
+	try:
+		print('Id grupy ' + grupa)
+		grupa = models.Grupa.objects.get(id = int(grupa))
+		if grupa in uzytkownik.grupa_set.all():
+			return True
+		else:
+			print('grupa nie jest w planie uzytkownika')
+			return False
+	except:
+		print('nie ma takiej grupy')
+		return False
+
+def sprDate(dzien, miesiac, rok):
+	try:
+		data = datetime.date(int(rok), int(miesiac), int(dzien))
+		return True
+	except:
+		return False
+		
 
 ############### MAPA ######################################################################
 
@@ -887,17 +1099,20 @@ def zaladujKonto(request):
 	student = studSesja(request)
 	uzytkownik = student.uzytkownik
 	studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
+	ileKierunkow = studenci.count()
 	wydzialy = models.Wydzial.objects.all()
-	return render_to_response('account.html', {'studenci':studenci, 'uzytkownik':uzytkownik, 'wydzialy':wydzialy})
+	wydzialyId = wydzialy.values_list('id', flat = True)
+	kierunki = models.Kierunek.objects.all().order_by('nazwa')
+	return render_to_response('account.html', {'studenci':studenci, 'uzytkownik':uzytkownik, 'wydzialy':wydzialy, 'ileKierunkow':ileKierunkow, 'kierunki':kierunki})
 
 
 def edytujDane(request):
 	if post(request):
 		print("----------------------------------------------")
 		print('W poscie otrzymano nastepujace klucze:')
-		student = studSesja(request)
-		uzytkownik = student.uzytkownik
-		bledy = []
+		uzytkownik = uzSesja(request)
+		studenci = uzytkownik.student_set.all()
+		zmiany = False
 	
 		dane = request.POST.copy()
 		for d in dane:
@@ -905,83 +1120,96 @@ def edytujDane(request):
 			
 		print(" ")
 		
-		zmianaHasla = False
 		if 'imie' in dane:
 			print('Sprawdzam imie...')
 			if sprImie(dane['imie']):
 				uzytkownik.imie = dane['imie']
+				zmiany = True
 				print('Imie ok')
 			else:
 				print('blad w imieniu')
-				bledy.append('imie ')
+				return HttpResponse('Fail')
 		
 		if 'nazwisko' in dane:
 			print('Sprawdzam nazwisko...')
 			if sprNazwisko(dane['nazwisko']):
 				uzytkownik.nazwisko = dane['nazwisko']
+				zmiany = True
 				print('Nazwisko ok')
 			else:
 				print('blad w nazwisku')
-				bledy.append('nazwisko ')
+				return HttpResponse('Fail')
 		
-				
-		if 'haslo' in dane and 'haslo2' in dane and 'stareHaslo' in dane:
-			print('Sprawdzam hasla...')
-			if sprHasloZeStarym(dane['haslo'], dane['haslo2'], dane['stareHaslo'], uzytkownik.haslo):
-				if not sha256_crypt.verify(dane['haslo'], uzytkownik.haslo):
-					uzytkownik.haslo = sha256_crypt.encrypt(dane['haslo'])
-					zmianaHasla = True
-					print('Haslo ok')
-			else:
-				print('blad w hasle')
-				bledy.append('haslo ')
-		
-		
-				
-		if 'semestr' in dane and 'kierunek' in dane and 'stopien' in dane:
-			print('Sprawdzam semestr itp...')
-			if sprSemestr(dane['kierunek'], dane['stopien'], dane['semestr']):
-				student.semestr = int(dane['semestr'])
-				print('kierunek przed ' + str(student.kierunek_id))
-				print('kierunek w poscie ' + dane['kierunek'])
-				student.kierunek_id = int(dane['kierunek'])
-				print('kierunek po ' + str(student.kierunek_id))
-				student.rodzajStudiow = int(dane['stopien'])
-				print('Semestr ok')
-			else:
-				print('blad w semestrze lub podobnych')
-				bledy.append('semestr ')
-				
-				
 		if 'ileWydarzen' in dane:
 			print('Sprawdzam wydarzenia...')
 			if sprWydarzenia(dane['ileWydarzen']):
 				uzytkownik.ileMoichWydarzen = int(dane['ileWydarzen'])
+				zmiany = True
 				print('Wydarzenia ok')
 			else:
 				print('blad w ilosci wydarzen')
 				bledy.append('ileWydarzen ')
-	
-		print ('Razem bledow')
-		print(len(bledy))
 		
-
-		
-		if len(bledy) == 0:
-			print('nie bylo bledow')
+		for s in studenci:
+			semestr = 'semestr'+str(s.id)
+			kierunek = 'kierunek'+str(s.id)
+			stopien = 'stopien'+str(s.id)
+			print('zaraz sprawdz kierunki itpdd')
+			if semestr in dane and kierunek in dane and stopien in dane:
+				print('da te dane')
+				if sprSemestr(dane[kierunek], dane[stopien], dane[semestr]):
+					s.semestr = int(dane[semestr])
+					s.kierunek_id = int(dane[kierunek])
+					s.rodzajStudiow = int(dane[stopien])
+					zmiany = True
+					print('oki')
+				else:
+					print('blad w kierunku itp')
+					return HttpResponse('Fail')
+					
 			
-			if zmianaHasla:
-				uzytkownik.dataOstZmianyHasla = datetime.date.today()	
-			uzytkownik.ktoZmienilDane.id = student.uzytkownik.id
+		if zmiany:
+			uzytkownik.ktoZmienilDane.id = uzytkownik.id
 			uzytkownik.dataOstZmianyDanych = datetime.date.today()
 			print('mhmm')
-			student.save()
+			for s in studenci:
+				s.save()
 			uzytkownik.save()
-			
-			
-			
-		return HttpResponse(bledy)
+			print('udalo sie')
+			return HttpResponse('Ok')
+		else:
+			return HttpResponse('0')
 
+
+def zmienHaslo(request):
+	if post(request):
+		dane = request.POST.copy()
+		student = studSesja(request)
+		uzytkownik = student.uzytkownik
+		if 'haslo' in dane and 'haslo2' in dane and 'stareHaslo' in dane:
+			print('Sprawdzam hasla...')
+			#stare haslo sie zgadza
+			if(sha256_crypt.verify(dane['stareHaslo'], uzytkownik.haslo)):
+				#nowe hasla są takie same
+				if(dane['haslo'] == dane['haslo2']):
+					#nowe haslo jest rozne od starego
+					if(dane['haslo'] != dane['stareHaslo']):
+						#nowe haslo spelnia wymagnia
+						if(pasuje('^(?!.*(.)\1{3})((?=.*[\d])(?=.*[A-Za-z])|(?=.*[^\w\d\s])(?=.*[A-Za-z])).{8,20}$', dane['haslo'])):
+							uzytkownik.haslo = sha256_crypt.encrypt(dane['haslo'])
+							uzytkownik.dataOstZmianyHasla = datetime.date.today()
+							uzytkownik.save()
+							return HttpResponse('0')
+						else:
+							return HttpResponse('1')
+					else:
+						return HttpResponse('2')
+				else:
+					return HttpResponse('3')
+			else:
+				return HttpResponse('4')
+	return HttpResponse('5')
+			
 
 
 def edytujDane2(request):
@@ -1055,6 +1283,7 @@ def sprImie(imie):
 def sprNazwisko(nazwisko):
 	nazwiskoOk = pasuje("^([a-zA-Z '-]+)$", nazwisko)
 	return nazwiskoOk and len(nazwisko)>=2
+
 
 def sprHasloZeStarym(haslo, haslo2, stareHaslo, hasloUz):
 	print('1')
@@ -1245,16 +1474,29 @@ def mojeWydarzeniaAND(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
 		if not czyZmienicHaslo(uzytkownik):
-			wczoraj = datetime.date.today() - datetime.timedelta(days=1)
+			dataMin = datetime.date.today()
 			ileWydarzen = uzytkownik.ileMoichWydarzen
-			wydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gt = wczoraj).order_by('dataWydarzenia', 'godzinaOd')[:ileWydarzen]
+			dataMax = dataMin + datetime.timedelta(days = ileWydarzen+1)
+			mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gte = dataMin, dataWydarzenia__lte = dataMax).order_by('dataWydarzenia', 'godzinaOd')
 			json_serializer = serializers.get_serializer("json")()
-			wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+			wynik = json_serializer.serialize(mojeWydarzenia, ensure_ascii=False)
 			return HttpResponse(wynik, mimetype="application/json")
 		else:
 			return HttpResponse('-4')
 	return HttpResponse("Fail")
 
+
+def filtrujNoweWydarzeniaAND(st):
+    student = st
+    uzytkownik = student.uzytkownik
+    kierStudenta = student.kierunek
+    wydzStudenta = student.kierunek.wydzial
+    semStudenta = student.semestr
+    rodzStudenta = student.rodzajStudiow
+    wydarzenia = models.Wydarzenie.objects.filter((Q(dodal__kierunek = kierStudenta) & Q(rodzajWydarzenia = 3)) | (Q(dodal__kierunek__wydzial = wydzStudenta) & Q(rodzajWydarzenia = 2)) |
+                                                  (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) |
+                                                  (Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5)) )
+    return wydarzenia
 
 # Android - wyswietlenie ostatnio dodanych wydarzen
 def ostatnieWydarzeniaAND(request):
@@ -1262,10 +1504,10 @@ def ostatnieWydarzeniaAND(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
 		if not czyZmienicHaslo(uzytkownik):
-			wydarzenia = models.Wydarzenie.objects.all()
-			wydarzeniaUz = uzytkownik.wydarzenie_set.all()
-			# Tutaj trzeba wybrac odpowiednie wydarzenia!!!
-			wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) 
+			wydarzenia = filtrujNoweWydarzeniaAND(student) #zwraca wydarzenia odpowiednie tylko dla wybranego uzytkownika
+			wydarzeniaUz = uzytkownik.wydarzenie_set.all() #zbior wydarzen znajdujacych sie w kalendarzu uzytkownika
+			wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) #pokazanie tylko tych wydarzen, ktorych nie ma w kalendarzu uzytkownika
+			wydarzenia = wydarzenia.filter(dataWydarzenia__gte = datetime.date.today())
 			wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
 			idSt = wydarzenia.values_list('dodal_id', flat = True)
 			studenci = models.Student.objects.filter(id__in = idSt)
@@ -1311,8 +1553,10 @@ def kalendarzAND(request):
 		uzytkownik = student.uzytkownik
 		if not czyZmienicHaslo(uzytkownik):
 			wydarzenia = uzytkownik.wydarzenie_set.all().order_by('dataWydarzenia', 'godzinaOd')
+			kalendarz = models.Kalendarz.objects.filter(uzytkownik = uzytkownik)
+			lista = list(wydarzenia) + list(kalendarz)
 			json_serializer = serializers.get_serializer("json")()
-			wynik = json_serializer.serialize(wydarzenia, ensure_ascii=False)
+			wynik = json_serializer.serialize(lista, ensure_ascii=False)
 			return HttpResponse(wynik, mimetype="application/json")
 		else:
 			return HttpResponse('-4')
@@ -1423,7 +1667,144 @@ def dodajWydDoKalendarzaAND(request):
 				kalendarz.save()
 		return HttpResponse('Ok')     
 	except:
-		return HttpResponse("Fail")	
+		return HttpResponse("Fail")
+	
+
+def dodajZQrAND(request):
+	try:
+		if post(request):
+			uzytkownik = uzPost(request)
+			wydarzenie = models.Wydarzenie.objects.get(id = request.POST['idWyd'])
+			if (wydarzenie not in uzytkownik.wydarzenie_set.all()):
+				kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = wydarzenie.opis) 
+				kalendarz.save()
+				return HttpResponse('0') #poprawnie zapisano
+			else:
+				return HttpResponse('-9')# wydarzenie jest juz w kalendarzu  
+		return HttpResponse('-5') # inny blad 
+	except:
+		return HttpResponse('-5') #inny blad
+	
+
+def dodajZQrGetAND(request, idSt, idWyd):
+	try:
+		uzytkownik = stud(idSt).uzytkownik
+		wydarzenie = models.Wydarzenie.objects.get(id = idWyd)
+		if (wydarzenie not in uzytkownik.wydarzenie_set.all()):
+			kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = wydarzenie.opis) 
+			kalendarz.save()
+			return HttpResponse('Wydarzenie zostało zapisane w Twoim kalendarzu.') #poprawnie zapisano
+		else:
+			return HttpResponse('To wydarzenie znajduje się już w Twoim kalendarzu.')# wydarzenie jest juz w kalendarzu  
+	except:
+		return HttpResponse('Wystąpił nieoczekiwany błąd. Skontaktuj się z administratorem.') #inny blad
+	
+def qrAND(request, idWyd):
+	wydarzenie = models.Wydarzenie.objects.filter(id = idWyd)
+	json_serializer = serializers.get_serializer("json")()
+	wynik = json_serializer.serialize(wydarzenie, ensure_ascii=False, fields = ('nazwa', 'opis', 'dataWydarzenia', 'godzinaOd', 'godzinaDo'))
+	return HttpResponse(wynik, mimetype="application/json")
+
+
+def dodajWydarzenieAND(request):
+	if post(request):
+		dane = request.POST.copy()
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		print('start')
+		nazwa = dane['name']
+		opis = dane['description']
+		godzinaOd = dane['startH']
+		minutaOd = dane['startM']
+		godzinaDo = dane['endH']
+		minutaDo = dane['endM']
+		rodzaj = dane['type']
+		grupaId = dane['class']
+		dzien = dane['day']
+		miesiac = dane['month']
+		rok = dane['year']
+		
+		print('pobralo dane')
+		if not sprNazweWyd(nazwa):
+			print("zla nazwa")
+			return HttpResponse('Fail')
+		else:
+			print('nazwa ok')
+		
+		if not sprOpisWyd(opis):
+			print("zly opis")
+			return HttpResponse('Fail')
+		else:
+			print('opis ok')
+		
+		if not sprGodzine(godzinaOd):
+			print("zla godzinaOd")
+			return HttpResponse('Fail')
+		else:
+			print('godzinaod ok')
+		
+		if not sprGodzine(godzinaDo):
+			print("zla godzinaDo")
+			return HttpResponse('Fail')
+		else:
+			print('godzinado ok')
+		
+		if not sprMinute(minutaOd):
+			print("zla minutaOd")
+			return HttpResponse('Fail')
+		else:
+			print('minutaod ok')
+		
+		if not sprMinute(minutaDo):
+			print("zla minutaDo")
+			return HttpResponse('Fail')
+		else:
+			print('minutado ok')
+			
+		if not sprRodzaj(rodzaj):
+			print("zly rodzaj")
+			return HttpResponse('Fail')
+		else:
+			print('rodzajok')
+		
+		if grupaId <> "0":
+			if not sprGrupe(grupaId, uzytkownik):
+				print("zla grupa")
+				return HttpResponse('Fail')
+		else:
+			grupaId = None
+		
+		
+		if not sprDate(dzien, miesiac, rok):
+			print("zla data")
+			return HttpResponse('Fail')
+		
+		print('wszystko niby ok')
+		dataWyd = datetime.date(int(rok), int(miesiac), int(dzien))
+		dataDodaniaWyd = datetime.date.today()
+		od = datetime.time(int(godzinaOd), int(minutaOd))
+		do = datetime.time(int(godzinaDo), int(minutaDo))
+		print('zaraz utworzy sie wydarzenieee')
+		wydarzenie = models.Wydarzenie(nazwa = nazwa,
+									   opis = opis,
+									   dataWydarzenia = dataWyd,
+									   godzinaOd = od,
+									   godzinaDo = do,
+									   dataDodaniaWyd = dataDodaniaWyd,
+									   rodzajWydarzenia = int(rodzaj),
+									   grupa_id = grupaId,
+									   dodal_id = student.id)
+		wydarzenie.save()
+		
+		print(dane['add'])
+		if dane['add'] == 'yes':
+			print('dodaje do kalnedarza')
+			kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = opis)
+			kalendarz.save()
+		
+		return HttpResponse('Ok')
+	else:
+		return HttpResponse('Fail')
 	
 ############################################# TESTOWANIE ###################################
 
@@ -1432,13 +1813,19 @@ def dodajWydDoKalendarzaAND(request):
 # Klasa do testow
 def test(request):
 	if True:
-		student = models.Student.objects.get(id = 9)
+		student = stud(9)
 		uzytkownik = student.uzytkownik
-		razemUzytStud = [student, uzytkownik]
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(razemUzytStud, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
+		if not czyZmienicHaslo(uzytkownik):
+			wydarzenia = uzytkownik.wydarzenie_set.all().order_by('dataWydarzenia', 'godzinaOd')
+			kalendarz = models.Kalendarz.objects.filter(uzytkownik = uzytkownik)
+			lista = list(wydarzenia) + list(kalendarz)
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(lista, ensure_ascii=False)
+			return HttpResponse(wynik, mimetype="application/json")
+		else:
+			return HttpResponse('-4')
 	return HttpResponse("Fail")
+
 
 def test2(request):
 	nick = 'ktosik'

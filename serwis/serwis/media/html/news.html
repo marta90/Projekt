@@ -40,12 +40,24 @@
 		);
 		  
 	}
-		$("html").getNiceScroll().resize();
+
+		
+	function switchSpec(butt)
+	{
+		var idS = butt.id.substring(4);
+
+		$("#portal-shoutbox-scroll").load("switchSpec/" + idS , scrollDown);
+	}
 </script>
 					
-					
+					{% if ileKierunkow > 1 %}
+					{% for s in studenci %}
+					<input type="button" id="kier{{s.id}}" onclick="switchSpec(this);" value="{{s.kierunek.nazwa}}" />
+					{% endfor %}
+					{% endif %}
 					<div id="portal-shoutbox">
 					<div class="box-title">Shoutbox</div>
+
 					<div id="portal-shoutbox-scroll">
 
 
@@ -123,10 +135,22 @@
 					</div>
 				</div>
 				<div id="portal-new-events">
+					
+					
+					
+					
 					<div class="box-title">Nowe wydarzenia</div>
 					<div id="portal-new-events-scroll">
 					{% for w in wydarzenia %}
 						<div class="portal-event-text"><!-- TU JEST 20 ZAMIAST 28 !!!!!!!!!!!!!!!!!!!!!1 -->
+		<!-- 					
+							{% if w in stare %}
+							<div class="box-img-add-event"><a href="#" onclick="refreshEvent('{{w.id}}');"><img src="media/html/img/blank.png" alt="" title="" width="28" height="28" /></a></div>
+							{% else %}
+							
+							<div class="box-img-add-event"><a href="#" onclick="addEvent('{{w.id}}');"><img src="media/html/img/blank.png" alt="" title="" width="28" height="28" /></a></div>
+							{% endif %}
+							-->
 							<div class="box-img-add-event"><a href="#" onclick="addEvent('{{w.id}}');"><img src="media/html/img/blank.png" alt="" title="" width="28" height="28" /></a></div>
 							<div class="box-event-date">
 								{% if w.dataWydarzenia == now %}

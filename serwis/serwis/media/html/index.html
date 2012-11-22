@@ -76,14 +76,14 @@
 								});
 						}
 				}
-				
+				/*
 			$(document).ready(
 				function() {
 					$("html").niceScroll({touchbehavior: true, grabcursorenabled: false});
 
 				}
 			);
-			
+			*/
 			function portalScroll()
 			{
 				$("#portal-shoutbox-scroll").niceScroll({touchbehavior: true, grabcursorenabled: false});
@@ -130,12 +130,12 @@
 				<form method="post" action="/logIn" id ="form_login">
 					<table class="header-login-table">
 						<tr>
-							<td><input class="header-login-input" type="text" name="fld_login" id="fld_login" value="Login" onclick="clearField(this.id)" /></td>
-							<td><input class="header-login-input" type="password" name="fld_pass" id="fld_pass" value="Hasło" onclick="clearField(this.id)"/></td>
+							<td><input class="header-login-input" type="text" name="fld_login" id="fld_login" value="{% if jestLogin %}{{ login }}{% else %}Login{% endif %}" onclick="clearField(this.id)" /></td>
+							<td><input class="header-login-input" type="password" name="fld_pass" id="fld_pass" value="{% if jestLogin %}{% else %}haslo{% endif %}" onclick="clearField(this.id)"/></td>
 							<td style="width: 40px;"><input class="header-login-submit" type="submit" name="btn_logIn" id="btn_logIn" value=">" /></td>
 						</tr>
 						<tr>
-							<td><div class="header-login-text"><input type="checkbox" name="cbox_remember" id="cbox_remember" />Zapamiętaj</div></td>
+							<td><div class="header-login-text"><input type="checkbox" name="cbox_remember" id="cbox_remember" checked/>Zapamiętaj</div></td>
 							<td><div class="header-login-text"><a style="cursor: pointer" onclick="lostPassword()" id="repeatPass">Przypomnij hasło</a></div></td>
 							<td style="width: 40px; margin-top: 3px; " id="forLoader"></img></div></td>
 						</tr>
