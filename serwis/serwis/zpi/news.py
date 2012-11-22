@@ -39,7 +39,7 @@ def zaladujNewsy(request):
 	ileWydarzen = uzytkownik.ileMoichWydarzen
 	dataMax = dataMin + datetime.timedelta(days = ileWydarzen+1)
 	mojeWydarzenia = uzytkownik.wydarzenie_set.filter(dataWydarzenia__gte = dataMin, dataWydarzenia__lte = dataMax).order_by('dataWydarzenia', 'godzinaOd')
-	wydarzenia = filtrujNoweWydarzenia(request) #zwraca wydarzenia odpowiednie tylko dla wybranego uzytkownika
+	wydarzenia = filtrujNoweWydarzenia(student) #zwraca wydarzenia odpowiednie tylko dla wybranego uzytkownika
 	wydarzeniaUz = uzytkownik.wydarzenie_set.all() #zbior wydarzen znajdujacych sie w kalendarzu uzytkownika
 	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) #pokazanie tylko tych wydarzen, ktorych nie ma w kalendarzu uzytkownika
 	wydarzenia = wydarzenia.filter(dataWydarzenia__gte = datetime.date.today())
@@ -76,6 +76,7 @@ def dodajShout(request, wiadomosc):
 	return HttpResponseRedirect("/media/html/shoutbox.html")
 
 
+# Dodanie wydarzenia z listy do własnego kalendarza
 def dodajWydDoKalendarza(request, idWyd):
 	try:
 		uzytkownik = uzSesja(request)
@@ -88,31 +89,7 @@ def dodajWydDoKalendarza(request, idWyd):
 		return HttpResponse('Fail')
 		
 
+# Zmiana shoutboxa na inny kierunek (zmiana id w sesji)
 def zamienStudenta(request, idS):
 	request.session['studentId'] = idS
 	return zaladujShoutbox(request)
-
-def filtrujNoweWydarzenia(request):
-    student = studSesja(request)
-    uzytkownik = uzSesja(request)
-    kierStudenta = student.kierunek
-    wydzStudenta = student.kierunek.wydzial
-    semStudenta = student.semestr
-    rodzStudenta = student.rodzajStudiow
-    wydarzenia = models.Wydarzenie.objects.filter((Q(dodal__kierunek = kierStudenta) & Q(rodzajWydarzenia = 3)) | (Q(dodal__kierunek__wydzial = wydzStudenta) & Q(rodzajWydarzenia = 2)) |
-                                                  (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) |
-                                                  (Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5)) )
-    return wydarzenia
-'''
-def filtrujNoweWydarzenia(request):
-	#uzytkownik = uzSesja(request)
-	uzytkownik = models.Uzytkownik.objects.get(id = 8)
-	studenci = uzytkownik.student_set.all()
-	studenciId = studenci.values_list('id', flat = True)
-	kierStudenta = student.kierunek
-	wydzStudenta = student.kierunek.wydzial
-	semStudenta = student.semestr
-	rodzStudenta = student.rodzajStudiow
-	wydarzenia = models.Wydarzenie.objects.filter((Q(dodal__kierunek = kierStudenta) & Q(rodzajWydarzenia = 3)) | (Q(dodal__kierunek__wydzial = wydzStudenta) & Q(rodzajWydarzenia = 2)) | (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) | Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5))
-	return wydarzenia
-'''

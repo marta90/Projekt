@@ -18,12 +18,11 @@ urlpatterns = patterns('',
     (r'^sendEmail$', views.wyslijEmail),                        #widok obslugujacy wysylanie maila do admina
     (r'^registration$', views.rejestruj),                       #widok obslugujacy przejscie do strony "registration.html"
     (r'^register$', views.zarejestruj),                         #widok obslugujacy transakcje rejestrowania
-    (r'^lostPassword$', views.przypomnijHaslo),
-    (r'^newPassword/(.*)/(.*)$', views.ustawNoweHaslo),
-    #(r'^saveNewPassword$', views.zapiszNoweHaslo),
-    (r'^repeatVerification$', views.przeslijAktywatorPonownie),
-    (r'^changePassword$', views.zapiszNoweHaslo),
-    (r'^changePasswordAccount$', views.zmienHaslo),
+    (r'^lostPassword$', views.przypomnijHaslo),                 
+    (r'^newPassword/(.*)/(.*)$', views.ustawNoweHaslo),        
+    (r'^repeatVerification$', views.przeslijAktywatorPonownie), 
+    (r'^changePassword$', views.zapiszNoweHaslo),               
+    (r'^changePasswordAccount$', views.zmienHaslo),             
     (r'^confirm/(.*)/(.*)$', views.potwierdzRejestracje),       #potwierdzenie rejestracji poprzez link aktywacyjny
     (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
     
@@ -43,13 +42,9 @@ urlpatterns = patterns('',
     (r'^getEventsAndroid$', views.mojeWydarzeniaAND),                               #przeslanie do And. zblizajacych sie wydarzen
     (r'^getLastEventsAndroid$', views.ostatnieWydarzeniaAND),                       #przeslanie do And. ostatnio dodanych wydarzen
     (r'^getTeachersAndroid$', views.listaWykladowcowAND),                           #przeslanie do And. listy wykladowcow
-   # (r'^getTeachersTutorialsAndroid$', views.konsultacjeWykladowcowAND),            #przeslanie do And. konsultacji wybranego wykladowcy
-   # (r'^getTeachersTimetablesAndroid$', views.planyWykladowcowAND),                 #przeslanie do And. planu wybranego wykladowcy
-   # (r'^getBuildingsAndroid$', views.budynkiAND),
-   # (r'^getCoursesAndroid$', views.kursyAND),  
     (r'^shoutAndroid$', views.dodajWShoutboxieAND),
     (r'^logInAndroid$', views.logowanieAND),
-	(r'^accountAndroid$', views.daneStudentaAND),
+    (r'^accountAndroid$', views.daneStudentaAND),
     (r'^addEventToCalendarAndroid$', views.dodajWydDoKalendarzaAND),
     (r'^getShoutboxAndroid$', views.shoutboxAND),
     (r'^getCalendarAndroid$', views.kalendarzAND),
@@ -57,7 +52,6 @@ urlpatterns = patterns('',
     (r'^changePswdLoginAndroid$', views.zmianaHaslaPrzyLogowaniuAND),
     (r'^sendActivatorAndroid$', views.przeslijAktywatorPonownieAND),
     (r'^qrCodeAndroid$', views.dodajZQrAND),
-    (r'^qrCodeAndroid/(.*)/(.*)$', views.dodajZQrGetAND),
     (r'^qrAndroid/(.*)$', views.qrAND),
     (r'^addEventAndroid$', views.dodajWydarzenieAND),
     (r'^switchSpec/(.*)$', views.zamienStudenta),
@@ -72,7 +66,7 @@ urlpatterns = patterns('',
     (r'^media/html/map.html$', views.zaladujMape),
     (r'^media/html/account.html$', views.zaladujKonto),
     (r'^media/html/registration.html$', views.zaladujRejestracje),
-    (r'^media/html/changePassword.html$', views.zaladujZmianaHasla),
+    (r'^media/html/changePassword.html$', views.zaladujZmianeHasla),
     
     (r'^css/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/css')}),
     (r'^img/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/img')}),

@@ -44,6 +44,7 @@ def dodajWShoutboxieAND(request):
 			return HttpResponse('-4')
 	return HttpResponse("Fail")
 
+
 # Android - wyświetlenie wiadomości z shoutboxa
 def shoutboxAND(request):
 	if post(request):
@@ -57,7 +58,6 @@ def shoutboxAND(request):
 													  student__rodzajStudiow = stopien,
 													  student__semestr = semestr).order_by('data')[:10]
 			shoutbox = shoutbox.reverse()
-	
 			idSt = shoutbox.values_list('student_id', flat = True)
 			studenci = models.Student.objects.filter(id__in = idSt)
 			idUzShoutboxa = studenci.values_list('uzytkownik_id', flat=True)
@@ -71,28 +71,7 @@ def shoutboxAND(request):
 	else:
 		return HttpResponse("Fail")
 
-'''
-# Android - wyświetlenie wiadomości z shoutboxa
-def shoutboxAND(request):
-	if post(request):
-		student = studPost(request)
-		stopien = student.rodzajStudiow
-		semestr = student.semestr
-		kierunek = student.kierunek
-		shoutbox = models.Shoutbox.objects.filter(kierunek = kierunek,
-												  rodzajStudiow = stopien,
-												  semestr = semestr).order_by('data')[:10]
-		shoutbox = shoutbox.reverse()
-		idUzShoutboxa = shoutbox.student.values_list('uzytkownik_id', flat=True)
-		uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
-		obiekt = list(shoutbox) + list(uz)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik'))
-		return HttpResponse(wynik, mimetype="application/json")
-	else:
-		return HttpResponse("Failed")
 
-'''
 # Android - wyswietlenie planu zajec - przeslanie grup
 def planAND(request):
 	if post(request):
@@ -123,8 +102,7 @@ def planAND(request):
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
 
-
-		
+	
 # Android - wyswietlenie zblizajacych sie wydarzen
 def mojeWydarzeniaAND(request):
 	if post(request):
@@ -143,25 +121,13 @@ def mojeWydarzeniaAND(request):
 	return HttpResponse("Fail")
 
 
-def filtrujNoweWydarzeniaAND(st):
-    student = st
-    uzytkownik = student.uzytkownik
-    kierStudenta = student.kierunek
-    wydzStudenta = student.kierunek.wydzial
-    semStudenta = student.semestr
-    rodzStudenta = student.rodzajStudiow
-    wydarzenia = models.Wydarzenie.objects.filter((Q(dodal__kierunek = kierStudenta) & Q(rodzajWydarzenia = 3)) | (Q(dodal__kierunek__wydzial = wydzStudenta) & Q(rodzajWydarzenia = 2)) |
-                                                  (Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) |
-                                                  (Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5)) )
-    return wydarzenia
-
 # Android - wyswietlenie ostatnio dodanych wydarzen
 def ostatnieWydarzeniaAND(request):
 	if post(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
 		if not czyZmienicHaslo(uzytkownik):
-			wydarzenia = filtrujNoweWydarzeniaAND(student) #zwraca wydarzenia odpowiednie tylko dla wybranego uzytkownika
+			wydarzenia = filtrujNoweWydarzenia(student) #zwraca wydarzenia odpowiednie tylko dla wybranego uzytkownika
 			wydarzeniaUz = uzytkownik.wydarzenie_set.all() #zbior wydarzen znajdujacych sie w kalendarzu uzytkownika
 			wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) #pokazanie tylko tych wydarzen, ktorych nie ma w kalendarzu uzytkownika
 			wydarzenia = wydarzenia.filter(dataWydarzenia__gte = datetime.date.today())
@@ -199,7 +165,23 @@ def listaWykladowcowAND(request):
 	lista = list(kursy) + list(wykladowcy) + list(konsultacje) + list(grupy) +list(budynki)
 	
 	json_serializer = serializers.get_serializer("json")()
-	wynik = json_serializer.serialize(lista, ensure_ascii=False)
+	wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('id',
+																		   'nazwa',
+																		   'rodzaj',
+																		   'nazwisko',
+																		   'imie',
+																		   'tytul',
+																		   'konflikt',
+																		   'prowadzacy_id',
+																		   'dzienTygodnia',
+																		   'parzystosc',
+																		   'godzinaOd',
+																		   'godzinaDo',
+																		   'budynek_id',
+																		   'sala',
+																		   'inneInformacje',
+																		   'miejsce',
+																		   'kurs_id'))
 	return HttpResponse(wynik, mimetype="application/json")
 
 
@@ -220,6 +202,7 @@ def kalendarzAND(request):
 	return HttpResponse("Fail")
 
 
+#Logowanie na Androidzie
 def logowanieAND(request):
 	if post(request):
 		nickPost = request.POST['login']
@@ -240,7 +223,7 @@ def logowanieAND(request):
 					else:
 						return HttpResponse('-3') # konto nieaktywne
 				else:
-					return HttpResponse('-5')
+					return HttpResponse('-5') # uzytkownik nie jest studentem
 			else:
 					return HttpResponse('-2') # bledny login lub haslo
 		except:
@@ -249,6 +232,7 @@ def logowanieAND(request):
 			return HttpResponse('-1') # blad wyslania
 
 
+# Zmiana hasla przy logowaniu (wymuszona - mineło ponad 30 dni)
 def zmianaHaslaPrzyLogowaniuAND(request):
 	if post(request):
 		dane = request.POST.copy()
@@ -276,11 +260,11 @@ def zmianaHaslaPrzyLogowaniuAND(request):
 				return HttpResponse('-7') # haslo nie spelnia wymagan
 		else:
 			return HttpResponse('-2') #bledny login lub haslo
-		
 	else:
 		return HttpResponse('-1') #blad wyslania
 	
 
+# Ponowne wysłanie akrtywatora
 def przeslijAktywatorPonownieAND(request):
 	print('Wywolalo')
 	if post(request) and 'login' in request.POST.keys():
@@ -303,17 +287,24 @@ def przeslijAktywatorPonownieAND(request):
 			return HttpResponse("-2") #bledny login
 	return HttpResponse("0") #wyslano aktywator ponownie
 
+
+# Wysłanie danych studenta
 def daneStudentaAND(request):
 	if post(request):
 		student = studPost(request)
 		uzytkownik = student.uzytkownik
-		razemUzytStud = [student, uzytkownik]
+		listaUz = [uzytkownik]
+		studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
+		kierunki = models.Kierunek.objects.filter(student__in = studenci)
+		wydzialy = models.Wydzial.objects.filter(kierunek__in = kierunki)
+		lista = listaUz + list(studenci) + list(kierunki) + list(wydzialy)
 		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(razemUzytStud, ensure_ascii=False)
+		wynik = json_serializer.serialize(lista, ensure_ascii=False)
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
 
 
+# Dodawanie gotowych wydarzen do kalendarza
 def dodajWydDoKalendarzaAND(request):
 	try:
 		if post(request):
@@ -327,6 +318,7 @@ def dodajWydDoKalendarzaAND(request):
 		return HttpResponse("Fail")
 	
 
+# Dodawanie wydarzen z kodu QR
 def dodajZQrAND(request):
 	try:
 		if post(request):
@@ -335,27 +327,15 @@ def dodajZQrAND(request):
 			if (wydarzenie not in uzytkownik.wydarzenie_set.all()):
 				kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = wydarzenie.opis) 
 				kalendarz.save()
-				return HttpResponse('0') #poprawnie zapisano
+				return HttpResponse('0') # poprawnie zapisano
 			else:
 				return HttpResponse('-9')# wydarzenie jest juz w kalendarzu  
 		return HttpResponse('-5') # inny blad 
 	except:
 		return HttpResponse('-5') #inny blad
-	
 
-def dodajZQrGetAND(request, idSt, idWyd):
-	try:
-		uzytkownik = stud(idSt).uzytkownik
-		wydarzenie = models.Wydarzenie.objects.get(id = idWyd)
-		if (wydarzenie not in uzytkownik.wydarzenie_set.all()):
-			kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = wydarzenie.opis) 
-			kalendarz.save()
-			return HttpResponse('Wydarzenie zostało zapisane w Twoim kalendarzu.') #poprawnie zapisano
-		else:
-			return HttpResponse('To wydarzenie znajduje się już w Twoim kalendarzu.')# wydarzenie jest juz w kalendarzu  
-	except:
-		return HttpResponse('Wystąpił nieoczekiwany błąd. Skontaktuj się z administratorem.') #inny blad
 	
+# Przeslanie informacji o wydarzeniu na podstawie id wydarzenia pobranego z kodu QR	
 def qrAND(request, idWyd):
 	wydarzenie = models.Wydarzenie.objects.filter(id = idWyd)
 	json_serializer = serializers.get_serializer("json")()
@@ -363,6 +343,7 @@ def qrAND(request, idWyd):
 	return HttpResponse(wynik, mimetype="application/json")
 
 
+# Tworzenie nowego wydarzenia
 def dodajWydarzenieAND(request):
 	if post(request):
 		dane = request.POST.copy()

@@ -20,17 +20,14 @@ from django.db.models import Q
 from django.utils import simplejson
 from serwis.zpi.mainFunctions import *
 
+##########################################################################################
+# WTF???
 
+def zaladujZmianeHasla(request):
+	return render_to_response('changePassword.html')
 
 ############### EDYCJA KONTA ##############################################################
 
-def zaladujZmianaHasla(request):
-	return render_to_response('changePassword.html')
-
-def testphp(request):
-	for x in request.POST:
-		print(request.POST[x])
-	return HttpResponse('ok')
 
 # Zaladowanie strony account.html do diva na stronie glownej
 def zaladujKonto(request):
@@ -39,14 +36,14 @@ def zaladujKonto(request):
 	studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
 	ileKierunkow = studenci.count()
 	wydzialy = models.Wydzial.objects.all()
-	wydzialyId = wydzialy.values_list('id', flat = True)
 	kierunki = models.Kierunek.objects.all().order_by('nazwa')
 	return render_to_response('account.html', {'studenci':studenci, 'uzytkownik':uzytkownik, 'wydzialy':wydzialy, 'ileKierunkow':ileKierunkow, 'kierunki':kierunki})
 
 
+# Edycja danych - wywolana ajaxem - zwraca 'Ok' lub 'Fail'
 def edytujDane(request):
 	if post(request):
-		print("----------------------------------------------")
+		print("---------- Rozpoczyna się edycja danych --------")
 		print('W poscie otrzymano nastepujace klucze:')
 		uzytkownik = uzSesja(request)
 		studenci = uzytkownik.student_set.all()
@@ -65,7 +62,7 @@ def edytujDane(request):
 				zmiany = True
 				print('Imie ok')
 			else:
-				print('blad w imieniu')
+				print('Blad w imieniu')
 				return HttpResponse('Fail')
 		
 		if 'nazwisko' in dane:
@@ -75,7 +72,7 @@ def edytujDane(request):
 				zmiany = True
 				print('Nazwisko ok')
 			else:
-				print('blad w nazwisku')
+				print('Blad w nazwisku')
 				return HttpResponse('Fail')
 		
 		if 'ileWydarzen' in dane:
@@ -85,40 +82,40 @@ def edytujDane(request):
 				zmiany = True
 				print('Wydarzenia ok')
 			else:
-				print('blad w ilosci wydarzen')
-				bledy.append('ileWydarzen ')
+				print('Blad w ilosci wydarzen')
+				return HttpResponse('Fail')
 		
 		for s in studenci:
 			semestr = 'semestr'+str(s.id)
 			kierunek = 'kierunek'+str(s.id)
 			stopien = 'stopien'+str(s.id)
-			print('zaraz sprawdz kierunki itpdd')
+			print('Sprawdzam kierunki studenta')
 			if semestr in dane and kierunek in dane and stopien in dane:
-				print('da te dane')
+				print('Nastapila proba zmiany kierunku dla studenta nr ' + str(s.id))
 				if sprSemestr(dane[kierunek], dane[stopien], dane[semestr]):
 					s.semestr = int(dane[semestr])
 					s.kierunek_id = int(dane[kierunek])
 					s.rodzajStudiow = int(dane[stopien])
 					zmiany = True
-					print('oki')
+					print('Kierunek, semestr i stopien ok')
 				else:
-					print('blad w kierunku itp')
+					print('Blad w kierunku, semestrze lub stopniu')
 					return HttpResponse('Fail')
 					
 			
 		if zmiany:
+			print('Wprowadzono zmiany w koncie')
 			uzytkownik.ktoZmienilDane.id = uzytkownik.id
 			uzytkownik.dataOstZmianyDanych = datetime.date.today()
-			print('mhmm')
 			for s in studenci:
 				s.save()
 			uzytkownik.save()
-			print('udalo sie')
+			print('Zmiany zostały zapisane. KONIEC')
 			return HttpResponse('Ok')
 		else:
 			return HttpResponse('0')
 
-
+# Zmiana hasla - wywolana ajaxem - zwraca numer określający odpowiedź (0-5)
 def zmienHaslo(request):
 	if post(request):
 		dane = request.POST.copy()
@@ -149,117 +146,7 @@ def zmienHaslo(request):
 	return HttpResponse('5')
 			
 
-
-def edytujDane2(request):
-	if post(request):
-		student = studPost(request)
-		dane = ['fld_old_pass', 'fld_new_pass', 'fld_new_pass2', 'fld_name', 'fld_lastName', 'select_semester', 'select_specialization', 'select_type', 'sbox_events']
-		postPelny = saWPoscie(request, dane)
-		if postPelny:
-			stareHaslo = request.POST['fld_old_pass']
-			haslo = request.POST['fld_new_pass']
-			haslo2 = request.POST['fld_new_pass2']
-			imie = request.POST['fld_name']
-			nazwisko = request.POST['fld_lastName']
-			semestr = request.POST['select_semester']
-			kierunek = request.POST['select_specialization']
-			stopienStudiow = request.POST['select_type']
-			ileWydarzen = request.POST['sbox_events']
-			poprawnosc = sprawdzDaneDoEdycji(imie, nazwisko, haslo, haslo2, stareHaslo, semestr, kierunek, stopienStudiow, ileWydarzen, hasloUzytkownika)
-			if(poprawnosc):
-				
-				zmianaHasla = False
-				
-				if student.uzytkownik.imie != imie:
-					student.uzytkownik.imie = imie
-				
-				if student.uzytkownik.nazwisko != nazwisko:
-					student.uzytkownik.nazwisko = nazwisko
-				
-				if not sha256_crypt.verify(haslo, student.uzytkownik.haslo):
-					student.uzytkownik.haslo = sha256_crypt.encrypt(haslo)
-					zmianaHasla = True
-					
-				if student.semestr != semestr:
-					student.semestr = semestr
-					
-				if student.kierunek.id != kierunek:
-					student.kierunek.id = kierunek
-				
-				if student.rodzajStudiow != stopienStudiow:
-					student.rodzajStudiow = stopienStudiow
-					
-				if student.uzytkownik.ileMoichWydarzen != ileWydarzen:
-					student.uzytkownik.ileMoichWydarzen = ileWydarzen
-					
-				if zmianaHasla:
-					uzytkownik.dataOstZmianyHasla = datetime.date.today()
-				
-				student.uzytkownik.ktoZmienilDane = student.uzytkownik.id
-				student.uzytkownik.dataOstZmianyDanych = datetime.date.today()				
-				student.save()
-				student.uzytkownik.save()
-								
-				request.session['komRej'] = '1' # Pomyslny przebieg rejestracji
-				return HttpResponseRedirect('/')
-			else:
-				request.session['komRej'] = '2' # Dane nie spelniaja ograniczen
-				return HttpResponseRedirect('/')
-		else:
-			request.session['komRej'] = '3' # Nie podano wszystkich danych
-			return HttpResponseRedirect('/')
-	else:
-		request.session['komRej'] = '4' # Blad wysylania
-		return HttpResponseRedirect('/')
-
-
-def sprImie(imie):
-	imieOk = pasuje("^([a-zA-Z '-]+)$", imie)
-	return imieOk and len(imie)>=2
-
-
-def sprNazwisko(nazwisko):
-	nazwiskoOk = pasuje("^([a-zA-Z '-]+)$", nazwisko)
-	return nazwiskoOk and len(nazwisko)>=2
-
-
-def sprHasloZeStarym(haslo, haslo2, stareHaslo, hasloUz):
-	print('1')
-	hasloOk = pasuje('^(?!.*(.)\1{3})((?=.*[\d])(?=.*[A-Za-z])|(?=.*[^\w\d\s])(?=.*[A-Za-z])).{8,20}$', haslo)
-	print('2')
-	hasloOk = hasloOk and (haslo == haslo2)
-	print('3')
-	hasloOk = hasloOk and sha256_crypt.verify(stareHaslo, hasloUz)
-	print('4')
-	return hasloOk
-
-def sprWydarzenia(ileWydarzen):
-	wydarzeniaOk = (ileWydarzen == '0' or ileWydarzen == '1' or ileWydarzen == '3' or ileWydarzen == '7' or ileWydarzen == '14' or ileWydarzen == '28')
-	return wydarzeniaOk
-
-def sprSemestr(kierunek, stopien, semestr):
-	try:
-		kierunekOk = models.Kierunek.objects.get(id = kierunek)
-	except:
-		return False
-	
-	stopienInt = pasuje('\d+', stopien)
-	semestrInt = pasuje('\d+', semestr)
-	if ((stopienInt == False) | (semestrInt == False)):
-		return False	
-	if (int(stopien) == 1):
-		max = kierunekOk.liczbaSemestrow1st
-		if(int(semestr) > max | int(semestr) < 1 ):
-			return False
-	elif (int(stopien) == 2):
-		max = kierunekOk.liczbaSemestrow2stPoInz
-		if(int(semestr) > max | int(semestr) < 1 ):
-			return False
-	else:
-		return False
-	return True
-
-#Wysyłanie maila do admina
+#Wysyłanie maila do admina, gdy nie mozna zmienic pewnych danych w koncie - wywolane ajaxem - zwraca 'Ok' lub 'Fail'
 def wyslijEmailZProsba(request):
 	try:
 		do = "pwrtracker@gmail.com"
@@ -277,5 +164,3 @@ def wyslijEmailZProsba(request):
 		return HttpResponse('Ok')
 	except:
 		return HttpResponse('Fail')
-	
-	

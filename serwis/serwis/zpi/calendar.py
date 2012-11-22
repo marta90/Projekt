@@ -32,6 +32,7 @@ def zaladujKalendarz(request):
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
 
+# Dodawanie wydarzen - wywolane ajaxem - zwraca 'Ok' lub 'Fail'
 def dodajWydarzenie(request):
 	if post(request):
 		dane = request.POST.copy()
@@ -131,56 +132,4 @@ def dodajWydarzenie(request):
 		return HttpResponse('Ok')
 	else:
 		return HttpResponse('Fail')
-		
-def sprNazweWyd(nazwa):
-	if len(nazwa) >0 and len(nazwa)<21:
-		return True
-	else:
-		return False
-	
-def sprOpisWyd(opis):
-	if len(opis) >0 and len(opis)<101:
-		return True
-	else:
-		return False
-	
-def sprGodzine(godzina):
-	integer = pasuje('\d+', godzina)
-	if integer and int(godzina)>=0 and int(godzina) <24:
-		return True
-	else:
-		return False
 
-def sprMinute(minuta):
-	integer = pasuje('\d+', minuta)
-	if integer and int(minuta)>=0 and int(minuta) <60:
-		return True
-	else:
-		return False
-	
-def sprRodzaj(rodzaj):
-	if rodzaj == "1" or rodzaj == "2" or rodzaj == "3" or rodzaj == "4" or rodzaj == "5" or rodzaj == "6" or rodzaj == "7":
-		return True
-	else:
-		return False
-	
-def sprGrupe(grupa, uzytkownik):
-	try:
-		print('Id grupy ' + grupa)
-		grupa = models.Grupa.objects.get(id = int(grupa))
-		if grupa in uzytkownik.grupa_set.all():
-			return True
-		else:
-			print('grupa nie jest w planie uzytkownika')
-			return False
-	except:
-		print('nie ma takiej grupy')
-		return False
-
-def sprDate(dzien, miesiac, rok):
-	try:
-		data = datetime.date(int(rok), int(miesiac), int(dzien))
-		return True
-	except:
-		return False
-		

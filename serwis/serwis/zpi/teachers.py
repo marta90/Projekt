@@ -99,6 +99,7 @@ def konsultacjeWykladowcy(request, idw):
 	return response
 
 
+# Wyswietlanie planu wybranego wykladowcy
 def pobierzZajeciaWykladowcy(request, idw, start, end):
     prowadzacy = models.Prowadzacy.objects.get(id = idw)
     wynik = ""          #Zmienna tymczasowa
