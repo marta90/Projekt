@@ -11,6 +11,9 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from serwis.zpi import views
 
+from selenium import selenium
+import unittest, time, re
+
 
 # Create your views here.
 def generujPlan(request):
@@ -20,20 +23,23 @@ def generujPlan(request):
         html = pobierzPlan(user, password)      # Funkcja zwracajaca kod html kursow
         if (html == "no"):
             return HttpResponse("no")
-        if (html == "problem"):
-            return HttpResponse("problem")
+        if (html == "Bledne dane logowania"):
+            return HttpResponse("Bledne dane logowania")
+        if (html == "Zalogowany w innej sesji"):
+            return HttpResponse("Zalogowany w innej sesji")
         else:
-            #html = open('C:\Projekt\serwis\pwrParser\zapis.htm').read()
-            parser = BeautifulSoup(''.join(html))
-            text = ''       #Wypisuje jesli nic nie ma
-            for i in parser.findAll('tr'):
-                # tabelaA - tabela zapisow normalnych, tabelaB - tabela zapisow administracyjnych
-                tabelaA = i.findChildren('a', {'name': re.compile('^hrefZapisaneGrupySluchaczaTabela\d{7}$')}, False) #False wskazuje ze rekursja jest wylaczona
-                tabelaB = i.findChildren('a', {'name': re.compile('^hrefZapisaneAdminGrupySluchaczaTabela\d{7}$')}, False) #False wskazuje ze rekursja jest wylaczona
-                if len(tabelaA) > 0:    # Jesli sa jakies zapisy
-                    zapisyAdministracyjne(request, i, tabelaA[0])
-                if len(tabelaB) >0:
-                    zapisyAdministracyjne(request, i, tabelaB[0])
+            for h in html:
+                #html = open('C:\Projekt\serwis\pwrParser\zapis.htm').read()
+                parser = BeautifulSoup(''.join(h))
+                text = ''       #Wypisuje jesli nic nie ma
+                for i in parser.findAll('tr'):
+                    # tabelaA - tabela zapisow normalnych, tabelaB - tabela zapisow administracyjnych
+                    tabelaA = i.findChildren('a', {'name': re.compile('^hrefZapisaneGrupySluchaczaTabela\d{7}$')}, False) #False wskazuje ze rekursja jest wylaczona
+                    tabelaB = i.findChildren('a', {'name': re.compile('^hrefZapisaneAdminGrupySluchaczaTabela\d{7}$')}, False) #False wskazuje ze rekursja jest wylaczona
+                    if len(tabelaA) > 0:    # Jesli sa jakies zapisy
+                        zapisyAdministracyjne(request, i, tabelaA[0])
+                    if len(tabelaB) >0:
+                        zapisyAdministracyjne(request, i, tabelaB[0])
     else:
         text = 'Nic nie ma'
     request.session['content'] = 'timetable2'
@@ -42,11 +48,12 @@ def generujPlan(request):
 
 # WYLOGOWANIE NA KONIEC
 def pobierzPlan(user, password):
-
+    tablicaHTMLow = []
     commands.add_extra_header('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.6')
     commands.clear_cookies()        # Czyszczenie ciastek
     commands.reset_browser()        #restart przegladarki
     commands.reset_output()
+    #commands.config('use_BeautifulSoup', '0')
     commands.go("https://edukacja.pwr.wroc.pl/EdukacjaWeb/studia.do")   # Przechodzimy do edukacji
     
     commands.showlinks()            # DO USUNIECIA! Pokazuje linki
@@ -59,110 +66,162 @@ def pobierzPlan(user, password):
     print("Linki po submit")                                # DO USUNIECIA! Pokazuje informacje
     commands.showlinks()                                    # DO USUNIECIA! Pokazuje linki
     
-    commands.follow("Zapisy")                               # Przechodzi linkiem na stronę zapisów
+    czyBledneLogowanie = sprawdzCzyBledneLogowanie(commands.show())                  # Sprawdza czy na stronie wystapil blad
+    czyLogowanieWInnejSesji = sprawdzCzyLogowanieWInnejSesji(commands.show())
+    if (czyBledneLogowanie == True):
+        return "Bledne dane logowania"
+    if (czyLogowanieWInnejSesji == True):
+        return "zalogowany w innej sesji"
+    commands.follow("zapisy.do")                               # Przechodzi linkiem na stronę zapisów
     
     # DO USUNIECIA! Pokazuje stronę po kliknięciu zapisy!
     print("Co po kliknieciu Zapisy")
+    #commands.show()
     commands.showlinks()
     print "Forms:"
     formsy = commands.showforms()
 
-    # Szuka w linkach tego przenoszącego na odpowiedni semestr.
-    dateToday = datetime.date.today()
-    firstOctober = datetime.date(dateToday.year, 10, 1)
+
     links = commands.showlinks()                            # Pobiera linki z danej strony 
-
-    #control = commands.browser.get_form("1").find_control('ineSluId', type="select")
-
-    #MOŻĘ TO JEST DOBRZE!!
+    control = None
+    values = None
+    select_options = None
+    control = commands.browser.get_form("1").find_control('ineSluId', type="select")
+    
+    if(control != None):                                    # Jesli na stronie jest select
+        values = pobierzElementySelect(commands.show())     # Pobieram parserem wartosci selecta
+        select_options = utworzTabeleSelect(values)         # Tworze nowy select podmieniajac stary
+        select_attrs = {'id': 'some_id'}                    # Tworze atrybuty nowego selecta
+        for v in values:                                    # Lece petla po wartosciach selecta
+            form = commands.get_browser().get_form("1")                                     # Pobieram formularz
+            ct = commands.browser.get_form("1").find_control('ineSluId', type="select")     # Pobieram kontrolke z selectem
+            add_select_to_form(form, 'ineSluId', select_attrs, select_options)              # Tworze nowego selecta
+            form.fixup()                                                                    # Sprawdzam czy cos nowego nie zostało dodanego do form
+            commands.showforms()
+            
+            commands.formvalue("1", ct.name, v.strip())                                     # Podaje wartosc dla selecta
+            commands.submit('0')                                                            # Klikam submit
+            html = pobierzZajecia(commands)                                                 # Pobieram zajecia
+            commands.follow("zapisy.do")                                                    # Wracam do strony zapisów
+            
+            #commands.sleep(6)
+            if (html != "skreslony z kierunku"):            # Jesli funkcja zwrocila ze jest ktos skreslony to nie dodaje htmlu
+                tablicaHTMLow.append(html)                  # Jeli nie zwrocila takiego komunikatu to dodajemy ten html do tablicy
+    else:
+        html = pobierzZajecia(commands)                     # Jesli nie ma selecta to pobieramy zajeci z tego kierunku i juz :D
+        if (html != "skreslony z kierunku"):
+            tablicaHTMLow.append(html)
+            
     #print control.name, control.value, control.type
     #item = control.get("172748")
     #print item.name, item.selected, item.id, item.attrs
-    #item.attrs['value'] = "122191"
-    #print item.name, item.selected, item.id, item.attrs
     
+    #new_options
+    #commands.formclear('1')
+    #
+    #
+    #form = commands.get_browser().get_form("1")
+    #
+    #print('TO JEST TEN FORM:')
+    #print(form)
+    #print(len(form.controls))
+    #
+    #notIsSelect = True
     
-    form = commands.get_browser().get_form("1")
-    print('TO JEST TEN FORM:')
-    print(form)
-    print(len(form.controls))
-    notIsSelect = True
-    for ct in form.controls:
-        print(ct)
-        if ct.name == 'ineSluId':
-            print('JESTEM')
-            notIsSelect = False
-            #alert("Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.")
-            wyloguj(commands)
-            commands.browser.clear_cookies()        #usuwanie ciasteczek
-            commands.reset_browser()        #restart przegladarki
-            commands.reset_output()
-            return "no"
-            #print("JEST")
-            #for itm in range(0, len(ct.possible_items())):
-            #    print("To jest->" + str(ct.possible_items()[itm]))
+    #for ct in form.controls:
+    #    #print(ct)
+    #    if ct.name == 'ineSluId':
+    #        notIsSelect = False
+    #        print('JESTEM')
+    #        commands.sleep(3)
+    #        
+    #        select_attrs = {'id': 'some_id'}
+    #        values = pobierzElementySelect(commands.show())
+    #        select_options = utworzTabeleSelect(values)
+    #        print(values)
+    #        print(select_options)
+    #        
+    #        
+    #        for v in values:
+    #            #form.fixup()
+    #            add_select_to_form(form, 'ineSluId', select_attrs, select_options)
+    #            form.fixup()
+    #            #ct.get(v).selected = True
+    #            print(ct)
+    #            print(form)
+    #            print(v)
+    #            commands.showforms()
+    #            
+    #            commands.formvalue("1", ct.name, v.strip())            # Podaje login
+    #            print("JEEDEFE")
+    #            commands.submit('0')
+    #            html = pobierzZajecia(commands)
+    #            commands.follow("zapisy.do")
+    #            print("JEEEEEEEEESSSSSTTTTTEEEEEMMM")
+    #            
+    #            commands.sleep(6)
+    #            if (html != "skreslony z kierunku"):
+    #                tablicaHTMLow.append(html)
+                #ct.get(v).selected = False
+                
+                
+                
+                
             
-            #WYBIERANIE POTEM TEGO SELECTA!
-            #commands.formvalue('1', 'ineSluId', '172748')            # Podaje login
-            #commands.submit('0')                                    # Klika zaloguj
-    
-    if(notIsSelect):
-        print("Po wybraniu")
-        links = commands.showlinks()                            # Pobiera linki z danej strony
-        commands.showforms()
-        
-        if dateToday > firstOctober:                            # Jesli dzisiaj jest wiekszy niz 1 Pazdziernika
-            #Semestr zimowy
-            for link in links:
-                ktory = 0
-                if link.text=='' + str(dateToday.year) + '/' + str(dateToday.year+1) + '':  # Szukamy linka o tytule (rok/rok+1)
-                    ktory = ktory + 1
-                    if ktory == 1:                              # Znalazł!
-                        commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
-        else:
-            #Semest letni
-            for link in links:
-                ktory = 0
-                if link.text=='' + str(dateToday.year)+ '/' + str(dateToday.year+1) + '':   # Szukamy linka o tytule (rok/rok+1)
-                    ktory = ktory + 1
-                    if ktory == 2:                              # Znalazł!
-                        commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
-        
-        # DO USUNIECIA! Pokazuje stronę po kliknięciu danego semestru!
-        print("Co po kliknieciu semestru:")
-        commands.showlinks()
-        print "Forms:"
-        commands.showforms()
-        
-        # Szuka w formularzach tego odpowiadającego za pokazanie zapisanych kursów.
-        forms = commands.showforms()                            # Pobranie formularzy
-        naszForm = None                                         # Zmienna do ktorej zapiszemy znaleziony przez nas form
-        for form in forms:                                      # Petla po formualrzach
-            if form.action == 'https://edukacja.pwr.wroc.pl/EdukacjaWeb/zapisy.do?href=#hrefZapisySzczSlu':     # Jesli akcja danego formularza przenosi do szczegolow
-                naszForm = form                                 # To zapisujemy znaleziony formularz
-        
-        print(naszForm)                                         # DO USUNIECIA! Wypisuje znaleziony formularz
-        
-        ctrl = naszForm.controls                                                # pobieram ze znalezionego formularza wszystkie kontrolki
-        for ct in ctrl:
-            if ct.type == 'submit':                                             # szukam wsrod niej tej co ma typ submit
-                commands.get_browser().clicked(naszForm, ct.attrs['name'])      # klikam na ten przycisk
-                commands.get_browser().submit()
-        
-        
-        print("Co po kliknieciu szczegoly zajec")
-        commands.showlinks()
-        print "Forms:"
-        commands.showforms()
-        content = commands.show()
-        wyloguj(commands)
-        commands.browser.clear_cookies()        #usuwanie ciasteczek
-        commands.reset_browser()        #restart przegladarki
-        commands.reset_output()
-    
-        return content
+            #for ct2 in form.controls:
+            #    if ct2.type == 'submit':                                             # szukam wsrod niej tej co ma typ submit
+            #        commands.get_browser().clicked(form, ct2.attrs['name'])      # klikam na ten przycisk
+            #        commands.get_browser().submit()
+            
+            #links = commands.showlinks()
+            #commands.back()
+            #commands.showforms()
+            
 
-    
+            #return "no"
+
+    #if (notIsSelect == True):
+    #    html = pobierzZajecia(commands)
+    #    if (html != "skreslony z kierunku"):
+    #        tablicaHTMLow.append(html)
+
+    wyloguj(commands)
+    commands.browser.clear_cookies()        #usuwanie ciasteczek
+    commands.reset_browser()        #restart przegladarki
+    commands.reset_output()
+
+    return tablicaHTMLow
+
+def add_select_to_form(form, name, attrs, options):
+    """
+    Add a <select>...</select> to a given mechanize.HTMLForm object.
+   
+    Args:
+        form: A mechanize.HTMLForm object.
+        name: The value for the 'name' attribute of the <select> element.
+        attrs: Attributes dictionary for the <select> element.
+        options:  list of tuples, one for each <option> element; each tuple is
+            in the form (value, description, selected):
+                value: the 'value' attribute of the element
+                description: the text between <option> and </option>
+                selected: a boolean (remember to add 'multiple' to attrs
+                    if more than one option is selected).
+   
+    Returns:
+        Nothing.
+    """
+    form.new_control('select', name, attrs={'__select': attrs})
+    for idx, option in enumerate(options):
+        value, description, selected = option
+        new_attrs = {
+            '__select': attrs,
+            'value': value,
+            'contents': description,
+        }
+    if selected:
+        new_attrs['selected'] = 'selected'
+    form.new_control('select', name, attrs=new_attrs, index=idx)
+
 def wyloguj(commands):
     
     forms = commands.showforms()                            # Pobranie formularzy
@@ -171,7 +230,7 @@ def wyloguj(commands):
         if form.action == 'https://edukacja.pwr.wroc.pl/EdukacjaWeb/logOutUser.do':     # Jesli akcja danego formularza przenosi do szczegolow
             naszForm = form                                 # To zapisujemy znaleziony formularz
     
-    print(naszForm)                                         # DO USUNIECIA! Wypisuje znaleziony formularz
+    #print(naszForm)                                         # DO USUNIECIA! Wypisuje znaleziony formularz
     
     ctrl = naszForm.controls                                                # pobieram ze znalezionego formularza wszystkie kontrolki
     for ct in ctrl:
@@ -179,7 +238,99 @@ def wyloguj(commands):
             commands.get_browser().clicked(naszForm, ct.attrs['name'])      # klikam na ten przycisk
             commands.get_browser().submit()
     
+def sprawdzCzyBledneLogowanie(html):
+    parser = BeautifulSoup(''.join(html))
+    czyBlad = parser.findAll(text=re.compile('Niepowodzenie logowania'))
+    if (len(czyBlad) != 0):
+        return True
+    else:
+        return False
     
+def sprawdzCzyLogowanieWInnejSesji(html):
+    parser = BeautifulSoup(''.join(html))
+    czyBlad = parser.findAll(text=[re.compile('zalogowany w innej sesji'), re.compile('Konieczne jest ponowne zalogowanie')])
+    if (len(czyBlad) != 0):
+        return True
+    else:
+        return False
+
+def pobierzElementySelect(html):
+    parser = BeautifulSoup(''.join(html))
+    tab = []
+    optionsy = parser.findAll('option')
+    for i in optionsy:
+        tab.append(i['value'].strip())
+    return tab
+
+def utworzTabeleSelect(values):
+    select_options = []
+    for v in values:
+        a = (v, v, False)
+        select_options.append(a)
+    return select_options
+
+def pobierzZajecia(commands):
+    print("Po wybraniu")
+    links = commands.showlinks()                            # Pobiera linki z danej strony
+    commands.showforms()
+    # Szuka w linkach tego przenoszącego na odpowiedni semestr.
+    dateToday = datetime.date.today()
+    firstOctober = datetime.date(dateToday.year, 10, 1)
+    
+    if dateToday > firstOctober:                            # Jesli dzisiaj jest wiekszy niz 1 Pazdziernika
+        #Semestr zimowy
+        for link in links:
+            ktory = 0
+            if link.text=='' + str(dateToday.year) + '/' + str(dateToday.year+1) + '':  # Szukamy linka o tytule (rok/rok+1)
+                ktory = ktory + 1
+                if ktory == 1:                              # Znalazł!
+                    commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
+    else:
+        #Semest letni
+        for link in links:
+            ktory = 0
+            if link.text=='' + str(dateToday.year)+ '/' + str(dateToday.year+1) + '':   # Szukamy linka o tytule (rok/rok+1)
+                ktory = ktory + 1
+                if ktory == 2:                              # Znalazł!
+                    commands.go(link.url)                   # Przechodzimy pod url'sa który się kryje pod tym rokiem
+    
+    # DO USUNIECIA! Pokazuje stronę po kliknięciu danego semestru!
+    print("Co po kliknieciu semestru:")
+    commands.showlinks()
+    print "Forms:"
+    commands.showforms()
+    
+    # Szuka w formularzach tego odpowiadającego za pokazanie zapisanych kursów.
+    forms = commands.showforms()                            # Pobranie formularzy
+    naszForm = None                                         # Zmienna do ktorej zapiszemy znaleziony przez nas form
+    for form in forms:                                      # Petla po formualrzach
+        if form.action == 'https://edukacja.pwr.wroc.pl/EdukacjaWeb/zapisy.do?href=#hrefZapisySzczSlu':     # Jesli akcja danego formularza przenosi do szczegolow
+            naszForm = form                                 # To zapisujemy znaleziony formularz
+    
+    print(naszForm)                                         # DO USUNIECIA! Wypisuje znaleziony formularz
+    if(naszForm != None):                                   # To znaczy ze znalazlo taki rok i ze jeszcze istnieje student na tym kierunku
+        ctrl = naszForm.controls                                                # pobieram ze znalezionego formularza wszystkie kontrolki
+        for ct in ctrl:
+            if ct.type == 'submit':                                             # szukam wsrod niej tej co ma typ submit
+                commands.get_browser().clicked(naszForm, ct.attrs['name'])      # klikam na ten przycisk
+                commands.get_browser().submit()
+    
+        print("Co po kliknieciu szczegoly zajec")
+        commands.showlinks()
+        #commands.sleep(5)
+        print "Forms:"
+        #commands.showforms()
+        content = commands.show()
+        #content =""
+        #commands.browser.clear_cookies()        #usuwanie ciasteczek
+        
+        #print('PRZZEEEEEENIOSLEM')
+        #commands.sleep(5)
+        return content
+    else:
+        #commands.follow("zapisy.do")
+        #print('PRZZEEEEEENIOSLEM')
+        return("skreslony z kierunku")
 
 def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
         czyKursZapisany = None
@@ -294,7 +445,7 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
                 else:
                     dzien = dzienIParz[0]
                     parz = dzienIParz[1]
-                print(dzien)
+                #print(dzien)
                 czyData = re.search('^(\d{2,4})-(\d{2})-(\d{2})$', dzien)   # Od daty zaczyna się dla zaocznych
                 if (czyData == None):
                     godz = listaDG[1].split('-', 1) # oddzielenie godz rozp od zak
