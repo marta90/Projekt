@@ -33,7 +33,7 @@ def zaladujNewsy(request):
 											  student__rodzajStudiow = stopien).order_by('data')[:10]
 	shoutbox = shoutbox.reverse()
 	uzytkownik = student.uzytkownik
-	studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
+	studenci = models.Student.objects.filter(uzytkownik = uzytkownik, uprawnienia__gte = 0)
 	ileKierunkow = studenci.count()
 	dataMin = datetime.date.today()
 	ileWydarzen = uzytkownik.ileMoichWydarzen

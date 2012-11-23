@@ -4,7 +4,7 @@ var firstSem = true;
 var eventsNumber = '{{ uzytkownik.ileMoichWydarzen }}';
 var nameSt = '{{ uzytkownik.imie }}';
 var lastNameSt = '{{ uzytkownik.nazwisko }}';
-var facultyNumber = "";
+var facultyNumber = "x";
 
 
 var facultySt = {};
@@ -23,123 +23,11 @@ levelSt['{{ s.id }}'] = '{{ s.rodzajStudiow }}';
 {% endfor %}
 
 
-function setAsDefault(img)
-{
-	var student = img.name;
-	dane = {}
-	dane['studentId'] = student;
-	$.post("changeDefaultStudent", dane, function(data)
-	{
-		if (data == 'Fail')
-		{
-			alert('Wystąpił błąd, spróbuj ponownie później.');
-			//setTextResponse('responseAcc', 'red', 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.');
-		}
-		else if(data == 'Ok')
-		{
-			alert('Domyślny kierunek został zmieniony');
-			loadContent('account')
-			//setTextResponse('responseAcc', 'black', 'Dane zostały zmienione.');
-		}
-	});
-	
-}
-
-function removeStudent(img)
-{
-	var student = img.name;
-	dane = {}
-	dane['studentId'] = student;
-	var domyslny = "{{ uzytkownik.domyslny }}";
-	if (student != domyslny)
-	{
-		if(confirm("Czy na pewno chcesz usunąć ten kierunek?"))
-		{
-			$.post("removeStudent", dane, function(data)
-			{
-				if (data == 'Fail')
-				{
-					alert('Wystąpił błąd, spróbuj ponownie później.');
-					//setTextResponse('responseAcc', 'red', 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.');
-				}
-				else if(data == 'Ok')
-				{
-					alert('Kierunek został wyłączony.');
-					loadContent('account');
-					//setTextResponse('responseAcc', 'black', 'Dane zostały zmienione.');
-				}
-			});
-		}
-	}
-	else
-	{
-		alert('Nie możesz usunąć domyślnego kierunku. Wybierz inny kierunek domyślny i spróbuj ponownie.');
-	}
-}
 function refreshFromSpec(sel)
 {
 	var selName = sel.id;
 	facultyNumber = selName.substring(21);
 	getSemesters();
-}
-
-function addNewSpec()
-{
-	dane = {};
-	dane['kierunek'] = document.getElementById('select_specialization').value;
-	dane['semestr'] = document.getElementById('select_semester').value;
-	dane['stopien'] = document.getElementById('select_type').value;
-	
-	$.post("addStudent", dane, function(data)
-	{
-		// 0 - poprawna zmiana hasła
-		// 1 - juz jest ten semestr
-		// 2 - wystąpił błąd
-		if (data == '0')
-		{
-			alert('Dodano kierunek.');
-			loadContentAfter('account', function(){
-				var settingsDiv = document.getElementById('settings_account');
-				var specializationDiv = document.getElementById('specs_account');
-				settingsDiv.style.display='none';
-				specializationDiv.style.display='block';	
-			});
-
-			/*
-			document.getElementById('fld_old_pass').value = "";
-			document.getElementById('fld_new_pass').value = "";
-			document.getElementById('fld_new_pass2').value = "";
-			setTextResponse('responsePass', 'black', 'Hasło zostało zmienione.');
-			*/
-			
-			
-		}
-		else if (data == '1')
-		{
-			alert('Jesteś już zapisany na wybrany kierunek.');
-			//setTextResponse('responsePass', 'red', 'Podane przez Ciebie hasło nie spełnia wymagań.');
-		}
-		else if (data == '2')
-		{
-			alert('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.');
-			//setTextResponse('responsePass', 'red', 'Nowe hasło musi być inne niż poprzednie.');
-		}
-	});
-
-}
-
-function showEditSpec(link)
-{
-	var divName = 'edit' + link.name;
-	editDiv = document.getElementById(divName);
-	if (editDiv.style.display == 'none')
-	{
-		editDiv.style.display = 'block';
-	}
-	else
-	{
-		editDiv.style.display = 'none'
-	}
 }
 
 function refreshFromType(sel)
@@ -281,33 +169,11 @@ function setTextResponse(filedId, color, tresc)
 
 function validateAccount()
 {
-	dane = {};
 	updateNameR();
 	updateLastNameR();
 	if(checkNameR() && checkLastNameR())
 	{
-		var nameF = document.getElementById('fld_name').value;
-		var lastNameF = document.getElementById('fld_lastName').value;
-		var eventsF = document.getElementById('sbox_events').value;
-		
-		if (nameF != nameSt)
-		dane['imie'] = nameF
-		
-		if (lastNameF != lastNameSt)
-		dane['nazwisko'] = lastNameF
-		
-		if (eventsF != eventsNumber)
-		dane['ileWydarzen'] = eventsF
-		
-		var changes = size_dict(dane)>0;
-		if (changes)
-		{
-			sendAccountData(dane);
-		}
-		else
-		{
-			setTextResponse('responseAcc', 'black', '<br>');
-		}
+		sendAccountSettings();
 	}
 	else
 	{
@@ -315,9 +181,12 @@ function validateAccount()
 	}
 }
 
-function validateSpec()
+function sendAccountSettings()
 {
 	var dane= {};
+	var nameF = document.getElementById('fld_name').value;
+	var lastNameF = document.getElementById('fld_lastName').value;
+	var eventsF = document.getElementById('sbox_events').value;
 	var sid;
 	var specialF = {};
 	var semesterF = {};
@@ -340,16 +209,26 @@ function validateSpec()
 	{% endfor %}
 	
 	
+
+	if (nameF != nameSt)
+		dane['imie'] = nameF
+		
+	if (lastNameF != lastNameSt)
+		dane['nazwisko'] = lastNameF
+		
+	if (eventsF != eventsNumber)
+		dane['ileWydarzen'] = eventsF
+				
+
 	var changes = size_dict(dane)>0;
 
 	if (changes)
 	{
-		sendSpec(dane);
+		sendAccountData(dane);
 	}
 	else
 	{
-		alert('Dane nie zostaly zmienione');
-		//setTextResponse('responseAcc', 'black', '<br>');
+		setTextResponse('responseAcc', 'black', '<br>');
 	}
 }
 
@@ -365,30 +244,6 @@ function sendAccountData(dane)
 				else if(data == 'Ok')
 				{
 					setTextResponse('responseAcc', 'black', 'Dane zostały zmienione.');
-				}
-			}
-			);
-}
-
-function sendSpec(dane)
-{
-	$.post("changeAccountSettings", dane, function(data)
-			{
-				if (data == 'Fail')
-				{
-					alert('Nie udalo sie');
-					//setTextResponse('responseAcc', 'red', 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.');
-				}
-				else if(data == 'Ok')
-				{
-					alert('Ok');
-					loadContentAfter('account', function(){
-					var settingsDiv = document.getElementById('settings_account');
-					var specializationDiv = document.getElementById('specs_account');
-					settingsDiv.style.display='none';
-					specializationDiv.style.display='block';	
-			});
-					//setTextResponse('responseAcc', 'black', 'Dane zostały zmienione.');
 				}
 			}
 			);
@@ -458,15 +313,13 @@ $(document).keypress(function(event){
  
 });
 */
-
-getSpecializations(document.getElementById('select_faculty'));		
+			
 </script>
 				<div id="left-box-account">
 					<div id="account-scroll">
 						<ul id="account-menu">
-							<li><a href='javascript:;' id="acc-settings" onclick = 'showChoice(this);'>Profil użytkownika</a></li>
+							<li><a href='javascript:;' id="acc-settings" onclick = 'showChoice(this);'>Ustawienia</a></li>
 							<li><a href='javascript:;' id="acc-timetable" onclick = 'showChoice(this);'>Plan zajęć</a></li>
-							<li><a href='javascript:;' id="acc-specs" onclick = 'showChoice(this);'>Kierunki studiów</a></li>
 							<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li> 
 						</ul>
 					</div>
@@ -480,14 +333,14 @@ getSpecializations(document.getElementById('select_faculty'));
 						Aby stworzyć plan zajęć podaj swój login oraz hasło wykorzystywane w systemie Edukacja.CL.<br />
 						Plan tworzy się jednorazowo, a wprowadzone przez Ciebie dane nie będą nigdzie zapisywane.<br /><br />
 							<div id='parserPWR'>
-								<table class="table-account-smaller">
+								<table class="table-account">
 									<tr>
 										<td class="table-left-side">Login:</td>
-										<td class="table-right-side"><input class="account-input-smaller" type="text" name="userPWR" id="userPWR" value="" /></td>
+										<td class="table-right-side"><input class="account-input" type="text" name="userPWR" id="userPWR" value="" /></td>
 									</tr>
 									<tr>
 										<td class="table-left-side">Hasło:</td>
-										<td class="table-right-side"><input class="account-input-smaller" type="password" name="passPwr" id="passPWR" value="" /></td>
+										<td class="table-right-side"><input class="account-input" type="password" name="passPwr" id="passPWR" value="" /></td>
 									</tr>
 								</table>
 							</div>
@@ -512,22 +365,6 @@ getSpecializations(document.getElementById('select_faculty'));
 										<td class="table-right-side"> &nbsp {% for s in studenci %}{% if forloop.first %}<b>{{ s.indeks }}</b>{% endif %}{% endfor %}</td>
 									</tr>
 									<tr>
-										<td class="table-left-side">Kierunek:</td>
-										<td class="table-right-side"> &nbsp {% for s in studenci %}{% if s.id == uzytkownik.domyslny %}<b>{{ s.kierunek.nazwa }}</b>{% endif %}{% endfor %}</td>
-									</tr>
-									<tr>
-										<td class="table-left-side">Wydział:</td>
-										<td class="table-right-side"> &nbsp {% for s in studenci %}{% if s.id == uzytkownik.domyslny %}<b>{{ s.kierunek.wydzial.nazwa }}</b>{% endif %}{% endfor %}</td>
-									</tr>
-									<tr>
-										<td class="table-left-side">Stopień:</td>
-										<td class="table-right-side"> &nbsp {% for s in studenci %}{% if s.id == uzytkownik.domyslny %}<b>{% if s.stopien == 2 %}II {% else %}I {% endif %}</b>{% endif %}{% endfor %}</td>
-									</tr>
-									<tr>
-										<td class="table-left-side">Semestr:</td>
-										<td class="table-right-side"> &nbsp {% for s in studenci %}{% if s.id == uzytkownik.domyslny %}<b>{{ s.semestr }}</b>{% endif %}{% endfor %}</td>
-									</tr>
-									<tr>
 										<td class="table-left-side">Imię:</td>
 										<td class="table-right-side"><input class="account-input" type="text" name="fld_name" id="fld_name" value="{{ uzytkownik.imie }}" /></td>
 									</tr>
@@ -536,9 +373,77 @@ getSpecializations(document.getElementById('select_faculty'));
 										<td class="table-right-side"><input class="account-input" type="text" name="fld_lastName" id="fld_lastName" value="{{ uzytkownik.nazwisko }}" /></td>
 									</tr>
 								</table>
+							  
 								<div class="account-space">
 								</div>
-								<hr style="width: 400px; color: #449def"> 
+								<hr style="width: 400px;">
+								<p><u>Dane studenta</u></p>
+								{% for s in studenci %}
+								{% if ileKierunkow > 1 %}
+									Kierunek {{ forloop.counter }}:
+								{% endif %}
+								<table class="table-account"> 
+									<tr>
+										<td class="table-left-side">Wydział:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_faculty{{ s.id }}"  onchange='getSpecializations(this);'>
+											{% for wydz in wydzialy %}
+												<option value={{ wydz.id }} {% if wydz.id == s.kierunek.wydzial.id %} selected='selected' {% endif %}>{{ wydz.nazwa }}</option>
+											{% endfor %}
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Kierunek:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_specialization{{ s.id }}" onchange='refreshFromSpec(this);'>
+											{% for k in kierunki %}
+												{% ifequal k.wydzial.id s.kierunek.wydzial.id %}
+												<option value={{ k.id }} {% if k.id == s.kierunek.id %} selected='selected' {% endif %}>{{ k.nazwa }}</option>
+												{% endifequal %}
+											{% endfor %}
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Stopień:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_type{{ s.id }}" onchange='refreshFromType(this);'>
+												<option value="1" {% if s.rodzajStudiow == 1 %} selected='selected' {% endif %}>I-go stopnia</option>
+												<option value="2" {% if s.rodzajStudiow == 2 %} selected='selected' {% endif %}>II-go stopnia</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="table-left-side">Semestr:</td>
+										<td class="table-right-side">
+											<select class="account-settings-changes-select-input" id="select_semester{{ s.id }}">
+											{% for x in "1234567"|make_list %}
+												{% if s.rodzajStudiow == 1 %}
+													{% if forloop.counter <= s.kierunek.liczbaSemestrow1st %}
+														<option value='{{ forloop.counter }}' {% if s.semestr == forloop.counter  %} selected='selected' {% endif %}>{{ forloop.counter }}</option>
+													{% endif%}
+												{% else %}
+													{% if forloop.counter <= s.kierunek.liczbaSemestrow2stPoInz %}
+														<option value='{{ forloop.counter }}' {% if s.semestr == forloop.counter  %} selected='selected' {% endif %}>{{ forloop.counter }}</option>
+													{% endif%}												
+												{% endif %}
+											{% endfor %}
+											</select>
+										</td>
+									</tr>
+									
+								</table>
+							{% if ileKierunkow > 1 %}
+								{% if forloop.counter < ileKierunkow %}
+								<br>
+								{% endif %}
+							{% endif %}	
+							{% endfor %}
+								<div class="account-space">
+								</div>
+								
+								<hr style="width: 400px;">
 								<p><u>Personalizacja konta</u></p>
 								
 								<table class="table-account">
@@ -601,146 +506,13 @@ getSpecializations(document.getElementById('select_faculty'));
 									<p id='responseMail'> <br></p>
 								</div>
 							</fieldset>
-							
-							<!-- -------------------------- -->
-
-						</div>
-						
-						<!-- SPECS_ACCOUNT -->
-						<div id = 'specs_account' style="display: none" class="account-form">
-							
-							<fieldset>
-								<legend>Lista kierunków</legend>
-								{% for s in studenci %}
-									
-									<b>
-								
-										{% for nazwa in s.kierunek.wydzial.numerWydzialu %}
-											{% if forloop.counter == 1 %}
-												{{ nazwa }} -
-											{% endif %}
-										{% endfor %}
-										{{ s.kierunek.nazwa }}, semestr {{ s.semestr }}, {% if s.rodzajStudiow == 1 %}studia I stopnia{% else %}studia II stopnia{% endif %}
-											<img src="img/.png" alt="domyslny" name = "{{ s.id }}" width="14" height="14" onclick = "setAsDefault(this);" />
-											<img src="img/.png" alt="usun" name = "{{ s.id }}"  width="14" height="14" onclick= "removeStudent(this);" />
-											<br /><a href="javascript:;" name = "{{s.id}}" onclick="showEditSpec(this);">edytuj...</a> <br />
-						
-									</b>
-									<div id = "edit{{ s.id }}" style="display: none">
-										<!--TO JEST EDYCJA KIERUNKU-->
-										<table class="table-account"> 
-											<tr>
-												<td class="table-left-side">Wydział:</td>
-												<td class="table-right-side">
-													<select class="account-settings-changes-select-input" id="select_faculty{{ s.id }}"  onchange='getSpecializations(this);'>
-													{% for wydz in wydzialy %}
-														<option value={{ wydz.id }} {% if wydz.id == s.kierunek.wydzial.id %} selected='selected' {% endif %}>{{ wydz.nazwa }}</option>
-													{% endfor %}
-													</select>
-												</td>
-											</tr>
-											<tr>
-												<td class="table-left-side">Kierunek:</td>
-												<td class="table-right-side">
-													<select class="account-settings-changes-select-input" id="select_specialization{{ s.id }}" onchange='refreshFromSpec(this);'>
-													{% for k in kierunki %}
-														{% ifequal k.wydzial.id s.kierunek.wydzial.id %}
-														<option value={{ k.id }} {% if k.id == s.kierunek.id %} selected='selected' {% endif %}>{{ k.nazwa }}</option>
-														{% endifequal %}
-													{% endfor %}
-													</select>
-												</td>
-											</tr>
-											<tr>
-												<td class="table-left-side">Stopień:</td>
-												<td class="table-right-side">
-													<select class="account-settings-changes-select-input" id="select_type{{ s.id }}" onchange='refreshFromType(this);'>
-														<option value="1" {% if s.rodzajStudiow == 1 %} selected='selected' {% endif %}>I-go stopnia</option>
-														<option value="2" {% if s.rodzajStudiow == 2 %} selected='selected' {% endif %}>II-go stopnia</option>
-													</select>
-												</td>
-											</tr>
-											<tr>
-												<td class="table-left-side">Semestr:</td>
-												<td class="table-right-side">
-													<select class="account-settings-changes-select-input" id="select_semester{{ s.id }}">
-													{% for x in "1234567"|make_list %}
-														{% if s.rodzajStudiow == 1 %}
-															{% if forloop.counter <= s.kierunek.liczbaSemestrow1st %}
-																<option value='{{ forloop.counter }}' {% if s.semestr == forloop.counter  %} selected='selected' {% endif %}>{{ forloop.counter }}</option>
-															{% endif%}
-														{% else %}
-															{% if forloop.counter <= s.kierunek.liczbaSemestrow2stPoInz %}
-																<option value='{{ forloop.counter }}' {% if s.semestr == forloop.counter  %} selected='selected' {% endif %}>{{ forloop.counter }}</option>
-															{% endif%}												
-														{% endif %}
-													{% endfor %}
-													</select>
-												</td>
-											</tr>
-											
-										</table>
-									</div>
-								
-									{% if ileKierunkow > 1 %}
-										{% if forloop.counter < ileKierunkow %}
-										<br>
-										{% endif %}
-									{% endif %}	
-								{% endfor %}
-								<input class="account-submit" type="button" onclick="validateSpec();" value="Zapisz" />
-							</fieldset>
-						
-							<div class="account-space">
-							</div>
-							<fieldset>
-								<legend>Nowy kierunek</legend>
-								<table class="table-specs">
-									<tr>
-										<td class="table-left-side">Wydział:</td>
-										<td class="table-right-side">
-										<select class="portal-select-input" name="select_faculty" id="select_faculty" onchange='getSpecializations(this);'>
-										{% for wydz in wydzialy %}
-											<option value={{ wydz.id }}>{{ wydz.nazwa }}</option>
-										{% endfor %}
-										</select> </td>
-									</tr>
-									<tr>
-										<td class="table-left-side">Kierunek studiów:</td>
-										<td class="table-right-side">
-										<select class="portal-select-input" name="select_specialization" id="select_specialization" style=width:200px onchange='getSemesters();'>
-
-										</select> 
-										</td>
-									</tr>
-									<tr>
-										<td class="table-left-side">Rodzaj studiów:</td>
-										<td class="table-right-side">
-										<select class="portal-select-input" name="select_type" id="select_type" onchange='getSemesters();'>
-											<option value="1">I-go stopnia</option>
-											<option value="2">II-go stopnia</option>
-										</select>
-										</td>
-									</tr>
-									<tr>
-										<td class="table-left-side">Numer semestru:</td>
-										<td class="table-right-side"><select class="portal-select-input" name="select_semester" id="select_semester"  style=width:200px >
-										
-										</select> </td>
-									</tr>
-								</table>
-								<div class="account-center">
-									<input class="account-submit" type="button" name="btn_specs" id="btn_specs" onclick="addNewSpec();" value="Dodaj" />
-									<p id='responseNewSpec'> <br></p>
-								</div>	
-							</fieldset>
 						</div>
 						
 						
 						<!-- ADMINISTRATION_ACCOUNT -->
 						<div id = 'administration_account' style="display: none" class="account-form">
 							<p>Jakiś tekst z opisem...</p>
-							<table class="table-account-smaller">
+							<table class="table-account">
 								<tr>
 									<td class="table-left-side"><input type="radio" name="radio_write_rights" value="block" /></td>
 									<td class="table-right-side">Zablokuj możliwość pisania/edycji
@@ -759,7 +531,7 @@ getSpecializations(document.getElementById('select_faculty'));
 								</tr>
 								<tr>
 									<td class="table-left-side">Nick:</td>
-									<td class="table-right-side"><input class="account-input-smaller" type="text" name="fld_rights_nick" id="fld_rights_nick" value="" /></td>
+									<td class="table-right-side"><input class="account-input" type="text" name="fld_rights_nick" id="fld_rights_nick" value="" /></td>
 								</tr>
 							</table>
 							<div class="account-center">

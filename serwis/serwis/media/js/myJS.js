@@ -209,10 +209,12 @@ function showChoice(myChoice)
 	var timetableDiv = document.getElementById('timetable_account');
 	var settingsDiv = document.getElementById('settings_account');
 	var adminDiv = document.getElementById('administration_account');
+    var specializationDiv = document.getElementById('specs_account');
 
 	myChoice.id == "acc-timetable" ? timetableDiv.style.display='block' : timetableDiv.style.display='none';
 	myChoice.id == "acc-settings" ? settingsDiv.style.display='block' : settingsDiv.style.display='none';
 	myChoice.id == "acc-admin" ? adminDiv.style.display='block' : adminDiv.style.display='none';
+    myChoice.id == "acc-specs" ? specializationDiv.style.display='block' : specializationDiv.style.display='none';
 }
 
 //Limit character to 250, update char left and button

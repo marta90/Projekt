@@ -33,12 +33,43 @@ def zaladujZmianeHasla(request):
 def zaladujKonto(request):
 	student = studSesja(request)
 	uzytkownik = student.uzytkownik
-	studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
+	studenci = models.Student.objects.filter(uzytkownik = uzytkownik, uprawnienia__gte = 0)
 	ileKierunkow = studenci.count()
 	wydzialy = models.Wydzial.objects.all()
 	kierunki = models.Kierunek.objects.all().order_by('nazwa')
 	return render_to_response('account.html', {'studenci':studenci, 'uzytkownik':uzytkownik, 'wydzialy':wydzialy, 'ileKierunkow':ileKierunkow, 'kierunki':kierunki})
 
+def usunStudenta(request):
+	try:
+		print('weszlo')
+		uzytkownik = uzSesja(request)
+		print('po uz')
+		print(request.POST['studentId'])
+		student = models.Student.objects.get(id = int(request.POST['studentId']))
+		print(student)
+		if student.uzytkownik == uzytkownik and uzytkownik.domyslny <> student.id:
+			student.uprawnienia = -1
+			student.save()
+			return HttpResponse('Ok')
+		return HttpResponse('Fail')
+	except:
+		return HttpResponse('Fail')
+
+def zmienDomyslnegoSt(request):
+	try:
+		print('weszlo')
+		uzytkownik = uzSesja(request)
+		print('po uz')
+		print(request.POST['studentId'])
+		student = models.Student.objects.get(id = int(request.POST['studentId']))
+		print(student)
+		if student.uzytkownik == uzytkownik:
+			uzytkownik.domyslny = student.id
+			uzytkownik.save()
+			return HttpResponse('Ok')
+		return HttpResponse('Fail')
+	except:
+		return HttpResponse('Fail')
 
 # Edycja danych - wywolana ajaxem - zwraca 'Ok' lub 'Fail'
 def edytujDane(request):
@@ -145,6 +176,35 @@ def zmienHaslo(request):
 				return HttpResponse('4')
 	return HttpResponse('5')
 			
+
+def dodajKierunek(request):
+	try:
+		uzytkownik = uzSesja(request)
+		print("1")
+		studenci = models.Student.objects.filter(uzytkownik = uzytkownik, uprawnienia__gte = 0)
+		print("2")
+		dane = request.POST.copy()
+		print("3")
+		kierunek = dane['kierunek']
+		stopien = dane['stopien']
+		semestr = dane['semestr']
+		print("4")
+		print('zaraz sprawdze')
+		if sprSemestr(kierunek, stopien, semestr):
+			for s in studenci:
+				if int(kierunek) == s.kierunek.id and int(stopien) == s.rodzajStudiow:
+					return HttpResponse('1') # student jest już na wybranym kierunku
+			kierr = models.Kierunek.objects.get(id = int(kierunek))
+			student = models.Student(uzytkownik = uzytkownik, indeks = studenci[0].indeks, kierunek = kierr, semestr = int(semestr), rodzajStudiow = int(stopien))
+			student.save()
+			return HttpResponse('0') # ok
+		print('nie przeszlo')
+		return HttpResponse('2') # fail
+	except:
+		print('wystapil wyjatek')
+		return HttpResponse('2') # fail
+
+
 
 #Wysyłanie maila do admina, gdy nie mozna zmienic pewnych danych w koncie - wywolane ajaxem - zwraca 'Ok' lub 'Fail'
 def wyslijEmailZProsba(request):

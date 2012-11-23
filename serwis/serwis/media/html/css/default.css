@@ -303,10 +303,10 @@ img {
 
 #portal-description {
 	float: left;
-	width: 590px;
+	width: 490px;
 	height: 280px;
-	margin-top: 10px;
-	margin-left: 50px;
+	margin-top: 50px;
+	margin-left: 80px;
 	/*border: 1px solid #999;*/
 }
 
@@ -314,12 +314,20 @@ img {
 	float: right;
 	width: 300px;
 	margin-top: 10px;
+	margin-right: 50px;
 }
 
 #portal-requirements {
 	float: right;
 	width: 300px;
 	margin-top: 10px;
+	margin-right: 50px;
+}
+
+#portal-info {
+	float: left;
+	width: 950px;
+	margin: 0 auto;
 }
 
 .box-title {
@@ -334,7 +342,7 @@ img {
 }
 
 #portal-shoutbox {
-	background: #fff;
+	/*background: #fff;*/
 	border: 1px solid #bbb;
 }
 
@@ -460,7 +468,7 @@ img {
 	float: left;
 	width: 470px;
 	margin-top: 5px;
-	background: #fff;
+	/*background: #fff;*/
 	border: 1px solid #bbb;
 }
 
@@ -473,7 +481,7 @@ img {
 	float: right;
 	width: 470px;
 	margin-top: 5px;
-	background: #fff;
+	/*background: #fff;*/
 	border: 1px solid #bbb;
 }
 
@@ -597,17 +605,8 @@ img {
 
 #right-box {
 	float: right;
-	width: 740px; /* 750+30 */
-	min-height: 400px; /* 420+15+10 za rogi; 450 bezpieczna granica; 500 max; UŻYTE MIN-HEIGHT */
-	border: 1px solid #bbb;
-	/*border-radius: 5px 5px;*/
-}
-
-#right-box-calendar {
-	float: right;
 	width: 740px;
-	min-height: 500px;
-	border: 1px solid #3777b3;
+	min-height: 445px;
 }
 
 /*	====================  */
@@ -755,7 +754,6 @@ img {
 	transition: all 0.1s ease-out;
 	-webkit-background-clip: padding-box;
 }
-
 /*	====================  */
 
 #teachers-content {
@@ -1001,7 +999,6 @@ img {
 	width: 43px;
 	text-align: left;
 }
-
 .table-right-side {
 	margin-left: 5px;
 	text-align: left;
@@ -1132,12 +1129,19 @@ img {
 }
 
 .account-form {
-	width: 550px;
+	width: 680px;
 	margin: 0 auto;
 }
 
 .table-account {
-	margin: 0 120px auto auto;
+	margin: 0 245px auto auto;
+	border-width: 0px;
+	border-spacing: 0px;
+	border-style: none;
+}
+
+.table-account-smaller {
+	margin: 0 235px auto auto;
 	border-width: 0px;
 	border-spacing: 0px;
 	border-style: none;
@@ -1152,7 +1156,27 @@ img {
 
 .account-input {
 	float: left;
-	width: 250px;
+	width: 150px;
+	height: 16px;
+	margin: 0px 0px 0px 5px;
+	padding: 2px 3px;
+	background: #ffffff;
+	color: black;
+	border: 1px solid #d9d9d9;
+	border-color: #c9c9c9 #d9d9d9 #e8e8e8;
+	border-radius: 1px;
+	outline: none;
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	-webkit-transition: all 0.1s ease-out;
+	-moz-transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
+	-webkit-background-clip: padding-box;
+}
+
+.account-input-smaller {
+	float: left;
+	width: 150px;
 	height: 16px;
 	margin: 0px 0px 0px 5px;
 	padding: 2px 3px;
@@ -1209,7 +1233,7 @@ img {
 }
 
 .account-settings-changes-select-input {
-	width: 250px;
+	width: 160px;
 	height: 22px;
 	margin: 0px 0px 0px 5px;
 	padding: 2px 3px;
@@ -1385,4 +1409,63 @@ img {
 
 .alert-msg {
 	font-size: 12px;
+}
+
+.table-specs {
+	margin: 0 auto;
+	border-width: 0px;
+	border-spacing: 0px;
+	border-style: none;
+}
+
+/*************************/
+
+#calendar-content {
+	width: 950px;
+	height: 500px;
+}
+
+#calendar-1 {
+	width: 950px;
+	height: 20px;
+	background-color: #777;
+}
+
+#calendar-1-1 {
+	position: absolute;
+	width: 100px;
+	height: 20px;
+	background-color: #aaa;
+}
+
+#calendar-1-2 {
+	width: 100%;
+}
+
+#calendar-1-3 {
+	position: absolute;
+	width: 100px;
+	height: 20px;
+	margin-left: 850px;
+	background-color: #aaa;
+}
+
+#calendar-2 {
+	width: 950px;
+	height: 30px;
+	background-color: #888;
+}
+
+#calendar-3 {
+	float: left;
+	width: 30px;
+	height: 450px;
+	background-color: #999;
+}
+
+#calendar-4 {
+	float: left;
+	width: 920px;
+	height: 450px;
+	background-color: #aaa;
 }

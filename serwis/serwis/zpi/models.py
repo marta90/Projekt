@@ -7,6 +7,8 @@ class Wydzial(models.Model):
     nazwa = models.CharField(max_length = 250)
     def __unicode__(self):
         return self.nazwa
+    def numerWydzialu(self):
+        return self.nazwa.split(' ')
     class Meta:
         db_table = u'Wydzial'
         verbose_name_plural = 'Wydzialy'

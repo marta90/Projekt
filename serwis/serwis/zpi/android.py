@@ -172,16 +172,16 @@ def listaWykladowcowAND(request):
 																		   'imie',
 																		   'tytul',
 																		   'konflikt',
-																		   'prowadzacy_id',
+																		   'prowadzacy',
 																		   'dzienTygodnia',
 																		   'parzystosc',
 																		   'godzinaOd',
 																		   'godzinaDo',
-																		   'budynek_id',
+																		   'budynek',
 																		   'sala',
 																		   'inneInformacje',
 																		   'miejsce',
-																		   'kurs_id'))
+																		   'kurs'))
 	return HttpResponse(wynik, mimetype="application/json")
 
 
@@ -342,7 +342,10 @@ def qrAND(request, idWyd):
 	wynik = json_serializer.serialize(wydarzenie, ensure_ascii=False, fields = ('nazwa', 'opis', 'dataWydarzenia', 'godzinaOd', 'godzinaDo'))
 	return HttpResponse(wynik, mimetype="application/json")
 
-
+def wyslijInfoZMapy(request):
+	elementy = models.Miejsce.objects.exclude(kategoria = 1)
+	return 0
+	
 # Tworzenie nowego wydarzenia
 def dodajWydarzenieAND(request):
 	if post(request):
@@ -443,4 +446,6 @@ def dodajWydarzenieAND(request):
 		return HttpResponse('Ok')
 	else:
 		return HttpResponse('Fail')
+	
+
 	

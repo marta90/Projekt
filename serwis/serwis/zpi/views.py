@@ -455,18 +455,34 @@ def wylogowanie(request):
 
 # Klasa do testow
 def test(request):
-	if True:
-		student = stud(8)
-		uzytkownik = student.uzytkownik
-		listaUz = [uzytkownik]
-		studenci = models.Student.objects.filter(uzytkownik = uzytkownik)
-		kierunki = models.Kierunek.objects.filter(student__in = studenci)
-		wydzialy = models.Wydzial.objects.filter(kierunek__in = kierunki)
-		lista = listaUz + list(studenci) + list(kierunki) + list(wydzialy)
-		json_serializer = serializers.get_serializer("json")()
-		wynik = json_serializer.serialize(lista, ensure_ascii=False)
-		return HttpResponse(wynik, mimetype="application/json")
-	return HttpResponse("Fail")
+	wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
+	konsultacje = models.Konsultacje.objects.all()
+	kategoria = models.KategoriaMiejsca.objects.get(id=1)
+	budynki = models.Miejsce.objects.filter(kategoria = kategoria)
+	grupy = models.Grupa.objects.all().order_by('godzinaOd')
+	kursy = models.Kurs.objects.all()
+	wydzialy = models.Wydzial.objects.all()
+	lista = list(kursy) + list(wykladowcy) + list(konsultacje) + list(grupy) +list(budynki)
+	
+	json_serializer = serializers.get_serializer("json")()
+	wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('id',
+																		   'nazwa',
+																		   'rodzaj',
+																		   'nazwisko',
+																		   'imie',
+																		   'tytul',
+																		   'konflikt',
+																		   'prowadzacy',
+																		   'dzienTygodnia',
+																		   'parzystosc',
+																		   'godzinaOd',
+																		   'godzinaDo',
+																		   'budynek',
+																		   'sala',
+																		   'inneInformacje',
+																		   'miejsce',
+																		   'kurs'))
+	return HttpResponse(wynik, mimetype="application/json")
 
 
 def test2(request):
