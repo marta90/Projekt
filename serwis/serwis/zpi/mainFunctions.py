@@ -182,6 +182,8 @@ def wyslijPotwierdzenie(uzytkownik):
 	tytul = "PwrTracker - potwierdzenie rejestracji"
 	tresc = "Witaj na PwrTracker!\n\nAby potwierdzić rejestrację w serwisie kliknij na poniższy link.\n"
 	tresc = tresc + "http://" + adresSerwera + "/confirm/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
+	tresc = tresc + "\n\nJeśli nie zakładałeś konta na PwrTracker możesz przerwać proces rejestracji klikając w ten link:\n"
+	tresc = tresc + "http://" + adresSerwera + "/remove/" + uzytkownik.aktywator + "/" + uzytkownik.nick.encode('utf-8')
 	send_mail(tytul, tresc, 'pwrtracker@gmail.com', [uzytkownik.mail], fail_silently=False)
 
 # Czy nazwa wydarzenia spełnia ograniczenia

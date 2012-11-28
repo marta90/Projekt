@@ -32,23 +32,26 @@ def zaladujPortal(request):
 	elif 'komRej' in request.session:
 		kom = request.session['komRej']
 		# Poprawny przebieg rejestracji
-		if kom == '1':
+		if kom == 'rejestracja_ok':
 			tekst = "PWRTracker - na Twojego maila studenckiego został wysłany link z aktywacją konta. Kliknij go, aby potwierdzić rejestrację w serwisie."
 
 		# Dane nie spelniaja ograniczen
-		elif kom == '2':
+		elif kom == 'ograniczenia':
 			tekst = "Dane nie spełniają wymaganych ograniczeń. Spróbuj ponownie."
 		
 		# Nie przesłano wszystkich danych
-		elif kom == '3':
-			tekst = "Wystąpił błąd. Spróbuj ponownie."
-		
-		# Blad wysylania	
-		elif kom == '4':
+		elif kom == 'niepelne_dane':
 			tekst = "Wystąpił błąd podczas rejestracji. Spróbuj ponownie."
 		
-		elif kom == '5':
-			tekst = "Aktywacja przebiegła pomyślnie. Możesz się zalogować"
+		# Blad wysylania	
+		elif kom == 'blad_ogolny':
+			tekst = "Wystąpił błąd podczas rejestracji. Spróbuj ponownie."
+		
+		elif kom == 'aktywacja_ok':
+			tekst = "Aktywacja przebiegła pomyślnie. Możesz się zalogować."
+		
+		elif kom == 'aktywacja_anuluj':
+			tekst = "Aktywację anulowane. Konto zostało usunięte."
 			
 		usunSesje(request)
 		return render_to_response('portal.html', {'alert':tekst})	

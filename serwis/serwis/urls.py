@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     (r'^changePassword$', views.zapiszNoweHaslo),               
     (r'^changePasswordAccount$', views.zmienHaslo),             
     (r'^confirm/(.*)/(.*)$', views.potwierdzRejestracje),       #potwierdzenie rejestracji poprzez link aktywacyjny
+    (r'^remove/(.*)/(.*)$', views.anulujRejestracje),           #anulowanie rejestracji poprzez link aktywacyjny
     (r'^generujPlan$', include('pwrParser.urls')),              #widok wczytujacy kod z Edu i generujacy plan.
     (r'^addStudent$', views.dodajKierunek),
     (r'^changeDefaultStudent$', views.zmienDomyslnegoSt),
@@ -39,6 +40,7 @@ urlpatterns = patterns('',
     (r'^changeAccountSettings$', views.edytujDane),
     (r'^addEventToCalendar/(.*)$', views.dodajWydDoKalendarza),
     (r'^getTeachersLessons/(.*)/(.*)/(.*)$', views.pobierzZajeciaWykladowcy),
+    (r'^editEventDescription$', views.zmienOpis),
     
     #ANDROID
     (r'^test$', views.test),                                                        #klasa do testow
@@ -58,6 +60,7 @@ urlpatterns = patterns('',
     (r'^qrAndroid/(.*)$', views.qrAND),
     (r'^addEventAndroid$', views.dodajWydarzenieAND),
     (r'^switchSpec/(.*)$', views.zamienStudenta),
+    (r'^mapAndroid$', views.mapaAND),
     
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),
@@ -70,6 +73,7 @@ urlpatterns = patterns('',
     (r'^media/html/account.html$', views.zaladujKonto),
     (r'^media/html/registration.html$', views.zaladujRejestracje),
     (r'^media/html/changePassword.html$', views.zaladujZmianeHasla),
+    
     
     (r'^css/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/css')}),
     (r'^img/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/img')}),

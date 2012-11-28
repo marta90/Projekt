@@ -27,10 +27,37 @@ def zaladujKalendarz(request):
 	if jestSesja(request):
 		uzytkownik = uzSesja(request)
 		grupy = uzytkownik.grupa_set.all()
-		return render_to_response('calendar.html', {'grupy':grupy})
+		kalendarz = models.Kalendarz.objects.filter(uzytkownik = uzytkownik).order_by('wydarzenie__dataWydarzenia', 'wydarzenie__godzinaOd', 'wydarzenie__godzinaDo')
+		return render_to_response('calendar.html', {'grupy':grupy, 'kalendarz':kalendarz})
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
+
+# Zmiana opisu wydrzenia
+def zmienOpis(request):
+	try:
+		idWyd = request.POST['evId']
+		opis = request.POST['description']
+		uzytkownik = uzSesja(request)
+		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+		kalendarz.opis = opis
+		kalendarz.save()
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+
+
+# Usuwanie wydarzenie z kalendarza
+def usunWydarzenie(request):
+	try:
+		idWyd = request.POST['evId']
+		uzytkownik = uzSesja(request)
+		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+		kalendarz.delete()
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+	
 
 # Dodawanie wydarzen - wywolane ajaxem - zwraca 'Ok' lub 'Fail'
 def dodajWydarzenie(request):

@@ -607,25 +607,28 @@ getSpecializations(document.getElementById('select_faculty'));
 						</div>
 						
 						<!-- SPECS_ACCOUNT -->
-						<div id = 'specs_account' style="display: none" class="account-form">
+						<div id = 'specs_account' style="display: none; text-align: left" class="account-form">
 							
 							<fieldset>
 								<legend>Lista kierunków</legend>
+								<ul>
 								{% for s in studenci %}
 									
 									<b>
-								
+								<li>
 										{% for nazwa in s.kierunek.wydzial.numerWydzialu %}
 											{% if forloop.counter == 1 %}
 												{{ nazwa }} -
 											{% endif %}
 										{% endfor %}
 										{{ s.kierunek.nazwa }}, semestr {{ s.semestr }}, {% if s.rodzajStudiow == 1 %}studia I stopnia{% else %}studia II stopnia{% endif %}
-											<img src="img/.png" alt="domyslny" name = "{{ s.id }}" width="14" height="14" onclick = "setAsDefault(this);" />
-											<img src="img/.png" alt="usun" name = "{{ s.id }}"  width="14" height="14" onclick= "removeStudent(this);" />
+											</b>
+											
+											<img src="media/html/img/del.png" alt="usun" name = "{{ s.id }}"  width="14" height="14" onclick= "removeStudent(this);" /><br />
+											<a href='javascript:;' name = "{{ s.id }}" onclick = "setAsDefault(this);">ustaw jako domyślny</a>
 											<br /><a href="javascript:;" name = "{{s.id}}" onclick="showEditSpec(this);">edytuj...</a> <br />
 						
-									</b>
+									
 									<div id = "edit{{ s.id }}" style="display: none">
 										<!--TO JEST EDYCJA KIERUNKU-->
 										<table class="table-account"> 
@@ -686,8 +689,10 @@ getSpecializations(document.getElementById('select_faculty'));
 										{% if forloop.counter < ileKierunkow %}
 										<br>
 										{% endif %}
-									{% endif %}	
+									{% endif %}
+									</li>
 								{% endfor %}
+								</ul>
 								<input class="account-submit" type="button" onclick="validateSpec();" value="Zapisz" />
 							</fieldset>
 						

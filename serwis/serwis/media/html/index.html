@@ -5,12 +5,14 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link rel="shortcun icon" href="img/icon.ico" />
 		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel='stylesheet' type='text/css' href='css/fullcalendar.css' />
 		<script type="text/javascript" src="media/js/ajax.js"></script>
 		<script type="text/javascript" src="media/js/jQuery.js"></script>
 		<script type="text/javascript" src="media/js/jquery.nicescroll.min.js"></script>
 		<script type="text/javascript" src="media/js/jquery-ui-1.9.1.custom.js"></script>
 		<script type="text/javascript" src="media/js/myJS.js"></script>
 		<script type="text/javascript" src="media/js/myValidate.js"></script>
+		<script type='text/javascript' src='media/js/fullcalendar.js'></script>
 
 		
 		<title>PWrTracker.pl</title>
@@ -132,7 +134,7 @@
 						<tr>
 							<td><input class="header-login-input" type="text" name="fld_login" id="fld_login" value="{% if jestLogin %}{{ login }}{% else %}Login{% endif %}" onclick="clearField(this.id)" /></td>
 							<td><input class="header-login-input" type="password" name="fld_pass" id="fld_pass" value="{% if jestLogin %}{% else %}haslo{% endif %}" onclick="clearField(this.id)"/></td>
-							<td style="width: 40px;"><input class="header-login-submit" type="submit" name="btn_logIn" id="btn_logIn" value=">" /></td>
+							<td style="width: 40px;"><input class="header-login-submit" type="submit" name="btn_logIn" id="btn_logIn" value="" /></td>
 						</tr>
 						<tr>
 							<td><div class="header-login-text"><input type="checkbox" name="cbox_remember" id="cbox_remember" checked/>Zapamiętaj</div></td>

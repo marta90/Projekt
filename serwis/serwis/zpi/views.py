@@ -35,84 +35,81 @@ adresSerwera = "127.0.0.1:8000"
 
 ############### STRONA GLOWNA #############################################################
 
-# Wyswietlenie strony glownej
-def glowna(request):
-	# Uzytkownik jest zalogowany
-	if jestSesja(request):
-		nick = uzSesja(request).nick
-		if 'content' not in request.session.keys():
-			request.session['content'] = 'news'
+def ustawNewsy(request):
+	if 'content' not in request.session.keys():
+		request.session['content'] = 'news'
+	return request
+
+def ustawPortal(request):
+	print('xxxx')
+	if 'content' not in request.session.keys():
+		request.session['content'] = 'portal'
+	if 'login' in request.COOKIES.keys():
+		print('bbbbbb')
+		return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True, 'jestLogin':True, 'login':request.COOKIES['login']})
+	else:
+		print('aaaa')
+		return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True})
+
+def czyZapamietacLogin(request, nick):
+	# Uzytkownik dopiero sie logowal
+	if 'login' in request.session.keys():
+		log = request.session['login']
+		# Opcja "zapamietaj" nie byla zaznaczona = usuwamy ciastko
+		if log == "":
+			response = render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
+			try:
+				response.delete_cookie('login')
+			except:
+				pass
+			del request.session['login']
+			return response
 		
-		# Uzytkownik logowal sie - trzeba odpowiednio ustawić ciastko
-		if 'login' in request.session.keys():
-			log = request.session['login']
-			
-			# Opcja "zapamietaj" nie byla zaznaczona = usuwamy ciastko
-			if log == "":
-				response = render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
-				try:
-					response.delete_cookie('login')
-				except:
-					pass
-				del request.session['login']
-				return response
-			
-			# Opcja "zapamietaj" byla zaznaczona = dodajemy ciastko z loginem
-			else:
-				response = render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
-				response.set_cookie('login', log)
-				del request.session['login']
-				return response
-		
-		# Uzytkownik przemieszcza sie po serwisie
+		# Opcja "zapamietaj" byla zaznaczona = dodajemy ciastko z loginem
 		else:
+			response = render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
+			response.set_cookie('login', log)
+			del request.session['login']
+			return response
+	# Uzytkownik przemieszcza sie po serwisie
+	else:
 			return render_to_response('index.html', {'strona':request.session['content'], 'nick':nick, 'wyloguj':"wyloguj"})
 	
-	# Uzytkownik nie jest zalogowany oraz wystapil blad podczas logowania lub rejestracji
-	elif 'komunikat' in request.session:
-		kom = request.session['komunikat']
+
+
+# Wyswietlenie strony glownej
+def glowna(request):
+
+	if jestSesja(request):					# uzytkownik jest zalogowany
+		nick = uzSesja(request).nick		# pobieram nick użytkownika
+		request = ustawNewsy(request)		# ustawiam stronę 'news' do wnętrz strony głównej, jeśli nic innego nie było zadeklarowane
+		return czyZapamietacLogin(request, nick)			# sprawdzam czy uzytkownik dopiero sie logowal i czy ustawić ciastko
 		
-		#################################
-		# Logowanie
-		# Blad wyslania
-		if kom == '1':
+	elif 'komunikat' in request.session:    # uzytkownik nie jest zalogowany, ale jest alert
+		kom = request.session['komunikat']
+
+		if kom == 'blad_ogolny':
 			usunSesje(request)
 			tekst = "Wystąpił błąd. Spróbuj ponownie."
 			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst})
 		
-		# Błędny login lub hasło
-		elif kom == '2':
+		elif kom == 'bledne_haslo':
 			usunSesje(request)
 			tekst = 'Podany login i/lub hasło są nieprawidłowe.'
 			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst})
 		
-		# Konto nieaktywne
-		elif kom == '3':
+		elif kom == 'konto_nieaktywne':
 			usunSesje(request)
 			tekst = 'Musisz aktywować konto, aby móc się zalogować. Jeśli chcesz wysłać aktywator jeszcze raz kliknij w poniższy link.'
 			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst, 'wyslijAktywator':True})
 		
-		# Wymagana zmiana hasla
-		elif kom == '4':
+		elif kom == 'zmien_haslo':
 			del request.session['komunikat']
 			tekst = 'Teraz możesz zmienić swoje hasło.'
 			return render_to_response('index.html', {'strona':'portal', 'logowanie':True, 'blad':True, 'tekstBledu':tekst, 'zmianaHasla':True})
-		
-		##################################
-		# Rejestracja
-		# Wyswietlenie rejestracji
-		elif kom == '5':
-			#usunSesje(request)
-			return render_to_response('index.html', {'strona':'registration', 'logowanie':True})
 	
-	# Uzytkownik nie jest zalogowany
-	else:
-		if 'content' not in request.session.keys():
-			request.session['content'] = 'portal'
-		if 'login' in request.COOKIES.keys():
-			return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True, 'jestLogin':True, 'login':request.COOKIES['login']})
-		else:
-			return render_to_response('index.html', {'strona':request.session['content'], 'logowanie':True})
+	else:									# uzytkownik nie jest zalogowany
+		return ustawPortal(request)				# ustaw portal z logowaniem
 
 
 
@@ -132,7 +129,7 @@ def rejestruj(request):
 	if post(request):
 		request.session['fld_loginCheck'] = request.POST['fld_loginCheck']
 		request.session['fld_indexNumber'] = request.POST['fld_indexNumber']
-		request.session['komunikat'] = '5'
+		request.session['content'] = 'registration'
 		return HttpResponseRedirect('/')
 	else:
 		return HttpResponse("Nie sprawdzono poprawności loginu oraz numer indeksu.") #<------------------------- oprogramować wyświetlanie tego!!!!
@@ -205,16 +202,16 @@ def zarejestruj(request):
 				uzytkownik.domyslny = student.id
 				uzytkownik.save()
 				wyslijPotwierdzenie(uzytkownik)
-				request.session['komRej'] = '1' # Pomyslny przebieg rejestracji
+				request.session['komRej'] = 'rejestracja_ok' # Pomyslny przebieg rejestracji
 				return HttpResponseRedirect('/')
 			else:
-				request.session['komRej'] = '2' # Dane nie spelniaja ograniczen
+				request.session['komRej'] = 'ograniczenia' # Dane nie spelniaja ograniczen
 				return HttpResponseRedirect('/')
 		else:
-			request.session['komRej'] = '3' # Nie podano wszystkich danych
+			request.session['komRej'] = 'niepelne_dane' # Nie podano wszystkich danych
 			return HttpResponseRedirect('/')
 	else:
-		request.session['komRej'] = '4' # Blad wysylania
+		request.session['komRej'] = 'blad_ogolny' # Blad wysylania
 		return HttpResponseRedirect('/')
 
 
@@ -301,13 +298,30 @@ def potwierdzRejestracje(request, aktywator, nick):
 			uzytkownik.czyAktywowano = True
 			uzytkownik.save()
 			request.session['content'] = 'portal'
-			request.session['komRej'] = '5'
+			request.session['komRej'] = 'aktywacja_ok'
 			return HttpResponseRedirect("/")
 		else:
-			HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	 #<------------------------- oprogramować wyświetlanie tego!!!!
+			return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	 #<------------------------- oprogramować wyświetlanie tego!!!!
 	except:
 		return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")  #<------------------------- oprogramować wyświetlanie tego!!!!
 
+
+# Potwierdzenie rejestracji po kliknieciu w link aktywacyjny
+def anulujRejestracje(request, aktywator, nick):
+	try:
+		uzytkownik = uz(nick)
+		if uzytkownik.czyAktywowano:
+			return HttpResponse("Nie można anulować rejestracji. Konto zostało wcześniej aktywowane.")	 #<------------------------- oprogramować wyświetlanie tego!!!!
+		if uzytkownik.aktywator == aktywator:
+			uzytkownik.remove()
+
+			request.session['content'] = 'portal'
+			request.session['komRej'] = 'aktywacja_anuluj'
+			return HttpResponseRedirect("/")
+		else:
+			return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")	 #<------------------------- oprogramować wyświetlanie tego!!!!
+	except:
+		return HttpResponse("Aktywacja zakończona niepowodzeniem. Spróbuj jeszcze raz")  #<------------------------- oprogramować wyświetlanie tego!!!!
 
 ############### LOGOWANIE ################################################################
 
@@ -327,7 +341,7 @@ def logowanie(request):
 					if uzytkownik.czyAktywowano:
 						if czyZmienicHaslo(uzytkownik):
 							request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
-							request.session['komunikat'] = '4' # zmiana hasla
+							request.session['komunikat'] = 'zmien_haslo' # zmiana hasla
 						else:
 							request.session['studentId'] = student.id
 							request.session['content'] = 'news'
@@ -338,11 +352,11 @@ def logowanie(request):
 							else:
 								request.session['login'] = ""
 					else:
-						request.session['komunikat'] = '3' # konto nieaktywne
+						request.session['komunikat'] = 'konto_nieaktywne' # konto nieaktywne
 				else:
 					if czyZmienicHaslo(uzytkownik):
 						request.session['nick'] = nickPost  #Uzyteczne zeby wiedziec dla kogo zmieniamy haslo
-						request.session['komunikat'] = '4' # zmiana hasla
+						request.session['komunikat'] = 'zmien_haslo' # zmiana hasla
 					else:
 						request.session['admin'] = nickPost
 						request.session['content'] = 'news'
@@ -355,12 +369,12 @@ def logowanie(request):
 							print('nie pamietaj')
 							request.session['login'] = ""
 			else:
-					request.session['komunikat'] = '2' # bledny login lub haslo
+					request.session['komunikat'] = 'bledny_login' # bledny login lub haslo
 		except:
-				request.session['komunikat'] = '2' # bledny login lub haslo
+				request.session['komunikat'] = 'bledny_login' # bledny login lub haslo
 				pass
 	else:
-			request.session['komunikat'] = '1' # blad wyslania
+			request.session['komunikat'] = 'blad_ogolny' # blad wyslania
 	return HttpResponseRedirect("/")
 
 
@@ -393,7 +407,7 @@ def ustawNoweHaslo(request, aktywator, nick):
     try:
         uzytkownik = uz(nick)
         if uzytkownik.aktywator == aktywator:
-            request.session['komunikat'] = '4'
+            request.session['komunikat'] = 'zmien_haslo'
             request.session['nick'] = nick
             return HttpResponseRedirect("/")
         else:
@@ -455,34 +469,12 @@ def wylogowanie(request):
 
 # Klasa do testow
 def test(request):
-	wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
-	konsultacje = models.Konsultacje.objects.all()
-	kategoria = models.KategoriaMiejsca.objects.get(id=1)
-	budynki = models.Miejsce.objects.filter(kategoria = kategoria)
-	grupy = models.Grupa.objects.all().order_by('godzinaOd')
-	kursy = models.Kurs.objects.all()
-	wydzialy = models.Wydzial.objects.all()
-	lista = list(kursy) + list(wykladowcy) + list(konsultacje) + list(grupy) +list(budynki)
-	
-	json_serializer = serializers.get_serializer("json")()
-	wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('id',
-																		   'nazwa',
-																		   'rodzaj',
-																		   'nazwisko',
-																		   'imie',
-																		   'tytul',
-																		   'konflikt',
-																		   'prowadzacy',
-																		   'dzienTygodnia',
-																		   'parzystosc',
-																		   'godzinaOd',
-																		   'godzinaDo',
-																		   'budynek',
-																		   'sala',
-																		   'inneInformacje',
-																		   'miejsce',
-																		   'kurs'))
-	return HttpResponse(wynik, mimetype="application/json")
+	idWyd = '9'
+	uzytkownik = uz('marta')
+	kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+	kalendarz.delete()
+	return HttpResponse('ok')
+
 
 
 def test2(request):
