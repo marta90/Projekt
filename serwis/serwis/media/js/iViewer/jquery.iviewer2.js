@@ -129,7 +129,7 @@ $.widget( "ui.iviewer", $.ui.mouse, {
         * start zoom value for image, not used now
         * may be equal to "fit" to fit image into container or scale in %
         **/
-        zoom: 65,
+        zoom: "fit",
         /**
         * base value to scale image
         **/
@@ -137,11 +137,11 @@ $.widget( "ui.iviewer", $.ui.mouse, {
         /**
         * maximum zoom
         **/
-        zoom_max: 200,
+        zoom_max: 800,
         /**
         * minimum zoom
         **/
-        zoom_min: 43,
+        zoom_min: 25,
         /**
         * base of rate multiplier.
         * zoom is calculated by formula: zoom_base * zoom_delta^rate
@@ -218,6 +218,7 @@ $.widget( "ui.iviewer", $.ui.mouse, {
 
     _create: function() {
         var me = this;
+
         //drag variables
         this.dx = 0;
         this.dy = 0;
@@ -808,13 +809,13 @@ $.widget( "ui.iviewer", $.ui.mouse, {
         this.zoom_object = $("<div>").addClass("iviewer_zoom_status iviewer_common")
                                     .appendTo(this.container);
 
-        //$("<div>", { 'class': "iviewer_rotate_left iviewer_common iviewer_button"})
-        //            .bind('mousedown touchstart',function(){me.angle(-90); return false;})
-        //            .appendTo(this.container);
-        //
-        //$("<div>", { 'class': "iviewer_rotate_right iviewer_common iviewer_button" })
-        //            .bind('mousedown touchstart',function(){me.angle(90); return false;})
-        //            .appendTo(this.container);
+        $("<div>", { 'class': "iviewer_rotate_left iviewer_common iviewer_button"})
+                    .bind('mousedown touchstart',function(){me.angle(-90); return false;})
+                    .appendTo(this.container);
+
+        $("<div>", { 'class': "iviewer_rotate_right iviewer_common iviewer_button" })
+                    .bind('mousedown touchstart',function(){me.angle(90); return false;})
+                    .appendTo(this.container);
 
         this.update_status(); //initial status update
     }

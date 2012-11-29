@@ -1,112 +1,122 @@
-		<link rel='stylesheet' type='text/css' href='css/lightBox/jquery.lightbox-0.5.css' />
-    <script type='text/javascript' src='media/js/lightBox/jquery.lightbox-0.5.min.js'></script>
-		<script type='text/javascript'>
-				//$('a.pic').lightBox();
-				//$("html").getNiceScroll().resize();
-
-		</script>
+<!--		<link rel='stylesheet' type='text/css' href='css/lightBox/jquery.lightbox-0.5.css' />-->
+<!--    <script type='text/javascript' src='media/js/lightBox/jquery.lightbox-0.5.min.js'></script>-->
+<!--		<script type='text/javascript'>-->
+<!--				//$('a.pic').lightBox();-->
+<!--				//$("html").getNiceScroll().resize();-->
+<!---->
+<!--		</script>-->
 		
 		<link rel='stylesheet' type='text/css' href='css/iViewer/jquery.iviewer.css' />
     <script type='text/javascript' src='media/js/iViewer/jquery.iviewer.js'></script>
 		<script type='text/javascript' src='media/js/iViewer/jquery.mousewheel.min.js'></script>
-		<script type="text/javascript">
-				jQuery(function($){
-
-						var viewer;
-
-						function isInCircle(x, y) {
-								var relative_x = x - this.x;
-								var relative_y = y - this.y;
-								return Math.sqrt(relative_x*relative_x + relative_y*relative_y) <= this.r;
-						}
-						
-						function isInRectangle(x, y) {
-								return (this.x1 <= x && x <= this.x2) && (this.y1 <= y && y<= this.y2);
-						}
-						
-						function getCircleCenter() { return {x: this.x, y: this.y}; }
-						
-						function getRectangleCenter() { return {x: (this.x2+this.x1)/2, y: (this.y2+this.y1)/2}; }
-				
-						var objects = [
-								{x: 100, y: 100, r: 50, isInObject: isInCircle, title: 'big circle', getCenter: getCircleCenter },
-								{x: 150, y: 250, r: 35, isInObject: isInCircle, title: 'middle circle', getCenter: getCircleCenter },
-								{x: 500, y: 300, r: 10, isInObject: isInCircle, title: 'small circle', getCenter: getCircleCenter },
-								{x1: 200, y1: 400, x2: 300, y2: 500, isInObject: isInRectangle, title: 'rectangle', getCenter: getRectangleCenter }
-						]
-						
-						function whereIam(x, y) {
-								for (var i=0; i<objects.length; i++) {
-										var obj = objects[i];
-										if (obj.isInObject(x, y))
-												return obj;
-								}
-										
-								return null;
-						}
-						
-						function showMe(ev, a) {
-								$.each(objects, function(i, object) {
-										if (object.title == $(a).html()) {
-												var center = object.getCenter();
-												var offset = viewer.iviewer('imageToContainer', center.x, center.y);
-												var containerOffset = viewer.iviewer('getContainerOffset');
-												var pointer = $('#pointer');
-												offset.x += containerOffset.left - 20;
-												offset.y += containerOffset.top - 40;
-												pointer.css('display', 'block');
-												pointer.css('left', offset.x+'px');
-												pointer.css('top', offset.y+'px');
-										}                    
-								});
-
-								ev.preventDefault();
-						}
-
-						window.showMe = showMe;
 		
-						viewer = $("#viewer1").iviewer({
-								src: "css/iViewer/test_active_with_objects.GIF",
-
-								onClick: function(ev, coords) {
-										var object = whereIam(coords.x, coords.y);
-										
-										if (object) 
-												alert('Clicked at ('+coords.x+', '+coords.y+'). This is '+object.title);
-								},
-
-								onMouseMove: function(ev, coords) {
-										var object = whereIam(coords.x, coords.y);
-										
-										if (object) {
-												$('#status').html('You are in ('+coords.x.toFixed(1)+', '+coords.y.toFixed(1)+'). This is '+object.title);
-												this.container.css('cursor', 'crosshair');
-										} else {
-												$('#status').html('You are in ('+coords.x.toFixed(1)+', '+coords.y.toFixed(1)+'). This is empty space');
-												this.container.css('cursor', null);
-										}                            
+		<script type="text/javascript" src='media/js/iViewer/jquery.iviewer.config.js'></script>
+		
+		<script type="text/javascript" src='media/js/tooltips/tooltipsy.min.js'></script>
+		
+		<script type="text/javascript">
+				var viewer;
+				$(document).ready(function () {
+						$('#map-menu > li > a').click(function(){
+								if ($(this).attr('class') != 'active'){
+										$('#map-menu li ul').slideUp();
+										$(this).next().slideToggle();
+										$('#map-menu li a').removeClass('active');
+										$(this).addClass('active');
+								}
+						});
+						
+				
+						viewer = $("#map-content").iviewer({
+								src: "img/mapaKampusu2.jpg",
+		
+								//onClick: function(ev, coords) {
+								//	var object = whereIam(coords.x, coords.y);
+								//	
+								//	if (object) 
+								//		alert('Clicked at ('+coords.x+', '+coords.y+'). This is '+object.title);
+								//},
+								//
+								//onMouseMove: function(ev, coords) {
+								//	var object = whereIam(coords.x, coords.y);
+								//			//var obrazek = $('#obrazek');
+								//	if (object) {
+								//		$('#status').html(' '+ $('.wrapper').height()+' You are in ('+coords.x.toFixed(1)+', '+coords.y.toFixed(1)+'). This is '+object.title);
+								//		this.container.css('cursor', 'crosshair');
+								//	} else {
+								//		$('#status').html('You are in ('+coords.x.toFixed(1)+', '+coords.y.toFixed(1)+'). This is empty space');
+								//		this.container.css('cursor', null);
+								//	}                            
+								//},
+								//
+								////onStartDrag: function(ev, coords){
+								////},
+								//	
+								onDrag: function(ev, coords){
+									wylaczWszystkie();
 								},
 								
-								onBeforeDrag: function(ev, coords) {
-										// remove pointer if image is getting moving
-										// because it's not actual anymore
-										$('#pointer').css('display', 'none');
-										// forbid dragging when cursor is whithin the object
-										return whereIam(coords.x, coords.y) ? false : true;     
+								onBeforeDrag: function(ev, coords){
+									// remove pointer if image is getting moving
+									// because it's not actual anymore
+									//$('#pointer').css('display', 'none');
+									// forbid dragging when cursor is whithin the object
+									return whereIam(coords.x, coords.y) ? false : true;     
 								},
 								
 								onZoom: function(ev) {
-										// remove pointer if image is resizing
-										// because it's not actual anymore
-										$('#pointer').css('display', 'none');
+									wylaczWszystkie();
 								},
 								
 								initCallback: function(ev) {
-										this.container.context.iviewer = this;
+									this.container.context.iviewer = this;	
 								}
 						});
+						
+						$('a[id^=k]').click(function(){
+								wylaczWszystkie();
+								var co = $(this).attr("id").substring(1);
+								showKategoria(co);
+								$("#map-content").iviewer({
+									onStopDrag: function(ev, coords){
+										showKategoria(co);
+									},
+									
+									onAfterZoom: function(ev, coords){
+										showKategoria(co);
+									},
+										 
+								});
+						});
+						$('a[id^=m]').click(function(){
+								wylaczWszystkie();
+								var co2 = $(this).attr("id").substring(1);
+								showMiejsce(co2)
+								$("#map-content").iviewer({
+										onStopDrag: function(ev, coords){
+										showMiejsce(co2)
+								},
+								
+								onAfterZoom: function(ev, coords){
+										showMiejsce(co2)
+								},
+						});
 				});
+						
+						{% for m in miejsca %}
+								objects.push({x: '{{m.x}}', y: '{{m.y}}', r: 10, id: '{{m.id}}', kategoria: '{{m.kategoria.nazwa}}', isInObject: isInCircle, title: '{{m.nazwa}}', getCenter: getCircleCenter });
+						{% endfor %}
+				});
+
+
+
+
+			
+
 		</script>
+		
+		
+		
 		<style>
             html, body {
                 height: 100%;
@@ -118,19 +128,19 @@
             {
                 height: 100%;
                 position: relative;
-                background-color: lightgreen;
+                /*background-color: lightgreen;*/
             }
             
             .wrapper
             {
                 border: 1px solid black;
 
-                position: absolute;
+                /*position: absolute;*/
                 top: 5em;
                 left: 1em;
                 bottom: 1em;
                 right: 1em;
-
+								height: 500px;
                 overflow: hidden; /*for opera*/
             }
             
@@ -138,21 +148,46 @@
             {
                 border: 1px solid black;
 
-                position: absolute;
+                /*position: absolute;*/
                 top: 1em;
                 left: 1em;
                 right: 1em;
                 height: 3em;
             }
             
-            #pointer
+            /*.hastip
             {
-                background-image: url('arrow.png');
-                width: 40px;
-                height: 40px;
+                background-image: url('css/iViewer/map-markers.png');
+                /*width: 32px;
+                height: 39px;*//*
+								width: 15px;
+                height: 15px;
+                position: absolute;
+                display: none;
+            }*/
+						.hastip
+            {
+                background-image: url('css/iViewer/map-markers.png');
+                /*width: 32px;
+                height: 39px;*/
+								width: 19px;
+                height: 32px;
                 position: absolute;
                 display: none;
             }
+						/*.pointer
+            {
+                background-image: url('css/iViewer/arrow.png');
+                width: 32px;
+                height: 39px;
+                position: absolute;
+                display: none;
+            }*/
+						#obrazek{
+								position: absolute;
+								/*top: 100px;*/
+								/*left: 100px*/
+						}
             
         </style>
 		
@@ -161,17 +196,68 @@
 		<a href="img/mapa_mniejsza.jpg" class="pic"><img src="img/mapa_mniejsza.jpg" width="805" height="604" alt="" /></a>
 </div>-->
 
-				<div class="toolbar">
+<!--				<div class="toolbar">
             <span id="status"></span>|Show me:
             <a href="#" onclick="showMe(event, this)">big circle</a>, 
             <a href="#" onclick="showMe(event, this)">middle circle</a>,
             <a href="#" onclick="showMe(event, this)">small circle</a>,
             <a href="#" onclick="showMe(event, this)">rectangle</a>
-        </div>
+						<a href="#" onclick="pokaz(event, 'small circle')">pokaz</a>
+        </div>-->
             
-        <div class="wrapper">
-            <div id="viewer1" class="viewer"></div>
-        </div>
-        
-        <div id="pointer"></div>     
+				<div id="left-box">
+					<div id="map-scroll">
+						<ul id="map-menu">
+								{% for k in kategorie %}
+										<li><a href="#" id="k{{ k.nazwa }}">{{ k.nazwa }}</a>
+										<ul>
+												{% for m in miejsca %}
+														{% if m.kategoria == k %}
+																<li><a href="#" id="m{{ m.id }}">{{ m.nazwa }}</a></li>
+														{% endif %}
+												{% endfor %}
+										</ul>
+										</li>
+								{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<div id="right-box">
+						<div class="wrapper">
+								<div id="map-content" class="viewer">
+								
+								</div>
+						</div>
+						<!--<div id="pointer"></div>-->
+						{% for m in miejsca %}
+								<div id="pointer{{m.id}}" class="hastip" title=""></div>
+								<script type="text/javascript">
+										var godz = '{{m.godzinyOtwarcia}}';
+										var tGodz = godz.split(';');
+										var string = "<b>{{m.nazwa}}</b><br>Adres: {{m.adres}}<br>";
+										for(var i=0; i<tGodz.length;i++){
+												string += tGodz[i] + "<br>";
+										}
+										string += "Telefon: {{m.telefon}}";
+										$("#pointer{{m.id}}").attr("title", string);
+								</script>
+						{% endfor %}
 
+				</div>
+
+<script type="text/javascript">
+								$('.hastip').tooltipsy({
+								offset: [10, 0],
+								css: {
+										'padding': '10px',
+										'max-width': '200px',
+										'color': '#303030',
+										'background-color': '#f5f5b5',
+										'border': '1px solid #deca7e',
+										'-moz-box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+										'-webkit-box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+										'box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+										'text-shadow': 'none'
+								}
+						});
+</script>

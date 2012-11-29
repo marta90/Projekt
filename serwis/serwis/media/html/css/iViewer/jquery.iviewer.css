@@ -7,11 +7,11 @@
 }
 
 .iviewer_cursor {
-    cursor: url(img/hand.cur) 6 8, pointer;
+    cursor: url(hand.cur) 6 8, pointer;
 }
 
 .iviewer_drag_cursor {
-    cursor: url(img/grab.cur) 6 8, pointer;
+    cursor: url(grab.cur) 6 8, pointer;
 }
 
 .iviewer_button {
@@ -23,22 +23,22 @@
 
 .iviewer_zoom_in {
     left: 20px;
-    background: url(img/iviewer.zoom_in.gif);
+    background: url(iviewer.zoom_in.gif);
 }
 
 .iviewer_zoom_out {
     left: 55px;
-    background: url(img/iviewer.zoom_out.gif);
+    background: url(iviewer.zoom_out.gif);
 }
 
 .iviewer_zoom_zero {
     left: 90px;
-    background: url(img/iviewer.zoom_zero.gif);
+    background: url(iviewer.zoom_zero.gif);
 }
 
 .iviewer_zoom_fit {
     left: 125px;
-    background: url(img/iviewer.zoom_fit.gif);
+    background: url(iviewer.zoom_fit.gif);
 }
 
 .iviewer_zoom_status {
@@ -52,10 +52,10 @@
 
 .iviewer_rotate_left {
     left: 227px;
-    background: #fff url(img/iviewer.rotate_left.png) center center no-repeat;
+    background: #fff url(iviewer.rotate_left.png) center center no-repeat;
 }
 
 .iviewer_rotate_right {
     left: 262px;
-    background: #fff url(img/iviewer.rotate_right.png) center center no-repeat;
+    background: #fff url(iviewer.rotate_right.png) center center no-repeat;
 }
