@@ -600,8 +600,7 @@ img {
 	cursor: e-resize;
 	float: left;
 	width: 200px;
-	height: 461px;
-	margin-top: 37px;
+	height: 500px;
 	border: 1px solid #3777b3;
 }
 
@@ -616,16 +615,6 @@ img {
 	border-bottom: 1px solid #cccccc;
 }
 
-#left-box-draggable-timetable {
-	cursor: e-resize;
-	float: left;
-	width: 200px;
-	height: 479px;
-	margin-top: 22px;
-	background-color: #ccc;
-	border: 1px solid #3777b3;
-}
-
 #right-box {
 	float: right;
 	width: 740px;
@@ -636,72 +625,61 @@ img {
 
 #timetable-scroll {
 	overflow: auto;
-	height: 479px;
-	padding-top: 5px;
-	padding-left: 5px;
-	text-align: left;
+	height: 440px; /* ustawić potem tą długość! */
+	margin: 0px;
+	padding: 0px;
 }
- 
+
+#timetable-content {
+	
+}
+
+#timetable-scheme {
+	position: absolute;
+	width: 750px;
+	height: 420px;
+	margin-top: 20px;
+	margin-left: 30px;
+}
+
+.timetable-class {
+	overflow: auto;
+	position: absolute;
+	width: 184px;
+	height: 41px;
+	margin-top: 0px;
+	margin-left: 300px;
+	padding: 2px 2px 0 2px;
+	text-align: left;
+	font-size: 10px;
+	line-height: 10px;
+	border: 1px solid #3777b3;
+	border-radius: 5px 5px;
+}
+
+#timetable-add-class {
+	position: absolute;
+	width: 780px;
+	margin-top: 210px;
+}
+
 #timetable-notes {
 	
 }
 
-#timetable-scheme2 {
-	position: absolute;
-	width: 950px;
-}
- 
 .timetable-note {
+	width: 100%;
+	text-align: left;
 	border-bottom: 1px solid #aaaaaa;
-}
- 
-.timetable-input {
-	float: left;
-	width: 120px;
-	height: 16px;
-	margin: 0px 0px 0px 0px;
-	padding: 2px 3px;
-	background: #fff;
-	color: black;
-	border: 1px solid #3777b3;
-	border-color: #3777b3;
-	border-radius: 1px;
-	outline: none;
-	-webkit-border-radius: 1px;
-	-moz-border-radius: 1px;
-	-webkit-transition: all 0.1s ease-out;
-	-moz-transition: all 0.1s ease-out;
-	transition: all 0.1s ease-out;
-	-webkit-background-clip: padding-box;
-}
- 
-.timetable-submit {
-	float: left;
-	width: 60px;
-	height: 22px;
-	margin: 0px 0px 0px 2px;
-	background: #fff;
-	color: black;
-	border: 1px solid #3777b3;
-	border-color: #3777b3;
-	border-radius: 1px;
-	outline: none;
-	-webkit-border-radius: 1px;
-	-moz-border-radius: 1px;
-	-webkit-transition: all 0.1s ease-out;
-	-moz-transition: all 0.1s ease-out;
-	transition: all 0.1s ease-out;
-	-webkit-background-clip: padding-box;
 }
 
 /*	====================  */
 
 #calendar-scroll {
 	overflow: auto;
-	height: 461px; /* ustawić potem tą długość! */
-	margin: 0;
+	height: 500px; /* ustawić potem tą długość! */
+	margin: 0px 5px 0px 5px;
 	padding: 0px;
-	background-color: #ccc;
 	text-align: left;
 }
 
@@ -711,9 +689,7 @@ img {
 }
 
 #calendar-content {
-	position: absolute;
-	width: 950px;
-	margin: 0 auto;
+	
 }
 
 .calendar-view {

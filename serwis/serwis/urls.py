@@ -42,6 +42,10 @@ urlpatterns = patterns('',
     (r'^getTeachersLessons/(.*)/(.*)/(.*)$', views.pobierzZajeciaWykladowcy),
     (r'^editEventDescription$', views.zmienOpis),
     
+    #PLAN POBIERANIE I ZAPISYWANIE NOTATEK
+    (r'^getNotes/(.*)/(.*)$', views.getNotes),
+    (r'^saveNotes$', views.saveNotes),
+    
     #ANDROID
     (r'^test$', views.test),                                                        #klasa do testow
     (r'^getEventsAndroid$', views.mojeWydarzeniaAND),                               #przeslanie do And. zblizajacych sie wydarzen

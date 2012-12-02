@@ -233,3 +233,14 @@ function checkTextarea()
 		charLeft = 0;
 	document.getElementById('textarea_request_char').value = charLeft +"/250";
 }
+function zrobGodzine(godz, min){
+    var godz2 = "";
+    var min2 = "";
+    if(godz.length == 1){
+        godz2 = '0'+godz; 
+    } else {godz2=godz;}
+     if(min.length == 1){
+        min2 = '0'+min; 
+    } else {min2=min;}
+    return godz2+':'+min2;
+}

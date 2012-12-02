@@ -205,9 +205,9 @@ class Tydzien(models.Model):
         verbose_name_plural = 'Tygodnie'
 
 class ZmianaDat(models.Model):
-    data = models.DateTimeField()
+    data = models.DateField()
     tydzien = models.ForeignKey(Tydzien)
-    nowyDzien = models.IntegerField()
+    nowyDzien = models.IntegerField()   #8-wolne, 9-sesja
     parzystosc = models.CharField(max_length = 2)
     class Meta:
         db_table = u'ZmianaDat'
