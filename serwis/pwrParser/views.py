@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from serwis.zpi import views
 
-from selenium import selenium
+
 import unittest, time, re
 
 

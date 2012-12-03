@@ -153,6 +153,49 @@ def ostatnieWydarzeniaAND(request):
 	return HttpResponse("Fail")
 
 
+	# Zmiana opisu wydrzenia
+def zmienOpisAND(request):
+	try:
+		idWyd = request.POST['evId']
+		opis = request.POST['description']
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+		kalendarz.opis = opis
+		kalendarz.save()
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+
+
+def oznaczWaznyShoutAND(request):
+	try:
+		idSh = request.POST['shoutId']
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		shout = models.Shoutbox.objects.get(id = idSh)
+		shout.czyWazne = true
+		shout.save()
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+
+def oznaczNiewaznyShoutAND(request):
+	try:
+		idSh = request.POST['shoutId']
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		shout = models.Shoutbox.objects.get(id = idSh)
+	except:
+		return HttpResponse('Fail')
+	if shout.student == student:
+		shout.czyWazne = false
+		shout.save()
+		return HttpResponse('Ok')
+	else:
+		return HttpResponse('Forbidden')
+		
+		
 # Android - wyswietlenie listy wykladowcow, ich konsultacji oraz planu zajec
 def listaWykladowcowAND(request):
 	wykladowcy = models.Prowadzacy.objects.all().order_by('nazwisko')
