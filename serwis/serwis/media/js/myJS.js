@@ -244,3 +244,17 @@ function zrobGodzine(godz, min){
     } else {min2=min;}
     return godz2+':'+min2;
 }
+
+
+Date.prototype.getTydzien = function () {
+      var cel = new Date(this.valueOf());
+      var dayNr = (this.getDay() + 6) % 7;
+      cel.setDate(cel.getDate() - dayNr + 3);
+      var sty4 = new Date(cel.getFullYear(), 0, 4);
+      var sty4DayNr = (sty4.getDay() + 6) % 7;
+      sty4.setDate(sty4.getDate() - sty4DayNr + 3);
+      var dayDiff = (cel - sty4) / 86400000;
+      var numertygodnia = 1 + Math.floor(Math.floor(Math.abs(dayDiff)) / 7);
+      return numertygodnia;
+}
+

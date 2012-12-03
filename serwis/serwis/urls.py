@@ -3,8 +3,8 @@ from django.conf.urls import patterns, include, url
 import os.path
 
 # Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from django.contrib import admin
+admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^$', views.glowna),                                      #widok strony glownej
@@ -77,6 +77,9 @@ urlpatterns = patterns('',
     (r'^media/html/account.html$', views.zaladujKonto),
     (r'^media/html/registration.html$', views.zaladujRejestracje),
     (r'^media/html/changePassword.html$', views.zaladujZmianeHasla),
+    
+    # ADMIN
+    (r'^admin/', include(admin.site.urls)),
     
     
     (r'^css/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/css')}),

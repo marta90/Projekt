@@ -213,15 +213,20 @@ def saveNotes(request):
 				tydzien = models.Tydzien.objects.get(dataOd = startDate)
 				grupa = models.Grupa.objects.get(id = int(grupaId))
 				nDoPlan = models.NotatkaDoPlanu()
-				nDoPlan.grupa = grupa
-				nDoPlan.tydzien = tydzien
-				nDoPlan.notatka = fld_note
-				nDoPlan.dodal = uz
-				nDoPlan.save()
+				try:
+					nDoPlan.grupa = grupa
+					nDoPlan.tydzien = tydzien
+					nDoPlan.notatka = fld_note
+					nDoPlan.dodal = uz
+					nDoPlan.save()
+				except:
+					HttpResponse("errorSave")
 				return HttpResponse("ok")
 		else:
-			request.session['komRej'] = 'blad_ogolny' # Blad wysylania
-			return HttpResponseRedirect('/')
+			HttpResponse("errorPost")
+	else:
+		HttpResponse("errorLogin")
+	
 
 def zamienIntNaDzien(i):
 	dzien = {    # Switch

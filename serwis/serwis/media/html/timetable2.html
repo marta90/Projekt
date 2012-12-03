@@ -104,10 +104,12 @@
     var startDate;
     var endDate;
 
-    var jed = {'id':1, 'start': new Date(2012, 10, 5, 10, 9), 'end': new Date(2012, 10, 5, 12, 19),'title':'Lunch with Mike'};
-    var dwa = {'id':2, 'start': new Date(2012, 10, 6, 12, 9), 'end': new Date(2012, 10, 6, 13, 19),'title':'Lunch with Mike'};
+    //Prykladowe
+    //var jed = {'id':1, 'start': new Date(2012, 10, 5, 10, 9), 'end': new Date(2012, 10, 5, 12, 19),'title':'Lunch with Mike'};
+    //var dwa = {'id':2, 'start': new Date(2012, 10, 6, 12, 9), 'end': new Date(2012, 10, 6, 13, 19),'title':'Lunch with Mike'};
     
     $(document).ready(function() {
+      // Funkcja obslugujaca dodawania notatek
       $('#btn_send_note').click(function(){
         $.ajax({
 		  type: 'POST',
@@ -116,6 +118,16 @@
 		  success : function(msg) {
 			if (msg=="ok"){
               pobierzNotatki($('#btn_send_note').attr('name'));
+              $('#fld_note').val('');
+            }
+            if(msg=="errorSave"){
+              alert("Błąd przy zapisie do bazy danych! Spróbuj ponownie.");
+            }
+            if(msg=="errorPost"){
+              alert("Dane nie zostały wysłane.");
+            }
+            if(msg=="errorLogin"){
+              alert("Nie jesteś zalogowany.");
             }
 		  },
 		  error: function(error) {
@@ -123,8 +135,8 @@
 		  },
 		});
       });
-      $( "#left-box-draggable-timetable" ).draggable({ axis: "x", containment: "#main-content" });
-      $.support.cssTransitions = false;
+      $( "#left-box-draggable-timetable" ).draggable({ axis: "x", containment: "#main-content" });  //Jezdzace menu
+      //$.support.cssTransitions = false;
       $('#timetable-scheme2').weekCalendar({
 			//height: function($calendar){
 			//	return $(window).height() - $("h1").outerHeight();
@@ -206,7 +218,6 @@
                     $('#btn_send_note').attr('name', obiekt.events[i].id);
                     $('#fld_note').attr('value', '');
                     pobierzNotatki(obiekt.events[i].id);
-                    
                   }
                 }
 
@@ -246,25 +257,24 @@
                 request.open("GET", url, true);
                 request.send(null);
               }
-              
             }
 		});
     });
     
+    // Funckja pobierajaca notatki na podstawie id grupy
     function pobierzNotatki(id){
       var htmlNotatki = "";
       request = createRequest();
       if (request == null)
         alert("Unable to create request");
       else {
-        var url= "/getNotes/" + id + "/" + startDate.getFullYear() + '-' + startDate.getMonth() + '-' + startDate.getDate();
+        var url= "/getNotes/" + id + "/" + startDate.getFullYear() + '-' + startDate.getMonth() + '-' + startDate.getDate();  // w URL podajemy id grupy i date poniedzialku widocznego tygodnia
         request.onreadystatechange = function(){
           if (request.readyState == 4) {
             if (request.status == 200) {
               notesObject = JSON.parse(request.responseText)
-              
               for(var i=0;i<notesObject.length;i++){
-                htmlNotatki += '<div class="timetable-note">' + notesObject[i].fields.notatka + '</div>';
+                htmlNotatki += '<div class="timetable-note">' + notesObject[i].fields.notatka + '</div>';                     // dodawanie notatek do html
               }
               if(htmlNotatki == ''){$('#timetable-notes').html('Brak notatek');}
               else{$('#timetable-notes').html(htmlNotatki);}
@@ -277,10 +287,19 @@
     }
     	$("html").getNiceScroll().resize();
 		timetableScroll();
+    
+    $(document).keypress(function(event){
+      var keycode = (event.keyCode ? event.keyCode : event.which);
+      if(keycode == '13' & $('#fld_note').is(':focus')){  //Jesli wystapi klikniecie enter i focus jest na input
+        $('#btn_send_note').trigger('click');	
+      }
+    });
+
+
   </script>
+  
+  
 {% if czyJestPlan %}
-
-
 
   <div id='timetable-scheme2' ></div>
   
