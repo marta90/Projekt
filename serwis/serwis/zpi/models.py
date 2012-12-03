@@ -84,7 +84,10 @@ class Grupa(models.Model):
     kurs = models.ForeignKey(Kurs)
     uzytkownik = models.ManyToManyField(Uzytkownik, through = 'Plan')
     def __unicode__(self):
+        #return u'%s %s' % (self.kodGrupy, self.kurs.nazwa)
         return self.kodGrupy
+    def zapisanych(self):
+        return self.uzytkownik.all().count()
     class Meta:
         db_table = u'Grupa'
         verbose_name_plural = 'Grupy'
