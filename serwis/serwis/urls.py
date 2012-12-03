@@ -41,6 +41,9 @@ urlpatterns = patterns('',
     (r'^addEventToCalendar/(.*)$', views.dodajWydDoKalendarza),
     (r'^getTeachersLessons/(.*)/(.*)/(.*)$', views.pobierzZajeciaWykladowcy),
     (r'^editEventDescription$', views.zmienOpis),
+    (r'^importantShout$', views.oznaczWaznyShout),
+    (r'^unimportantShout$', views.oznaczNiewaznyShout),
+    
     
     #PLAN POBIERANIE I ZAPISYWANIE NOTATEK
     (r'^getNotes/(.*)/(.*)$', views.getNotes),
@@ -65,6 +68,9 @@ urlpatterns = patterns('',
     (r'^addEventAndroid$', views.dodajWydarzenieAND),
     (r'^switchSpec/(.*)$', views.zamienStudenta),
     (r'^mapAndroid$', views.mapaAND),
+    (r'^editEventDescrAndroid$', views.zmienOpisAND),
+    (r'^importantShoutAndroid$', views.oznaczWaznyShoutAND),
+    (r'^unimportantShoutAndroid$', views.oznaczNiewaznyShoutAND),
     
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),

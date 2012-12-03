@@ -34,11 +34,55 @@
 			if (data =='Ok')
 			{
 				loadContent('news');
-		   }
-
+			}
 		  }
 		);
 		  
+	}
+	
+	function markAsImportant(elem)
+	{
+		var shoutId = elem.id;
+		dane['shoutId'] = shoutId;
+		$.post("importantShout", dane, function(data)
+		{
+			if (data =='Ok')
+			{
+				// oznacz jako wazny
+				// trzeba zrobic strone tak jak do shoutboxa
+				// $("#portal-shoutbox-scroll").load("media/html/shoutbox.html", scrollDown);
+			}
+			else
+			{
+				// nie robi nic? bo alert bez sensu
+			}
+
+		});
+	}
+	
+	function markAsUnimportant(elem)
+	{
+		var shoutId = elem.id;
+		dane['shoutId'] = shoutId;
+		$.post("unimportantShout", dane, function(data)
+		{
+			if (data =='Ok')
+			{
+				// oznacz jako niewazny
+				// trzeba zrobic strone tak jak do shoutboxa
+				// $("#portal-shoutbox-scroll").load("media/html/shoutbox.html", scrollDown);
+				
+			}
+			else if(data == 'Forbidden')
+			{
+				alert('Nie możesz odznaczyć wiadomości napisanych przez innych użytkowników.');
+			}
+			else
+			{
+				// nie robi nic? bo alert bez sensu
+			}
+
+		});
 	}
 
 		

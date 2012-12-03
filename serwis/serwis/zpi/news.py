@@ -76,6 +76,36 @@ def dodajShout(request, wiadomosc):
 	return HttpResponseRedirect("/media/html/shoutbox.html")
 
 
+def oznaczWaznyShout(request):
+	try:
+		idSh = request.POST['shoutId']
+		student = studSesja(request)
+		uzytkownik = student.uzytkownik
+		shout = models.Shoutbox.objects.get(id = idSh)
+		shout.czyWazne = true
+		shout.save()
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+	
+def oznaczNiewaznyShout(request):
+	try:
+		idSh = request.POST['shoutId']
+		student = studSesja(request)
+		uzytkownik = student.uzytkownik
+		shout = models.Shoutbox.objects.get(id = idSh)
+	except:
+		return HttpResponse('Fail')
+	if shout.student == student:
+		shout.czyWazne = false
+		shout.save()
+		return HttpResponse('Ok')
+	else:
+		return HttpResponse('Forbidden')
+	
+
+
+
 # Dodanie wydarzenia z listy do własnego kalendarza
 def dodajWydDoKalendarza(request, idWyd):
 	try:
