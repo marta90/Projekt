@@ -369,9 +369,9 @@ def logowanie(request):
 							print('nie pamietaj')
 							request.session['login'] = ""
 			else:
-					request.session['komunikat'] = 'bledny_login' # bledny login lub haslo
+					request.session['komunikat'] = 'bledne_haslo' # bledny login lub haslo
 		except:
-				request.session['komunikat'] = 'bledny_login' # bledny login lub haslo
+				request.session['komunikat'] = 'bledne_haslo' # bledny login lub haslo
 				pass
 	else:
 			request.session['komunikat'] = 'blad_ogolny' # blad wyslania

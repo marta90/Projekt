@@ -70,11 +70,15 @@ urlpatterns = patterns('',
     (r'^editEventDescrAndroid$', views.zmienOpisAND),
     (r'^importantShoutAndroid$', views.oznaczWaznyShoutAND),
     (r'^unimportantShoutAndroid$', views.oznaczNiewaznyShoutAND),
+    (r'^removeEventAndroid$', views.usunWydarzenieAND),
+    (r'^importantMsgAndroid$', views.zaladujWazneWiadomosciAND),
+    
     
     # MEDIA
     (r'^media/html/portal.html$', views.zaladujPortal),
     (r'^media/html/news.html$', views.zaladujNewsy),
     (r'^media/html/shoutbox.html$', views.zaladujShoutbox),
+    (r'^media/html/importantMsg.html$', views.zaladujWazneWiadomosci),
     (r'^media/html/timetable2.html$', views.zaladujPlan),
     (r'^media/html/calendar.html$', views.zaladujKalendarz),
     (r'^media/html/teachers.html$', views.zaladujWykladowcow), 

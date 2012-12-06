@@ -157,12 +157,19 @@ def ostatnieWydarzeniaAND(request):
 def zmienOpisAND(request):
 	try:
 		idWyd = request.POST['evId']
+		print('1')
 		opis = request.POST['description']
+		print('2')
 		student = studPost(request)
+		print('3')
 		uzytkownik = student.uzytkownik
+		print('4')
 		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+		print('5')
 		kalendarz.opis = opis
+		print('6')
 		kalendarz.save()
+		print('7')
 		return HttpResponse('Ok')
 	except:
 		return HttpResponse('Fail')
@@ -170,12 +177,19 @@ def zmienOpisAND(request):
 
 def oznaczWaznyShoutAND(request):
 	try:
+		for k in request.POST.keys():
+			print k
 		idSh = request.POST['shoutId']
+		print(idSh)
 		student = studPost(request)
+		print(student.indeks)
 		uzytkownik = student.uzytkownik
 		shout = models.Shoutbox.objects.get(id = idSh)
-		shout.czyWazne = true
+		print('pobralo')
+		shout.czyWazne = True
+		print('ustawilo na true')
 		shout.save()
+		print('zapisalo')
 		return HttpResponse('Ok')
 	except:
 		return HttpResponse('Fail')
@@ -189,7 +203,7 @@ def oznaczNiewaznyShoutAND(request):
 	except:
 		return HttpResponse('Fail')
 	if shout.student == student:
-		shout.czyWazne = false
+		shout.czyWazne = False
 		shout.save()
 		return HttpResponse('Ok')
 	else:
@@ -361,6 +375,33 @@ def dodajWydDoKalendarzaAND(request):
 		return HttpResponse("Fail")
 	
 
+def zaladujWazneWiadomosciAND(request):
+	if post(request):
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		if not czyZmienicHaslo(uzytkownik):
+			stopien = student.rodzajStudiow
+			semestr = student.semestr
+			kierunek = student.kierunek
+			shoutbox = models.Shoutbox.objects.filter(student__kierunek = kierunek,
+													  student__rodzajStudiow = stopien,
+													  student__semestr = semestr,
+													  czyWazne = True).order_by('data')[:10]
+			shoutbox = shoutbox.reverse()
+			idSt = shoutbox.values_list('student_id', flat = True)
+			studenci = models.Student.objects.filter(id__in = idSt)
+			idUzShoutboxa = studenci.values_list('uzytkownik_id', flat=True)
+			uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
+			obiekt = list(shoutbox) + list(uz) + list(studenci)
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik', 'student'))
+			return HttpResponse(wynik, mimetype="application/json")
+		else:
+			return HttpResponse('-4')
+	else:
+		return HttpResponse("Fail")
+
+
 # Dodawanie wydarzen z kodu QR
 def dodajZQrAND(request):
 	try:
@@ -377,6 +418,17 @@ def dodajZQrAND(request):
 	except:
 		return HttpResponse('-5') #inny blad
 
+
+# Usuwanie wydarzenie z kalendarza
+def usunWydarzenieAND(request):
+	try:
+		idWyd = request.POST['evId']
+		uzytkownik = uzPost(request)
+		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+		kalendarz.delete()
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
 	
 # Przeslanie informacji o wydarzeniu na podstawie id wydarzenia pobranego z kodu QR	
 def qrAND(request, idWyd):

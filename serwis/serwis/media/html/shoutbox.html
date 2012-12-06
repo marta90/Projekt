@@ -1,5 +1,9 @@
 {% for r in rozmowy reversed %}
 						<div class="portal-text">
+							<div class= {% if r.czyWazne %}"box-img-add-on"{% else %}"box-img-add"{% endif %} id = "d{{ r.id }}">
+								
+								
+								<a href="javascript:;" name = "{{ r.id }}" onclick= "markAsImportant(this);" ><img src="media/html/img/blank.png" alt="" title="Oznacz tę wiadomość jako ważną" width="28" height="28" /></a></div>
 							<div class="box-date">
 								{% if r.data|date:"SHORT_DATE_FORMAT" ==  dzisiaj|date:"SHORT_DATE_FORMAT" %}
 									Dzisiaj
@@ -15,5 +19,3 @@
 							<div class="box-text"><b>{{r.student.uzytkownik.nick}} : </b>{{r.tresc}}</div>
 						</div>
 						{% endfor %}
-						
-					

@@ -353,13 +353,13 @@ img {
 }
 
 #portal-important-msgs {
-	margin-top: 5px;
+	margin-top: 25px;
 	border: 1px solid #bbb;
 }
 
 #portal-important-msgs-scroll {
 	overflow: auto;
-	height: 91px;
+	height: 88px;
 }
 
 .portal-text {
@@ -415,7 +415,7 @@ img {
 }
 
 .box-text {
-	margin-left: 65px;
+	margin-left: 93px;
 	padding-top: 14px;
 	/*font-size: 12px;
 	line-height: 14px;*/

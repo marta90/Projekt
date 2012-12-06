@@ -63,6 +63,19 @@ def zaladujShoutbox(request):
 	wczoraj = dzisiaj - datetime.timedelta(days=1)
 	return render_to_response('shoutbox.html', {'rozmowy':shoutbox, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj})
 
+def zaladujWazneWiadomosci(request):
+	student = studSesja(request)
+	kierunek = student.kierunek
+	semestr = student.semestr
+	stopien = student.rodzajStudiow
+	shoutbox = models.Shoutbox.objects.filter(student__kierunek = kierunek,
+											  student__semestr = semestr,
+											  student__rodzajStudiow = stopien,
+											  czyWazne = True).order_by('data')[:10]
+	shoutbox = shoutbox.reverse()
+	dzisiaj = datetime.datetime.now()
+	wczoraj = dzisiaj - datetime.timedelta(days=1)
+	return render_to_response('importantMsg.html', {'rozmowy':shoutbox, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj})
 
 # Dodanie wiadomosci do shoutboxa
 def dodajShout(request, wiadomosc):
@@ -81,7 +94,7 @@ def oznaczWaznyShout(request):
 		student = studSesja(request)
 		uzytkownik = student.uzytkownik
 		shout = models.Shoutbox.objects.get(id = idSh)
-		shout.czyWazne = true
+		shout.czyWazne = True
 		shout.save()
 		return HttpResponse('Ok')
 	except:
@@ -90,13 +103,16 @@ def oznaczWaznyShout(request):
 def oznaczNiewaznyShout(request):
 	try:
 		idSh = request.POST['shoutId']
+		print(idSh)
 		student = studSesja(request)
 		uzytkownik = student.uzytkownik
+		print('2')
 		shout = models.Shoutbox.objects.get(id = idSh)
+		print('3')
 	except:
 		return HttpResponse('Fail')
 	if shout.student == student:
-		shout.czyWazne = false
+		shout.czyWazne = False
 		shout.save()
 		return HttpResponse('Ok')
 	else:

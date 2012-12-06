@@ -1,0 +1,19 @@
+{% for r in rozmowy %}
+						<div class="portal-text">
+							<div class="box-img-del"><a href="javascript:;" name = "{{ r.id }}" onclick= "markAsUnimportant(this);"><img src="media/html/img/blank.png" alt="" title="Usuń tę wiadomość z listy ważnych wiadomości" width="28" height="28" /></a></div>
+							<div class="box-date">
+							{% if r.data|date:"SHORT_DATE_FORMAT" ==  dzisiaj|date:"SHORT_DATE_FORMAT" %}
+									Dzisiaj
+								{% else %}
+								{% if r.data|date:"SHORT_DATE_FORMAT" ==  wczoraj|date:"SHORT_DATE_FORMAT" %}
+									Wczoraj
+								{% else %}
+									{{ r.data|date:"SHORT_DATE_FORMAT" }}
+								{% endif %}
+								{% endif %}
+								
+								{{ r.data|date:"G:i:s"  }}
+							</div>
+							<div class="box-text"><b>{{r.student.uzytkownik.nick}} : </b>{{r.tresc}} </div>
+						</div>
+					{% endfor %}
