@@ -84,7 +84,10 @@ class Grupa(models.Model):
     kurs = models.ForeignKey(Kurs)
     uzytkownik = models.ManyToManyField(Uzytkownik, through = 'Plan')
     def __unicode__(self):
+        #return u'%s %s' % (self.kodGrupy, self.kurs.nazwa)
         return self.kodGrupy
+    def zapisanych(self):
+        return self.uzytkownik.all().count()
     class Meta:
         db_table = u'Grupa'
         verbose_name_plural = 'Grupy'
@@ -140,6 +143,8 @@ class Wydarzenie(models.Model):
 class AktualneWydarzenie(models.Model):
     stare = models.ForeignKey(Wydarzenie, related_name = 'aktualneWydarzenie_stare')
     nowe = models.ForeignKey(Wydarzenie, related_name = 'aktualneWydarzenie_nowe')
+    #def __unicode__(self):
+    #    return self.stare.nazwa
     class Meta:
         db_table = u'AktualneWydarzenie'
         verbose_name_plural = 'Aktualne wydarzenia'
@@ -185,8 +190,8 @@ class Konsultacje(models.Model):
     inneInformacje = models.CharField(max_length = 250)
     dataOstZmianyDanych = models.DateTimeField()
     ktoZmienilDane = models.ForeignKey(Uzytkownik)
-    def __unicode__(self):
-        return prowadzacy.unicode()
+    #def __unicode__(self):
+    #    return prowadzacy.unicode()
     class Meta:
         db_table = u'Konsultacje'
         verbose_name_plural = 'Konsultacje'
@@ -199,7 +204,7 @@ class Tydzien(models.Model):
     semestr = models.IntegerField() #1 - letni, 2 - zimowy
     grupa = models.ManyToManyField(Grupa, through = 'NotatkaDoPlanu')
     def __unicode__(self):
-        return self.ntTygodnia
+        return str(self.nrTygodnia)
     class Meta:
         db_table = u'Tydzien'
         verbose_name_plural = 'Tygodnie'

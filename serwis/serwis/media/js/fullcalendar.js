@@ -2651,7 +2651,7 @@ function BasicEventRenderer() {
 		return segs;
 	}
 	
-	//TUTAJ JEST PRZYPISANIE WYDARZENIA
+	
 	function bindDaySeg(event, eventElement, seg) {
 		if (isEventDraggable(event)) {
 			draggableDayEvent(event, eventElement);
@@ -4672,7 +4672,6 @@ function DayEventRenderer() {
 			seg.outerWidth = right - left;
 			seg.startCol = leftCol;
 			seg.endCol = rightCol + 1; // needs to be exclusive
-			//html += "<a href='javascript:;' name='x' onclick='function(){alert('blaa');}'> x </a>";
 		}
 		return html;
 	}
