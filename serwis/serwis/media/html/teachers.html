@@ -27,7 +27,6 @@
             $("#"+idDiv).load("getTutorial/" + idUrl , function(){
             document.getElementById(divAll).className = 'divactive';
             });
-			$("html").getNiceScroll().resize();
         }
         else
 		{
@@ -97,7 +96,6 @@
 						  }
 						  //setTimeout(function(){callback(eventData); }, 3000);
 						  callback(eventData);
-						  $("html").getNiceScroll().resize();
 						}
 					  }
 					};
@@ -113,7 +111,6 @@
 			$('.wc-container').remove();
 		}
 	}
-	$("html").getNiceScroll().resize();
 </script>
 
 

@@ -111,29 +111,32 @@
     $(document).ready(function() {
       // Funkcja obslugujaca dodawania notatek
       $('#btn_send_note').click(function(){
-        $.ajax({
-		  type: 'POST',
-		  url: '/saveNotes',
-		  data: { fld_note: $('#fld_note').val(), grupaId: $('#btn_send_note').attr('name'), start: '' + startDate.getFullYear() + '-' + startDate.getMonth() + '-' + startDate.getDate()},
-		  success : function(msg) {
-			if (msg=="ok"){
-              pobierzNotatki($('#btn_send_note').attr('name'));
-              $('#fld_note').val('');
-            }
-            if(msg=="errorSave"){
-              alert("Błąd przy zapisie do bazy danych! Spróbuj ponownie.");
-            }
-            if(msg=="errorPost"){
-              alert("Dane nie zostały wysłane.");
-            }
-            if(msg=="errorLogin"){
-              alert("Nie jesteś zalogowany.");
-            }
-		  },
-		  error: function(error) {
-			  alert("Wystąpił błąd w połączniu z bazą. Proszę spróbuj ponownie, lub skontaktuj się z administratorem.");
-		  },
-		});
+		if($('#fld_note').val() != "")
+		{
+		  $.ajax({
+			type: 'POST',
+			url: '/saveNotes',
+			data: { fld_note: $('#fld_note').val(), grupaId: $('#btn_send_note').attr('name'), start: '' + startDate.getFullYear() + '-' + startDate.getMonth() + '-' + startDate.getDate()},
+			success : function(msg) {
+			  if (msg=="ok"){
+				pobierzNotatki($('#btn_send_note').attr('name'));
+				$('#fld_note').val('');
+			  }
+			  if(msg=="errorSave"){
+				alert("Błąd przy zapisie do bazy danych! Spróbuj ponownie.");
+			  }
+			  if(msg=="errorPost"){
+				alert("Dane nie zostały wysłane.");
+			  }
+			  if(msg=="errorLogin"){
+				alert("Nie jesteś zalogowany.");
+			  }
+			},
+			error: function(error) {
+				alert("Wystąpił błąd w połączniu z bazą. Proszę spróbuj ponownie, lub skontaktuj się z administratorem.");
+			},
+		  });
+		}
       });
       $( "#left-box-draggable-timetable" ).draggable({ axis: "x", containment: "#main-content" });  //Jezdzace menu
       //$.support.cssTransitions = false;
@@ -151,6 +154,7 @@
 				}
 			},
 			eventClick : function(calEvent, $event) {
+			
                 for(var i=0; i<obiekt.events.length; i++){
                   if(obiekt.events[i].id == calEvent.id){
                     $('#timetable-scroll-title').html('<b>'+obiekt.events[i].nazwa+'</b>');
@@ -220,7 +224,7 @@
                     pobierzNotatki(obiekt.events[i].id);
                   }
                 }
-
+			showDetailsDiv();
 			},
 			noEvents : function() {
 				displayMessage("There are no events for this week");
@@ -285,8 +289,7 @@
         request.send(null);
       }
     }
-    	$("html").getNiceScroll().resize();
-		timetableScroll();
+
     
     $(document).keypress(function(event){
       var keycode = (event.keyCode ? event.keyCode : event.which);
@@ -295,6 +298,14 @@
       }
     });
 
+	function showDetailsDiv()
+	{
+	  document.getElementById('left-box-draggable-timetable').style.display='block';
+	}
+	function hideDetailsDiv()
+	{
+	  document.getElementById('left-box-draggable-timetable').style.display='none';
+	}
 
   </script>
   
@@ -303,8 +314,9 @@
 
   <div id='timetable-scheme2' ></div>
   
-  <div id="left-box-draggable-timetable">
+  <div id="left-box-draggable-timetable" style="display:none">
     <div id="timetable-scroll">
+	  <a href="javascript:;" onclick="hideDetailsDiv();"> SCHOWAJ </a>
       <div id="timetable-scroll-title"><b>[Sztuczna Inteligencja]</b></div>
       <br />
       <div id="timetable-scroll-type"><b>[Wykład]</b></div>

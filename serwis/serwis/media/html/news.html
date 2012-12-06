@@ -4,6 +4,7 @@
 	//$("#portal-shoutbox-scroll").load("media/html/shoutbox.html", scrollDown);
 	//setTimeout(refresh, 5000);
 	var objDiv = document.getElementById("portal-shoutbox-scroll");
+	var activeId = '{{ aktywny }}';
 	function shout(){
 		var message = document.getElementById("fld_sbox_text").value;
 		message = encodeURIComponent(message);
@@ -24,7 +25,6 @@
 	}
 	scrollDown();
 	document.getElementById("fld_sbox_text").focus();
-	portalScroll();
 	setTimeout(refresh, 5000);
 
 	function addEvent(idWyd)
@@ -91,20 +91,27 @@
 	{
 		var idS = butt.id.substring(4);
 
-		$("#portal-shoutbox-scroll").load("switchSpec/" + idS , function(){
-			scrollDown();
-			$("#portal-important-msgs-scroll").load("media/html/importantMsg.html");
+		if(idS != activeId)
+		{
+			document.getElementById('kier' + activeId).className = 'portal-specs';
+			butt.className = 'portal-specs-active';
+			activeId = idS;
+			$("#portal-shoutbox-scroll").load("switchSpec/" + idS , function(){
+				scrollDown();
+				$("#portal-important-msgs-scroll").load("media/html/importantMsg.html");
+			}
+			
+			);
 		}
-		
-		);
 	}
 </script>
-					
+				<div class="portal-specs-line">
 					{% if ileKierunkow > 1 %}
 					{% for s in studenci %}
-					<input type="button" id="kier{{s.id}}" onclick="switchSpec(this);" value="{{s.kierunek.nazwa}}" />
+					<input type="button" id="kier{{s.id}}" class={% if s.id == aktywny %}"portal-specs-active"{% else %}"portal-specs"{% endif %} onclick="switchSpec(this);" value="{{s.kierunek.nazwa}}" />
 					{% endfor %}
 					{% endif %}
+				</div>
 					<div id="portal-shoutbox">
 					<div class="box-title">Shoutbox</div>
 

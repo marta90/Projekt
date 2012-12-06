@@ -1,5 +1,5 @@
 		<script type='text/javascript'>
-            
+
         var isDescription = false;
         var activeEvent;
 		var kalendarz = {}
@@ -63,11 +63,11 @@
 					
 					//document.getElementById("sp_type").innerHTML = rodzaj;
                     isDescription = true;
+                    document.getElementById('qrCode').style.display = 'none';
                     document.getElementById("edit_event").style.display = "none";
                     activeEvent = event.id;
 					menuAction(document.getElementById('a_desc'));
-                   
-					
+                    
 				}
 			});
 		}
@@ -83,6 +83,7 @@ function showEditDescr()
 	var edycja = document.getElementById("edit_event");
 	if(edycja.style.display == "none")
 	{
+		document.getElementById('qrCode').style.display = 'none';
 		edycja.style.display = "block";
 	}
 	else
@@ -255,6 +256,11 @@ function menuActionCheck(thiss)
         $( "#datepicker" ).datepicker();
     });
 
+function getQRCode()
+{
+	document.getElementById("edit_event").style.display = "none";
+	$("#qrCode").load("qr/"+activeEvent, function(){ document.getElementById('qrCode').style.display = 'block'; });
+}
 
 function menuAction(thiss)
 {
@@ -297,13 +303,14 @@ function menuAction(thiss)
 								<ul><li>
 								<div id="calendar-event-details">
                                     <u><span id = "sp_time"></span></u><br />
-									<b><span id ="sp_event_name"></span></b><br />
+									<b><span id ="sp_event_name"></span></b> &nbsp <img src='media/html/img/qr.png' width="14" height="14" onclick='getQRCode();'/><br />
                                     
                                  
                                     
 									<span id ="sp_event_descr"></span> &nbsp <img src="media/html/img/edit.png" alt="Zmień nazwę" width="12" height="12" onClick = "showEditDescr();" /> <br />
 									<span id = "edit_event" style="display: none"><input id = "fld_change_descr" class="calendar-input-smaller" type="text" value="" /> <img src="media/html/img/save.png" alt="zapisz" width="12" height="12" onClick = "editDescr();" /></span>
-									
+                                     <div id='qrCode' style="display:none">
+									</div>
 								</div>
 								</li></ul>
 							</li>
@@ -566,7 +573,7 @@ function menuAction(thiss)
 									<option value ='58'>58</option>
 									<option value ='59'>59</option>
 								</select>
-							
+                                <br />
 								Rodzaj:
 								<select id="sbox_add_type" onchange="checkType();">
 									<option value = "7">prywatno-pub</option>
@@ -586,7 +593,8 @@ function menuAction(thiss)
 									</select>
 								</div>
 								
-								<input type="checkbox" name="cbox_add" id="cbox_add" checked/>
+								<br />
+                                Dodaj do kalendarza <input type="checkbox" name="cbox_add" id="cbox_add" checked/><br />
 								<p><input class="calendar-submit" type="button" name="btn_add_event" id="btn_add_event" value="Dodaj" onclick="addEvent();" /></p>
 							</div>
 							</li></ul>

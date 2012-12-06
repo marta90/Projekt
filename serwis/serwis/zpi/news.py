@@ -46,7 +46,7 @@ def zaladujNewsy(request):
 	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
 	dzisiaj = datetime.datetime.now()
 	wczoraj = dzisiaj - datetime.timedelta(days = 1)
-	return render_to_response('news.html', {'rozmowy':shoutbox, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj, 'studenci':studenci, 'ileKierunkow':ileKierunkow})
+	return render_to_response('news.html', {'rozmowy':shoutbox, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj, 'studenci':studenci, 'ileKierunkow':ileKierunkow, 'aktywny':student.id})
 
 
 # Pobranie aktualnego shoutboxa - potrzebne przy odświeżaniu go
