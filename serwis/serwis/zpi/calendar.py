@@ -57,6 +57,13 @@ def usunWydarzenie(request):
 		return HttpResponse('Ok')
 	except:
 		return HttpResponse('Fail')
+
+def zwrocKodQR(request, idWyd):
+	try:
+		wydarzenie = models.Wydarzenie.objects.get(id = idWyd)
+		return render_to_response('qr.html', {'wydarzenieId':idWyd})
+	except:
+		return HttpResponse('');
 	
 
 # Dodawanie wydarzen - wywolane ajaxem - zwraca 'Ok' lub 'Fail'

@@ -182,12 +182,16 @@ function addEvent()
     }
     
     var addToCalendar = document.getElementById('cbox_add').checked ? 'yes' : 'no';
+    
     // Te zmiennne trzeba zczytać z kalendarza
-    var eventDay = selectedOption('sbox_select_day');
-    var eventMonth = selectedOption('sbox_select_month');
-    var eventYear = selectedOption('sbox_select_year');
-    var fullDate = eventYear + "-" + eventMonth + "-" + eventDay;
-    var tryDate = new Date(eventYear + "-" + eventMonth + "-" + eventDay);
+   // var eventDay = selectedOption('sbox_select_day');
+    //var eventMonth = selectedOption('sbox_select_month');
+    //var eventYear = selectedOption('sbox_select_year');
+    
+   // var fullDate = eventYear + "-" + eventMonth + "-" + eventDay;
+   var fullDate = document.getElementById('datepicker').value;
+   alert(fullDate);
+    var tryDate = new Date(fullDate);
     if (!isValidDate(tryDate))
     {
         alert('Data jest niepoprawna!');
@@ -202,11 +206,11 @@ function addEvent()
     dane['endM'] = endM;
     dane['type'] = eventType;
     dane['class'] = classId;
-    dane['day'] = eventDay;
-    dane['month'] = eventMonth;
-    dane['year'] = eventYear;
+    dane['day'] = fullDate.substring(8,10);
+    dane['month'] = fullDate.substring(5,7);
+    dane['year'] = fullDate.substring(0,4);
     dane['add'] = addToCalendar;
-    
+
     sendEventData(dane);
     
 }
@@ -246,6 +250,11 @@ function menuActionCheck(thiss)
 					}
     }
 }
+
+    $(function() {
+        $( "#datepicker" ).datepicker();
+    });
+
 
 function menuAction(thiss)
 {
@@ -306,14 +315,21 @@ function menuAction(thiss)
 								<table class="table-calendar">
 									<tr>
 										<td class="table-left-side-calendar">Nazwa:</td>
-										<td class="table-right-side"><input class="calendar-input" type="text" name="fld_add_name" id="fld_add_name" value=""/></td>
+										<td class="table-right-side"><input class="calendar-input" class="calendar-input" type="text" name="fld_add_name" id="fld_add_name" value=""/></td>
 									</tr>
 									<tr>
 										<td class="table-left-side-calendar">Opis:</td>
 										<td class="table-right-side"><input class="calendar-input" type="text" name="fld_add_description" id="fld_add_description" value=""></td>
 									</tr>
+                                    <tr>
+										<td class="table-left-side-calendar">Data:</td>
+										<td class="table-right-side"><input class="calendar-input" type="text" name="fld_add_description" id="datepicker" value=""></td>
+									</tr>
 								</table>
-                                 Data:<select id="sbox_select_day">
+
+
+
+<!--                                 Data:<select id="sbox_select_day">
 									<option value= '01'>1</option>
 									<option value= '02'>2</option>
 									<option value= '03'>3</option>
@@ -364,7 +380,8 @@ function menuAction(thiss)
                                     <option value= '2012'>2012</option>
                                     <option value= '2013'>2013</option>
                                     </select>
-                                    <br />
+                                    <br />-->
+                                    
 								<input type="radio" name="radio_add_day_event" id = "all_day" value="all_day" onclick="showHours();" checked/>Wydarzenie całodniowe
 								<br />
 								<input type="radio" name="radio_add_day_event" id = "specific_time" value="specific_time" onclick="showHours();" />Wydarzenie kilkugodzinne

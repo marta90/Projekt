@@ -64,7 +64,7 @@ def shoutboxAND(request):
 			uz = models.Uzytkownik.objects.filter(id__in = idUzShoutboxa)
 			obiekt = list(shoutbox) + list(uz) + list(studenci)
 			json_serializer = serializers.get_serializer("json")()
-			wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik', 'student'))
+			wynik = json_serializer.serialize(obiekt, ensure_ascii=False, fields = ('nick', 'data', 'tresc', 'uzytkownik', 'student', 'czyWazne'))
 			return HttpResponse(wynik, mimetype="application/json")
 		else:
 			return HttpResponse('-4')
@@ -83,7 +83,9 @@ def planAND(request):
 			idKurs = grupy.values_list('kurs_id', flat=True)
 			wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
 			kursy = models.Kurs.objects.filter(id__in = idKurs)
-			lista = list(grupy) + list(kursy) + list(wykladowcy)
+			tygodnie = models.Tydzien.objects.all()
+			zmianyDat = models.Tydzien.objects.all()
+			lista = list(grupy) + list(kursy) + list(wykladowcy) + list(tygodnie) + list(zmianyDat)
 			json_serializer = serializers.get_serializer("json")()
 			wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
 																				   'dzienTygodnia',
@@ -96,7 +98,15 @@ def planAND(request):
 																				   'imie',
 																				   'tytul',
 																				   'nazwa',
-																				   'rodzaj'))
+																				   'rodzaj',
+																				   'nrTygodnia',
+																				   'dataOd',
+																				   'dataDo',
+																				   'rokAkademicki',
+																				   'semestr',
+																				   'data',
+																				   'tydzien',
+																				   'nowyDzien'))
 		else:
 			return HttpResponse('-4')
 		return HttpResponse(wynik, mimetype="application/json")

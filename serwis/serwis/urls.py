@@ -72,6 +72,7 @@ urlpatterns = patterns('',
     (r'^unimportantShoutAndroid$', views.oznaczNiewaznyShoutAND),
     (r'^removeEventAndroid$', views.usunWydarzenieAND),
     (r'^importantMsgAndroid$', views.zaladujWazneWiadomosciAND),
+    (r'^qr/(.*)$', views.zwrocKodQR),
     
     
     # MEDIA
@@ -86,6 +87,7 @@ urlpatterns = patterns('',
     (r'^media/html/account.html$', views.zaladujKonto),
     (r'^media/html/registration.html$', views.zaladujRejestracje),
     (r'^media/html/changePassword.html$', views.zaladujZmianeHasla),
+   
     
     # ADMIN
     (r'^admin/', include(admin.site.urls)),
