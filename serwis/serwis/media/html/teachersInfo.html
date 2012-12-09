@@ -1,0 +1,445 @@
+<script type="text/javascript">
+var editedTutorial;	
+function saveTutorial(btn)
+{
+	var addDiv = $('#addT' + btn.name);
+	var day = addDiv.children('select[name="teachers_day"]').val();
+	var parity = addDiv.children('select[name="teachers_parity"]').val();
+	var fromH = addDiv.children('select[name="teachers_from_h"]').val();
+	var fromM = addDiv.children('select[name="teachers_from_m"]').val();
+	var toH = addDiv.children('select[name="teachers_to_h"]').val();
+	var toM = addDiv.children('select[name="teachers_to_m"]').val();
+	var building = addDiv.children('input[name="teachers_building"]').val();
+	var room = addDiv.children('input[name="teachers_room"]').val();
+	var info = addDiv.children('input[name="teachers_info"]').val();
+	
+	if(fromH> toH)
+	{
+		alert('Data rozpoczęcia musi być wcześniejsza od daty zakończenia');
+		return;
+	}
+	else if(fromH == toH && fromM>=toM)
+	{
+		alert('Data rozpoczęcia musi być wcześniejsza od daty zakończenia');
+		return;
+	}
+	if(building == "")
+	{
+		alert('Musisz podać budynek.');
+		return;
+	}
+	if(room == "")
+	{
+		alert('Musisz podać salę.');
+		return;
+	}
+	
+	var dane = {};
+	dane['idT'] = btn.name;
+	dane['day'] = day;
+	dane['parity'] = parity;
+	dane['fromH'] = fromH;
+	dane['fromM'] = fromM;
+	dane['toH'] = toH;
+	dane['toM'] = toM;
+	dane['build'] = building;
+	dane['room'] = room;
+	dane['info'] = info;
+	
+	
+    $.post("addTutorial", dane , function(data)
+    {
+        if (data =='Ok')
+        {
+			addDiv.css('display', 'none');
+			showTutorial(document.getElementById(btn.name), true);
+        }
+    });  
+}
+
+function editTutorial(btn)
+{
+	var editDiv = $('#editT' + btn.name);
+	var day = editDiv.children('select[name="teachers_day"]').val();
+	var parity = editDiv.children('select[name="teachers_parity"]').val();
+	var fromH = editDiv.children('select[name="teachers_from_h"]').val();
+	var fromM = editDiv.children('select[name="teachers_from_m"]').val();
+	var toH = editDiv.children('select[name="teachers_to_h"]').val();
+	var toM = editDiv.children('select[name="teachers_to_m"]').val();
+	var building = editDiv.children('input[name="teachers_building"]').val();
+	var room = editDiv.children('input[name="teachers_room"]').val();
+	var info = editDiv.children('input[name="teachers_info"]').val();
+	
+	if(fromH> toH)
+	{
+		alert('Data rozpoczęcia musi być wcześniejsza od daty zakończenia');
+		return;
+	}
+	else if(fromH == toH && fromM>=toM)
+	{
+		alert('Data rozpoczęcia musi być wcześniejsza od daty zakończenia');
+		return;
+	}
+	if(building == "")
+	{
+		alert('Musisz podać budynek.');
+		return;
+	}
+	if(room == "")
+	{
+		alert('Musisz podać salę.');
+		return;
+	}
+	
+	var dane = {};
+	dane['idTut'] = editedTutorial;
+	dane['day'] = day;
+	dane['parity'] = parity;
+	dane['fromH'] = fromH;
+	dane['fromM'] = fromM;
+	dane['toH'] = toH;
+	dane['toM'] = toM;
+	dane['build'] = building;
+	dane['room'] = room;
+	dane['info'] = info;
+	
+	
+    $.post("editTutorial", dane , function(data)
+    {
+        if (data =='Ok')
+        {
+			editDiv.css('display', 'none');
+			showTutorial(document.getElementById(btn.name), true);
+        }
+
+    });  
+}
+function showAddDiv(anchor)
+{
+	var addDiv = $('#addT' + anchor.name);
+	var editDiv = $('#editT' + anchor.name);
+	editDiv.css('display', 'none');
+	if(addDiv.css('display') == 'block')
+		addDiv.css('display', 'none');
+	else
+		addDiv.css('display', 'block');
+}
+
+function setValues(idw, konsId, dzien, parz, godzOd, godzDo, budynek, sala, info)
+{
+	editedTutorial = konsId;
+	var editDiv = $('#editT' + idw);
+	var addDiv = $('#addT' + idw);
+	addDiv.css('display', 'none');
+	editDiv.css('display', 'block');
+	editDiv.children('select[name="teachers_day"]').val(dzien);
+	editDiv.children('select[name="teachers_parity"]').val(parz);
+	editDiv.children('select[name="teachers_from_h"]').val(godzOd.substring(0,2));
+	editDiv.children('select[name="teachers_from_m"]').val(godzOd.substring(3,5));
+	editDiv.children('select[name="teachers_to_h"]').val(godzDo.substring(0,2));
+	editDiv.children('select[name="teachers_to_m"]').val(godzDo.substring(3,5));
+	editDiv.children('input[name="teachers_building"]').val(budynek);
+	editDiv.children('input[name="teachers_room"]').val(sala);
+	editDiv.children('input[name="teachers_info"]').val(info);
+}
+</script>
+
+<i>
+{% if ileKonsultacji > 0 %}
+	{% for k in pn %}
+		{{ k.dzienTygodnia }}{% if k.parzystosc == 'TP' or k.parzystosc == 'TN' %} {{ k.parzystosc }} {% endif %}
+		{{ k.godzinaOd|time:"H:i" }} - {{ k.godzinaDo|time:"H:i" }}, bud. {{ k.budynek.nazwa }}, s. {{ k.sala }} {{k.inneInformacje}}
+		&nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px
+						onclick="setValues('{{ idw }}',
+										   '{{ k.id }}',
+										   '{{ k.dzienTygodnia }}',
+										   '{{ k.parzystosc }}',
+										   '{{ k.godzinaOd }}',
+										   '{{ k.godzinaDo }}',
+										   '{{ k.budynek.nazwa }}',
+										   '{{ k.sala }}',
+										   '{{ k.inneInformacje }}')"><br />
+	{% endfor %}
+	{% for k in wt %}
+		{{ k.dzienTygodnia }}{% if k.parzystosc == 'TP' or k.parzystosc == 'TN' %} {{ k.parzystosc }} {% endif %}
+		{{ k.godzinaOd|time:"H:i" }} - {{ k.godzinaDo|time:"H:i" }}, bud. {{ k.budynek.nazwa }}, s. {{ k.sala }} {{k.inneInformacje}}
+		&nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px
+						onclick="setValues('{{ idw }}',
+										   '{{ k.id }}',
+										   '{{ k.dzienTygodnia }}',
+										   '{{ k.parzystosc }}',
+										   '{{ k.godzinaOd }}',
+										   '{{ k.godzinaDo }}',
+										   '{{ k.budynek.nazwa }}',
+										   '{{ k.sala }}',
+										   '{{ k.inneInformacje }}')"><br />
+	{% endfor %}
+	{% for k in sr %}
+		{{ k.dzienTygodnia }}{% if k.parzystosc == 'TP' or k.parzystosc == 'TN' %} {{ k.parzystosc }} {% endif %}
+		{{ k.godzinaOd|time:"H:i" }} - {{ k.godzinaDo|time:"H:i" }}, bud. {{ k.budynek.nazwa }}, s. {{ k.sala }} {{k.inneInformacje}}
+		&nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px
+						onclick="setValues('{{ idw }}',
+										   '{{ k.id }}',
+										   '{{ k.dzienTygodnia }}',
+										   '{{ k.parzystosc }}',
+										   '{{ k.godzinaOd }}',
+										   '{{ k.godzinaDo }}',
+										   '{{ k.budynek.nazwa }}',
+										   '{{ k.sala }}',
+										   '{{ k.inneInformacje }}')"><br />
+	{% endfor %}
+	{% for k in cz %}
+		{{ k.dzienTygodnia }}{% if k.parzystosc == 'TP' or k.parzystosc == 'TN' %} {{ k.parzystosc }} {% endif %}
+		{{ k.godzinaOd|time:"H:i" }} - {{ k.godzinaDo|time:"H:i" }}, bud. {{ k.budynek.nazwa }}, s. {{ k.sala }} {{k.inneInformacje}}
+		&nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px
+						onclick="setValues('{{ idw }}',
+										   '{{ k.id }}',
+										   '{{ k.dzienTygodnia }}',
+										   '{{ k.parzystosc }}',
+										   '{{ k.godzinaOd }}',
+										   '{{ k.godzinaDo }}',
+										   '{{ k.budynek.nazwa }}',
+										   '{{ k.sala }}',
+										   '{{ k.inneInformacje }}')"><br />
+	{% endfor %}
+	{% for k in pt %}
+		{{ k.dzienTygodnia }}{% if k.parzystosc == 'TP' or k.parzystosc == 'TN' %} {{ k.parzystosc }} {% endif %}
+		{{ k.godzinaOd|time:"H:i" }} - {{ k.godzinaDo|time:"H:i" }}, bud. {{ k.budynek.nazwa }}, s. {{ k.sala }} {{k.inneInformacje}}
+		&nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px
+						onclick="setValues('{{ idw }}',
+										   '{{ k.id }}',
+										   '{{ k.dzienTygodnia }}',
+										   '{{ k.parzystosc }}',
+										   '{{ k.godzinaOd }}',
+										   '{{ k.godzinaDo }}',
+										   '{{ k.budynek.nazwa }}',
+										   '{{ k.sala }}',
+										   '{{ k.inneInformacje }}')"><br />
+	{% endfor %}
+	{% for k in sb %}
+		{{ k.dzienTygodnia }}{% if k.parzystosc == 'TP' or k.parzystosc == 'TN' %} {{ k.parzystosc }} {% endif %}
+		{{ k.godzinaOd|time:"H:i" }} - {{ k.godzinaDo|time:"H:i" }}, bud. {{ k.budynek.nazwa }}, s. {{ k.sala }} {{k.inneInformacje}}
+		&nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px
+						onclick="setValues('{{ idw }}',
+										   '{{ k.id }}',
+										   '{{ k.dzienTygodnia }}',
+										   '{{ k.parzystosc }}',
+										   '{{ k.godzinaOd }}',
+										   '{{ k.godzinaDo }}',
+										   '{{ k.budynek.nazwa }}',
+										   '{{ k.sala }}',
+										   '{{ k.inneInformacje }}')"><br />
+	{% endfor %}
+	{% for k in nd %}
+		{{ k.dzienTygodnia }}{% if k.parzystosc == 'TP' or k.parzystosc == 'TN' %} {{ k.parzystosc }} {% endif %}
+		{{ k.godzinaOd|time:"H:i" }} - {{ k.godzinaDo|time:"H:i" }}, bud. {{ k.budynek.nazwa }}, s. {{ k.sala }} {{k.inneInformacje}}
+		&nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px
+						onclick="setValues('{{ idw }}',
+										   '{{ k.id }}',
+										   '{{ k.dzienTygodnia }}',
+										   '{{ k.parzystosc }}',
+										   '{{ k.godzinaOd }}',
+										   '{{ k.godzinaDo }}',
+										   '{{ k.budynek.nazwa }}',
+										   '{{ k.sala }}',
+										   '{{ k.inneInformacje }}')"><br />
+	{% endfor %}
+	
+{% else %}
+Brak informacji o konsultacjach &nbsp &nbsp<img id = "a{{ idw }}" src="media/html/img/edit.png" height=15px width=15px onclick="editIt(this);">
+{% endif %}
+</i>
+<a href ="#" name='{{ idw }}' onclick='showAddDiv(this);'>Dodaj konsultacje</a>
+
+<div id='editT{{ idw }}' style='display: none'>
+
+	Dzień tygodnia
+	<select class="teachers-input-consultations-select-longer"  name="teachers_day">
+		<option value='pn' selected>poniedziałek</option>
+		<option value='wt'>wtorek</option>
+		<option value='śr'>środa</option>
+		<option value='cz'>czwartek</option>
+		<option value='pt'>piątek</option>
+		<option value='sb'>sobota</option>
+		<option value='nd'>niedziela</option>
+	</select>
+	
+	Parzystość
+	<select class="teachers-input-consultations-select"  name="teachers_parity">
+		<option value='' selected>oba</option>
+		<option value='TP'>TP</option>
+		<option value='TN'>TN</option>
+	</select>
+	
+	Od:
+	<select name="teachers_from_h" class="teachers-input-consultations-select">
+		<option value= '07' selected>7</option>
+		<option value= '08'>8</option>
+		<option value= '09'>9</option>
+		<option value= '10'>10</option>
+		<option value= '11'>11</option>
+		<option value= '12'>12</option>
+		<option value= '13'>13</option>
+		<option value= '14'>14</option>
+		<option value= '15'>15</option>
+		<option value= '16'>16</option>
+		<option value= '17'>17</option>
+		<option value= '18'>18</option>
+		<option value= '19'>19</option>
+		<option value= '20'>20</option>
+		<option value= '21'>21</option>
+	</select>
+	<select name="teachers_from_m" class="teachers-input-consultations-select">
+		<option value= '00' selected>0</option>
+		<option value= '05'>5</option>
+		<option value= '10'>10</option>
+		<option value= '15'>15</option>
+		<option value= '20'>20</option>
+		<option value ='25'>25</option>
+		<option value ='30'>30</option>
+		<option value ='35'>35</option>
+		<option value ='40'>40</option>
+		<option value ='45'>45</option>
+		<option value ='50'>50</option>
+		<option value ='55'>55</option>
+	</select>
+	
+	Do:
+	<select name="teachers_to_h" class="teachers-input-consultations-select">
+		<option value= '07' selected>7</option>
+		<option value= '08'>8</option>
+		<option value= '09'>9</option>
+		<option value= '10'>10</option>
+		<option value= '11'>11</option>
+		<option value= '12'>12</option>
+		<option value= '13'>13</option>
+		<option value= '14'>14</option>
+		<option value= '15'>15</option>
+		<option value= '16'>16</option>
+		<option value= '17'>17</option>
+		<option value= '18'>18</option>
+		<option value= '19'>19</option>
+		<option value= '20'>20</option>
+		<option value= '21'>21</option>
+	</select>
+	<select name="teachers_to_m" class="teachers-input-consultations-select">
+		<option value= '00' selected>0</option>
+		<option value= '05'>5</option>
+		<option value= '10'>10</option>
+		<option value= '15'>15</option>
+		<option value= '20'>20</option>
+		<option value ='25'>25</option>
+		<option value ='30'>30</option>
+		<option value ='35'>35</option>
+		<option value ='40'>40</option>
+		<option value ='45'>45</option>
+		<option value ='50'>50</option>
+		<option value ='55'>55</option>
+	</select>
+	
+	Budynek<input name ="teachers_building" class="teachers-input-consultations" type="text" />
+
+	Sala<input name ="teachers_room" class="teachers-input-consultations" type="text"/>
+
+	Inne informacje<input name ="teachers_info" name ="teachers_info" class="teachers-input-consultations-longer" type="text" />
+
+	<input class="teachers-submit-save cursor-pointer" name='{{ idw }}' type="button" value="Zapisz" onclick = 'editTutorial(this)'/>
+</div>
+
+<div id='addT{{ idw }}' style='display: none'>
+
+	Dzień tygodnia
+	<select class="teachers-input-consultations-select-longer"  name="teachers_day">
+		<option value='pn' selected>poniedziałek</option>
+		<option value='wt'>wtorek</option>
+		<option value='śr'>środa</option>
+		<option value='cz'>czwartek</option>
+		<option value='pt'>piątek</option>
+		<option value='sb'>sobota</option>
+		<option value='nd'>niedziela</option>
+	</select>
+	
+	Parzystość
+	<select class="teachers-input-consultations-select"  name="teachers_parity">
+		<option value='' selected>oba</option>
+		<option value='TP'>TP</option>
+		<option value='TN'>TN</option>
+	</select>
+	
+	Od:
+	<select name="teachers_from_h" class="teachers-input-consultations-select">
+		<option value= '07' selected>7</option>
+		<option value= '08'>8</option>
+		<option value= '09'>9</option>
+		<option value= '10'>10</option>
+		<option value= '11'>11</option>
+		<option value= '12'>12</option>
+		<option value= '13'>13</option>
+		<option value= '14'>14</option>
+		<option value= '15'>15</option>
+		<option value= '16'>16</option>
+		<option value= '17'>17</option>
+		<option value= '18'>18</option>
+		<option value= '19'>19</option>
+		<option value= '20'>20</option>
+		<option value= '21'>21</option>
+	</select>
+	<select name="teachers_from_m" class="teachers-input-consultations-select">
+		<option value= '00' selected>0</option>
+		<option value= '05'>5</option>
+		<option value= '10'>10</option>
+		<option value= '15'>15</option>
+		<option value= '20'>20</option>
+		<option value ='25'>25</option>
+		<option value ='30'>30</option>
+		<option value ='35'>35</option>
+		<option value ='40'>40</option>
+		<option value ='45'>45</option>
+		<option value ='50'>50</option>
+		<option value ='55'>55</option>
+	</select>
+	
+	Do:
+	<select name="teachers_to_h" class="teachers-input-consultations-select">
+		<option value= '07' selected>7</option>
+		<option value= '08'>8</option>
+		<option value= '09'>9</option>
+		<option value= '10'>10</option>
+		<option value= '11'>11</option>
+		<option value= '12'>12</option>
+		<option value= '13'>13</option>
+		<option value= '14'>14</option>
+		<option value= '15'>15</option>
+		<option value= '16'>16</option>
+		<option value= '17'>17</option>
+		<option value= '18'>18</option>
+		<option value= '19'>19</option>
+		<option value= '20'>20</option>
+		<option value= '21'>21</option>
+	</select>
+	<select name="teachers_to_m" class="teachers-input-consultations-select">
+		<option value= '00' selected>0</option>
+		<option value= '05'>5</option>
+		<option value= '10'>10</option>
+		<option value= '15'>15</option>
+		<option value= '20'>20</option>
+		<option value ='25'>25</option>
+		<option value ='30'>30</option>
+		<option value ='35'>35</option>
+		<option value ='40'>40</option>
+		<option value ='45'>45</option>
+		<option value ='50'>50</option>
+		<option value ='55'>55</option>
+	</select>
+	
+	Budynek<input name ="teachers_building" class="teachers-input-consultations" type="text" />
+
+	Sala<input name ="teachers_room" class="teachers-input-consultations" type="text"/>
+
+	Inne informacje<input name ="teachers_info" name ="teachers_info" class="teachers-input-consultations-longer" type="text" />
+
+	<input class="teachers-submit-save cursor-pointer" name='{{ idw }}' type="button" value="Dodaj" onclick = 'saveTutorial(this)'/>
+</div>
+
+
+<a href=# name= '{{ idw }}' onclick="showPlan(this)">Zobacz plan! </a>

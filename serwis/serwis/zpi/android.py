@@ -84,7 +84,7 @@ def planAND(request):
 			wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
 			kursy = models.Kurs.objects.filter(id__in = idKurs)
 			tygodnie = models.Tydzien.objects.all()
-			zmianyDat = models.Tydzien.objects.all()
+			zmianyDat = models.ZmianaData.objects.all()
 			lista = list(grupy) + list(kursy) + list(wykladowcy) + list(tygodnie) + list(zmianyDat)
 			json_serializer = serializers.get_serializer("json")()
 			wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
@@ -112,6 +112,39 @@ def planAND(request):
 		return HttpResponse(wynik, mimetype="application/json")
 	return HttpResponse("Fail")
 
+def notatkiAND(request):
+	if post(request):
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		if not czyZmienicHaslo(uzytkownik):
+			grupyUz = models.Grupa.objects.filter(uzytkownik = uzytkownik)
+			grupyUzID = grupyUz.values_list('id', flat=True)
+			notatki = models.NotatkaDoPlanu.objects.filter(grupa__in = grupyUzID)			
+			json_serializer = serializers.get_serializer("json")()
+			wynik = json_serializer.serialize(notatki, ensure_ascii=False)
+			return HttpResponse(wynik, mimetype="application/json")
+		else:
+			return HttpResponse('-4')
+	return HttpResponse("Fail")
+
+
+def zapiszNotatkeAND(request):
+	if post(request):
+		student = studPost(request)
+		uzytkownik = student.uzytkownik
+		if not czyZmienicHaslo(uzytkownik):
+			try:
+				notatka = request.POST['note']
+				tydzien = models.Tydzien.objects.get(id = request.POST['weekId'])
+				grupa = models.Grupa.objects.get(id = request.POST['classId'])
+				notka = models.NotatkaDoPlanu(notatka = notatka, grupa = grupa, tydzien = tydzien, dodal = uzytkownik)
+				notka.save()
+				return HttpResponse('Ok')
+			except:
+				return HttpResponse("Fail")
+		else:
+			return HttpResponse('-4')
+	return HttpResponse("Fail")
 	
 # Android - wyswietlenie zblizajacych sie wydarzen
 def mojeWydarzeniaAND(request):

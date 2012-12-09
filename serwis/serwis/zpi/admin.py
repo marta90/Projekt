@@ -40,7 +40,7 @@ class StudentInline(admin.TabularInline):
     extra = 1
 
 class UzytkownikAdmin(admin.ModelAdmin):
-    list_display = ('nazwisko', 'imie', 'mail', 'dataUtworzenia')
+    list_display = ('nick', 'nazwisko', 'imie', 'mail', 'dataUtworzenia')
     search_fields = ['imie', 'nazwisko']
     inlines = [StudentInline,]
     ordering = ('nazwisko', 'imie', '-dataUtworzenia')
@@ -86,9 +86,6 @@ class KalendarzInline(admin.TabularInline):
     model = Kalendarz
     extra = 1
     
-class AktualneWydarzenieInline(admin.TabularInline):
-    model = AktualneWydarzenie
-    extra = 1
 
 class WydarzeniaAdmin(admin.ModelAdmin):
     list_display = ('nazwa', 'dataWydarzenia', 'godzinaOd', 'godzinaDo', 'rodzajWydarzenia', 'grupa')
@@ -96,8 +93,6 @@ class WydarzeniaAdmin(admin.ModelAdmin):
     ordering = ('-dataWydarzenia', 'nazwa',)
     list_filter = ('dataWydarzenia',)
 
-class AktualneWydarzenieAdmin(admin.ModelAdmin):
-    list_display = ('stare', 'nowe')
     
 class KonsultacjeInline(admin.TabularInline):
     model = Konsultacje
@@ -127,7 +122,7 @@ admin.site.register(Prowadzacy, ProwadzacyAdmin)
 #admin.site.register(Kurs, KursAdmin)
 #admin.site.register(Plan)
 admin.site.register(Shoutbox, ShoutBoxAdmin)
-admin.site.register(AktualneWydarzenie, AktualneWydarzenieAdmin)
+#admin.site.register(AktualneWydarzenie, AktualneWydarzenieAdmin)
 admin.site.register(Wydarzenie, WydarzeniaAdmin)
 #admin.site.register(Kalendarz)
 #admin.site.register(KategoriaMiejsca)

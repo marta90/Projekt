@@ -179,8 +179,8 @@
                         rodzaj = "Niezdefiniowany";
                     }
                     $('#timetable-scroll-type').html('<b>'+rodzaj+'</b>');
-                    $('#timetable-scroll-code').html(obiekt.events[i].kodKursu + ', ' + obiekt.events[i].kodGrupy);
-                    $('#timetable-scroll-teacher').html(obiekt.events[i].tytulProw + ' ' + obiekt.events[i].imieProw + ' ' + obiekt.events[i].nazwiskoProw);
+                    $('#timetable-scroll-code').html('<i>' + obiekt.events[i].kodKursu + ', ' + obiekt.events[i].kodGrupy + '</i>');
+                    $('#timetable-scroll-teacher').html('<i>' + obiekt.events[i].tytulProw + ' ' + obiekt.events[i].imieProw + ' ' + obiekt.events[i].nazwiskoProw + '</i>');
                     var dzien = '';
                     switch (obiekt.events[i].dzien) { 
                       case 'pn': 
@@ -214,12 +214,12 @@
                     }
 					var start = obiekt.events[i].start.split(":");
                     var end = obiekt.events[i].end.split(":");
-                    if(parz == ''){$('#timetable-scroll-day').html(dzien + ', <br />' + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));}
+                    if(parz == ''){$('#timetable-scroll-day').html('<i>' + dzien + ', <br />' + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]) + '</i>');}
 
-                    else {$('#timetable-scroll-day').html(dzien + ' (' + parz + ')' + ', <br />' + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));}
+                    else {$('#timetable-scroll-day').html('<i>' + dzien + ' (' + parz + ')' + ', <br />' + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]) + '</i>');}
 
                     //$('#timetable-scroll-time').html(zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));
-                    $('#timetable-scroll-place').html(obiekt.events[i].miejsce);
+                    $('#timetable-scroll-place').html('<i>' + obiekt.events[i].miejsce + '</i>');
                     
                     $('#btn_send_note').attr('name', obiekt.events[i].id);
                     $('#fld_note').attr('value', '');
@@ -306,7 +306,7 @@
 	}
 	function hideDetailsDiv()
 	{
-	  $('#left-box-draggable-timetable').css('display', 'none');
+	  document.getElementById('left-box-draggable-timetable').style.display='none';
 	}
 
   </script>
@@ -318,26 +318,26 @@
   
   <div id="left-box-draggable-timetable" style="display:none">
     <div id="timetable-scroll">
-	  <div class="flying-close-button"><a href="#" onclick="hideDetailsDiv();" class="" onclick=""><img src="img/del.png" alt="" width="15" height="15" /></a></div>
+	  <a href="javascript:;" onclick="hideDetailsDiv();"> X </a>
       <div id="timetable-scroll-title"><b>[Sztuczna Inteligencja]</b></div>
      
       <div id="timetable-scroll-type">[Wykład]</div>
       <br /><br />
-      <u>Kod kursu i grupy:</u>
+      Kod kursu i grupy:
       <br />
       <div id="timetable-scroll-code">[INZ0004598W], [h-45b]</div>
       <br />
-       <u>Prowadzący:</u>
+      Prowadzący:
       <br />
       <div id="timetable-scroll-teacher">[prof. dr hab. inż. Halina Kwaśnicka]</div>
       <br />
-       <u>Termin:</u>
+      Termin:
       <br />
       <div id="timetable-scroll-day">[Piątek] [(parzysty)]</div>
       <br />
   <!--    <div id="timetable-scroll-time">[11:15]-[13:00];</div>
       <br />-->
-	   <u>Miejsce:</u>
+	  Miejsce:
       <div id="timetable-scroll-place">[B-4/409]</div>
       <br /><br /><br />
       <b>Notatki:</b>

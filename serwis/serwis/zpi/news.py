@@ -44,9 +44,16 @@ def zaladujNewsy(request):
 	wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) #pokazanie tylko tych wydarzen, ktorych nie ma w kalendarzu uzytkownika
 	wydarzenia = wydarzenia.filter(dataWydarzenia__gte = datetime.date.today())
 	wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')[:10]
+	shoutbox2 = models.Shoutbox.objects.filter(student__kierunek = kierunek,
+											  student__semestr = semestr,
+											  student__rodzajStudiow = stopien,
+											  czyWazne = True).order_by('data')[:10]
+	shoutbox2 = shoutbox2.reverse()
+	dzisiaj = datetime.datetime.now()
+	wczoraj = dzisiaj - datetime.timedelta(days=1)
 	dzisiaj = datetime.datetime.now()
 	wczoraj = dzisiaj - datetime.timedelta(days = 1)
-	return render_to_response('news.html', {'rozmowy':shoutbox, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj, 'studenci':studenci, 'ileKierunkow':ileKierunkow, 'aktywny':student.id})
+	return render_to_response('news.html', {'rozmowy':shoutbox, 'rozmowyWazne':shoutbox2, 'mojeWydarzenia':mojeWydarzenia, 'wydarzenia':wydarzenia, 'dzisiaj':dzisiaj, 'wczoraj':wczoraj, 'studenci':studenci, 'ileKierunkow':ileKierunkow, 'aktywny':student.id})
 
 
 # Pobranie aktualnego shoutboxa - potrzebne przy odświeżaniu go

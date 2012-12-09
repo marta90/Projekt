@@ -2,7 +2,7 @@
 						<ul id="teachers-list">
 						{% for p in prowadzacy %}
 							<li>
-								<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
+								<a href=# id= {{ p.id }} onclick="showTutorial(this, false)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
 								<div id = all{{p.id}} class="divinactive">
 									<div id = d{{p.id}}>
 										Tutaj są konsultacje<br />powyższego wykładowcy

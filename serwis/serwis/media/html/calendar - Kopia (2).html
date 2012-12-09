@@ -1,92 +1,121 @@
-		<script type='text/javascript'>
 
-        var isDescription = false;
-        var activeEvent;
-		var kalendarz = {}
-		
-		var id, nazwa, opis, dataWyd, godzinaOd, godzinaDo, typ, grupa;
-		
-		{% for k in kalendarz %}
-		id = '{{ k.wydarzenie.id }}';
-		nazwa = '{{ k.wydarzenie.nazwa }}';
-		opis = '{{ k.opis }}';
-		dataWyd = '{{ k.wydarzenie.dataWydarzenia|date:"d b Y" }}'
-		godzinaOd = '{{ k.wydarzenie.godzinaOd }}'.substring(0, 5);
-		godzinaDo = '{{ k.wydarzenie.godzinaDo }}'.substring(0, 5);
-		typ = '{{ k.wydarzenie.rodzajWydarzenia }}';
-		grupa = '{{ k.wydarzenie.grupa.id }}';
+<script type='text/javascript'>
+
+var isDescription = false;
+var activeEvent;
+var activeEventFromCal;
+var kalendarz = {}
+var shown = false;
+
+var id, nazwa, opis, dataWyd, godzinaOd, godzinaDo, typ, grupa;
+
+{% for k in kalendarz %}
+id = '{{ k.wydarzenie.id }}';
+nazwa = '{{ k.wydarzenie.nazwa }}';
+opis = '{{ k.opis }}';
+dataWyd = '{{ k.wydarzenie.dataWydarzenia|date:"d b Y" }}'
+godzinaOd = '{{ k.wydarzenie.godzinaOd }}'.substring(0, 5);
+godzinaDo = '{{ k.wydarzenie.godzinaDo }}'.substring(0, 5);
+typ = '{{ k.wydarzenie.rodzajWydarzenia }}';
+grupa = '{{ k.wydarzenie.grupa.id }}';
+        
+kalendarz[id] = [ [nazwa], [opis], [dataWyd], [godzinaOd], [godzinaDo], [typ], [grupa]];
+{% endfor %}
+
+{% for w in noweWydarzenia %}
+id = '{{ w.id }}';
+nazwa = '{{ w.nazwa }}';
+opis = '{{ w.opis }}';
+dataWyd = '{{ w.dataWydarzenia|date:"d b Y" }}'
+godzinaOd = '{{ w.godzinaOd }}'.substring(0, 5);
+godzinaDo = '{{ w.godzinaDo }}'.substring(0, 5);
+typ = '{{ w.rodzajWydarzenia }}';
+grupa = '{{ w.grupa.id }}';
+        
+kalendarz[id] = [ [nazwa], [opis], [dataWyd], [godzinaOd], [godzinaDo], [typ], [grupa]];
+{% endfor %}
+
+
+
+function showMyCal()
+{
+    var date = new Date();
+    var d = date.getDate();
+    var m = date.getMonth();
+    var y = date.getFullYear();
+
+    $('#calendar-content').fullCalendar({
+        height: 500,
+        editable: false,
+        events: [                    
+        {% for k in kalendarz %}
+        {
+            title: '{{ k.wydarzenie.nazwa }}',
+            start: new Date({{ k.wydarzenie.dataWydarzenia|date:"Y" }}, {{ k.wydarzenie.dataWydarzenia|date:"m"}} -1, {{ k.wydarzenie.dataWydarzenia|date:"d"}}),
+            id: '{{k.wydarzenie.id}}',
+            className: 'my_event',
+            color: 'green',
+        },	
+        {% endfor %}
+        {% for w in noweWydarzenia %}
+        {
+            title: '{{ w.nazwa }}',
+            start: new Date({{ w.dataWydarzenia|date:"Y" }}, {{ w.dataWydarzenia|date:"m"}} -1, {{ w.dataWydarzenia|date:"d"}}),
+            id: '{{w.id}}',
+            className: 'not_my_event',
+            color: 'grey',
+            },	
+        {% endfor %}
+        ],
+        eventClick: function(event) 
+        {
+            if(event.className == 'not_my_event')
+                $('#add_ev').html('<a href="#" onclick="addEventFromCal();">+</a>')
+            else
+                $('#add_ev').html('<a href="#" onclick="removeEvent();">-</a>')
                 
-		kalendarz[id] = [ [nazwa], [opis], [dataWyd], [godzinaOd], [godzinaDo], [typ], [grupa]];
-		{% endfor %}
-		
-		function showMyCal(){
+            document.getElementById("sp_event_name").innerHTML = kalendarz[event.id][0];
+            document.getElementById("sp_event_descr").innerHTML = kalendarz[event.id][1];
+            document.getElementById("fld_change_descr").value = kalendarz[event.id][1];
+            var gOd = kalendarz[event.id][3];
+            var gDo = kalendarz[event.id][4];
+             
+            if(gOd != '00:00' || gDo != '00:00')
+            {
+                var godziny = gOd + " - " + gDo; 
+                document.getElementById("sp_time").innerHTML = kalendarz[event.id][2] +", " + godziny;
+            }
+            else
+            {
+                document.getElementById("sp_time").innerHTML = kalendarz[event.id][2];
+            }
 
-			var date = new Date();
-			var d = date.getDate();
-			var m = date.getMonth();
-			var y = date.getFullYear();
+            isDescription = true;
+            document.getElementById('qrCode').style.display = 'none';
+            document.getElementById("edit_event").style.display = "none";
+            activeEvent = event.id;
+            activeEventFromCal = event;
+            menuAction(document.getElementById('a_desc'));
+        },
+        
+        dayClick: function(date, allDay, jsEvent, view)
+        {
+            document.getElementById('datepicker').value = addZero(date.getFullYear() + "-" + addZero(date.getMonth() + 1) + "-" + date.getDate()); ;
+            var thiss = document.getElementById('a_add');
+            if ($(thiss).attr('class') != 'active'){
+                $('#map-menu li ul').slideUp();
+                $(thiss).next().slideToggle();
+                $('#map-menu li a').removeClass('active');
+                $(thiss).addClass('active');
+            }
+        
+        }
+    });
+}
 
-			
-			$('#calendar-content').fullCalendar({
-				height: 500,
-				editable: false,
-				events: [                    
-				{% for k in kalendarz %}
-					{
-						//title: '{{ k.wydarzenie.nazwa }}'.length > 14 ? '{{ k.wydarzenie.nazwa }}'.substring(0, 10) +"(...)" : '{{ k.wydarzenie.nazwa }}',
-                        title: '{{ k.wydarzenie.nazwa }}',
-						start: new Date({{ k.wydarzenie.dataWydarzenia|date:"Y" }}, {{ k.wydarzenie.dataWydarzenia|date:"m"}} -1, {{ k.wydarzenie.dataWydarzenia|date:"d"}}),
-						id: '{{k.wydarzenie.id}}',
-					},	
-				{% endfor %}
-				],
-				eventClick: function(event) 
-				{
-					document.getElementById("sp_event_name").innerHTML = kalendarz[event.id][0];
-					document.getElementById("sp_event_descr").innerHTML = kalendarz[event.id][1];
-					document.getElementById("fld_change_descr").value = kalendarz[event.id][1];
-					var gOd = kalendarz[event.id][3];
-					var gDo = kalendarz[event.id][4];
-                    
-                     
-					if(gOd != '00:00' || gDo != '00:00')
-					{
-						var godziny = gOd + " - " + gDo; 
-						document.getElementById("sp_time").innerHTML = kalendarz[event.id][2] +", " + godziny;
-					}
-                    else
-                    {
-                        document.getElementById("sp_time").innerHTML = kalendarz[event.id][2];
-                    }
-					
-					var rodzaj = kalendarz[event.id][5];
-					
-					//document.getElementById("sp_type").innerHTML = rodzaj;
-                    isDescription = true;
-                    document.getElementById('qrCode').style.display = 'none';
-                    document.getElementById("edit_event").style.display = "none";
-                    activeEvent = event.id;
-					menuAction(document.getElementById('a_desc'));
-                    
-				},
-                dayClick: function(date, allDay, jsEvent, view)
-                {
-                    document.getElementById('datepicker').value = addZero(date.getFullYear() + "-" + addZero(date.getMonth() + 1) + "-" + date.getDate()); ;
-                    var thiss = document.getElementById('a_add');
-                    if ($(thiss).attr('class') != 'active'){
-						$('#map-menu li ul').slideUp();
-						$(thiss).next().slideToggle();
-						$('#map-menu li a').removeClass('active');
-						$(thiss).addClass('active');
-					}
-                
-                }
-			});
-		}
-		
-		$(function() {
-		        $( "#left-box-draggable" ).draggable({ axis: "x", containment: "#main-content" });
-    		});
+$(function() {
+        $( "#left-box-draggable" ).draggable({ axis: "x", containment: "#main-content" });
+    });
 
 
 function addZero(num)
@@ -163,6 +192,43 @@ function checkType()
     {
         document.getElementById("studentsClasses").style.display = "none";
     }
+}
+
+function addEventFromCal()
+	{
+		$.get("addEventToCalendar/" + activeEvent , function(data)
+		{
+			if (data =='Ok')
+			{
+            
+				activeEventFromCal.className = 'my_ev';
+                activeEventFromCal.color = 'green';
+                document.getElementById('add_ev').style.display = 'none';
+                 $('#calendar-content').fullCalendar('updateEvent', activeEventFromCal);
+                
+		   }
+
+		  }
+		);
+		  
+	}
+
+function removeEvent()
+{
+
+    $.get("removeEvent/" + activeEvent , function(data)
+    {
+        if (data =='Ok')
+        {
+            activeEventFromCal.className = 'removed';
+            document.getElementById('add_ev').style.display = 'none';
+             $('#calendar-content').fullCalendar('updateEvent', activeEventFromCal);
+            
+       }
+
+      }
+    );
+      
 }
 
 function addEvent()
@@ -281,6 +347,59 @@ function getQRCode()
 	$("#qrCode").load("qr/"+activeEvent, function(){ document.getElementById('qrCode').style.display = 'block'; });
 }
 
+function showOtherEvents()
+{
+    var ss = document.styleSheets;
+    if (shown)
+    {
+        shown = false;
+
+        floop:
+        for (var i=0; i<ss.length; i++)
+        {
+            var rules = ss[i].cssRules || ss[i].rules;
+
+            
+            for (var j=0; j<rules.length; j++)
+            {
+                //alert(rules[j].selectorText);
+                if (rules[j].selectorText === ".not_my_event")
+                {
+                    rules[j].style.display = "none";
+                    break floop;
+                }
+            }
+        }
+        $('.not_my_event').css('display', 'none');
+        $('#showOtherEvents').html('Pokaż wydarzenia');
+    }
+    else
+    {
+        shown = true;
+        floop2:
+        for (var i=0; i<ss.length; i++)
+        {
+            var rules = ss[i].cssRules || ss[i].rules;
+
+            
+            for (var j=0; j<rules.length; j++)
+            {
+                //alert(rules[j].selectorText);
+                if (rules[j].selectorText === ".not_my_event")
+                {
+                    rules[j].style.display = "block";
+                    break floop2;
+                }
+            }
+        }
+        $('.not_my_event').css('display', 'block');
+        $('#showOtherEvents').html('Ukryj wydarzenia');
+    }
+   
+   
+}
+
+
 function menuAction(thiss)
 {
 	if ($(thiss).attr('class') != 'active'){
@@ -290,17 +409,7 @@ function menuAction(thiss)
 						$(thiss).addClass('active');
 					}
 }
-	/*				$(document).ready(function () {
-				$('#map-menu > li > a').click(function(){
-					if ($(this).attr('class') != 'active'){
-						$('#map-menu li ul').slideUp();
-						$(this).next().slideToggle();
-						$('#map-menu li a').removeClass('active');
-						$(this).addClass('active');
-					}
-				});
-			});
-*/
+
 		</script>
 		
 		<style type='text/css'>
@@ -314,6 +423,17 @@ function menuAction(thiss)
 		</style>
 				<div id='calendar-content'>
 				</div>
+                <div class="calendar-add-event-button">
+                <span>
+                <span>
+                <span style='margin-left: -100px;'><a href="#" onclick="showOtherEvents();" id='showOtherEvents'>Pokaż wydarzenia</a></span>
+                <span><a href="#" onclick="showDragDiv();" id='showDragDiv'>Dodaj wydarzenie</a></span>
+                <span>
+                <span></span>
+                </span>
+                </span>
+                </span>
+                </div>
 				
 				<div id="left-box-draggable">
 					<div id="calendar-scroll">
@@ -321,6 +441,7 @@ function menuAction(thiss)
 							<li><a href = "javascript:;" id = 'a_desc' onClick = "menuActionCheck(this);">Szczegóły wydarzenia</a>
 								<ul><li>
 								<div id="calendar-event-details">
+                                    <div id = "add_ev"><a href="#" onclick="addEventFromCal();">+</a></div>
                                     <u><span id = "sp_time"></span></u><br />
 									<b><span id ="sp_event_name"></span></b> &nbsp <img src='media/html/img/qr.png' width="14" height="14" onclick='getQRCode();'/><br />
                                     

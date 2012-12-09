@@ -74,29 +74,46 @@ def znajdzWykladowce(request, nazwa):
 
 
 # Wczytanie konsultacji podanego wykladowcy
+#def konsultacjeWykladowcy(request, idw):
+#	prowadzacy = models.Prowadzacy.objects.get(id = idw)
+#	konsultacje = models.Konsultacje.objects.filter(prowadzacy = prowadzacy)
+#	response = HttpResponse()
+#	response.write("<i>")
+#	br = False
+#	if konsultacje.exists():
+#		for k in konsultacje:
+#			if br:
+#				response.write('<br>')
+#			br = True
+#			response.write(k.dzienTygodnia)
+#			if (k.parzystosc == 'TP') or (k.parzystosc == 'TN'):
+#				response.write(" " + k.parzystosc)
+#			response.write(" " + k.godzinaOd.strftime("%H:%M") + " - " + k.godzinaDo.strftime("%H:%M") + ", bud. ")
+#			response.write(k.budynek.nazwa + ", s. " + k.sala)
+#		
+#	else:
+#		response.write('Brak informacji o konsultacjach')
+#	#response.write('</i> &nbsp &nbsp   <img id = "a' +idw +'" src="media/html/img/edit.png" height=20px width=20px onclick="editIt(this);">')
+#	response.write('</i><br>')
+#	response.write(' <a href=# id= "' + idw + '" onclick="showPlan(this)">Zobacz plan! </a>')
+#	return response
+
+
 def konsultacjeWykladowcy(request, idw):
 	prowadzacy = models.Prowadzacy.objects.get(id = idw)
-	konsultacje = models.Konsultacje.objects.filter(prowadzacy = prowadzacy)
-	response = HttpResponse()
-	response.write("<i>")
-	br = False
-	if konsultacje.exists():
-		for k in konsultacje:
-			if br:
-				response.write('<br>')
-			br = True
-			response.write(k.dzienTygodnia)
-			if (k.parzystosc == 'TP') or (k.parzystosc == 'TN'):
-				response.write(" " + k.parzystosc)
-			response.write(" " + k.godzinaOd.strftime("%H:%M") + " - " + k.godzinaDo.strftime("%H:%M") + ", bud. ")
-			response.write(k.budynek.nazwa + ", s. " + k.sala)
-		
-	else:
-		response.write('Brak informacji o konsultacjach')
-	#response.write('</i> &nbsp &nbsp   <img id = "a' +idw +'" src="media/html/img/edit.png" height=20px width=20px onclick="editIt(this);">')
-	response.write('</i><br>')
-	response.write(' <a href=# id= "' + idw + '" onclick="showPlan(this)">Zobacz plan! </a>')
-	return response
+	print('1')
+	konsultacje = models.Konsultacje.objects.filter(prowadzacy = prowadzacy).order_by('godzinaOd', 'godzinaDo')
+	print('2')
+	ile = konsultacje.count()
+	print(ile)
+	pn = konsultacje.filter(dzienTygodnia = 'pn')
+	wt = konsultacje.filter(dzienTygodnia = 'wt')
+	sr = konsultacje.filter(dzienTygodnia = 'śr')
+	cz = konsultacje.filter(dzienTygodnia = 'cz')
+	pt = konsultacje.filter(dzienTygodnia = 'pt')
+	sb = konsultacje.filter(dzienTygodnia = 'sb')
+	nd = konsultacje.filter(dzienTygodnia = 'nd')
+	return render_to_response('teachersInfo.html', {'pn':pn, 'wt':wt, 'sr':sr, 'cz':cz, 'pt':pt, 'sb':sb, 'nd':nd , 'ileKonsultacji':ile, 'idw':idw})
 
 
 # Wyswietlanie planu wybranego wykladowcy
@@ -150,3 +167,135 @@ def tworzenieZajecProw(i, nowaData, grupy, output):      # tworze json i dodaje 
                     "title": "(" + grupy[i].kurs.rodzaj + ") " +  grupy[i].kurs.nazwa + "<br>" + grupy[i].miejsce + "<br>" + grupy[i].godzinaOd.strftime('%H:%M') + "-" + grupy[i].godzinaDo.strftime('%H:%M')
                     }
     output.get("events").append(event)
+
+
+def dodajKonsultacje(request):
+	try:
+		uzytkownik = uzSesja(request)
+		p = request.POST.copy();
+		wykladowca = models.Prowadzacy.objects.get(id = p['idT'])
+		dzien = p['day']
+		if zlyDzien(dzien):
+			return HttpResponse('Fail')
+		parz = p['parity']
+		print(parz)
+		if not (parz=='' or parz =='TP' or parz =='TN'):
+			return HttpResponse('Fail')
+		print('parz ok')
+		godzinaOd = datetime.time(int(p['fromH']), int(p['fromM']))
+		godzinaDo = datetime.time(int(p['toH']), int(p['toM']))
+		if godzinaOd > godzinaDo:
+			return HttpResponse('Fail')
+		budynek = p['build']
+		budynekId = znajdzBudynek(budynek)
+		print(budynekId)
+		sala = p['room']
+		info = p['info']
+		if sala =="":
+			return HttpResponse('Fail')
+		
+		print('zaraz bede zapisywac')
+		kons = models.Konsultacje(prowadzacy = wykladowca,
+								  dzienTygodnia = dzien,
+								  parzystosc = parz,
+								  godzinaOd = godzinaOd,
+								  godzinaDo = godzinaDo,
+								  budynek_id = budynekId,
+								  sala = sala,
+								  inneInformacje = info,
+								  dataOstZmianyDanych = datetime.datetime.now(),
+								  ktoZmienilDane = uzytkownik)
+		print('utworzylam')
+		kons.save()
+		return HttpResponse('Ok')	
+	except:
+		return HttpResponse('Fail')
+	
+
+def edytujKonsultacje(request):
+	try:
+		uzytkownik = uzSesja(request)
+		p = request.POST.copy();
+		konsultacje = models.Konsultacje.objects.get(id = p['idTut'])
+		dzien = p['day']
+		if zlyDzien(dzien):
+			return HttpResponse('Fail')
+		parz = p['parity']
+		print(parz)
+		if not (parz=='' or parz =='TP' or parz =='TN'):
+			return HttpResponse('Fail')
+		print('parz ok')
+		godzinaOd = datetime.time(int(p['fromH']), int(p['fromM']))
+		godzinaDo = datetime.time(int(p['toH']), int(p['toM']))
+		if godzinaOd > godzinaDo:
+			return HttpResponse('Fail')
+		budynek = p['build']
+		budynekId = znajdzBudynek(budynek)
+		print(budynekId)
+		sala = p['room']
+		info = p['info']
+		if sala =="":
+			return HttpResponse('Fail')
+		
+		print('zaraz bede zapisywac')
+		konsultacje.dzienTygodnia = dzien
+		konsultacje.parzystosc = parz
+		konsultacje.godzinaOd = godzinaOd
+		konsultacje.godzinaDo = godzinaDo
+		konsultacje.budynek_id = budynekId
+		konsultacje.sala = sala
+		konsultacje.inneInformacje = info
+		konsultacje.dataOstZmianyDanych = datetime.datetime.now()
+		konsultacje.ktoZmienilDane = uzytkownik
+		print('utworzylam')
+		konsultacje.save()
+		return HttpResponse('Ok')	
+	except:
+		return HttpResponse('Fail')
+	
+
+def zlyDzien(dzien):
+	print('sprawdzam dzien ' + dzien)
+	if (dzien == 'pn' or dzien == 'wt' or dzien.encode('utf-8')=='śr' or dzien=='cz' or dzien=='pt' or dzien=='sb' or dzien=='nd'):
+		print('dzien ok')
+		return False
+	else:
+		print('dzien nie ok')
+		return True
+	
+def znajdzBudynek(bud):
+	print('sprawdze budynek')
+	bud = string.replace(bud, '-', '')
+	bud = string.replace(bud, '/', '')
+	bud = string.replace(bud, ' ', '')
+	litera = bud[:1].upper()
+	cyfra = bud[1:]
+	budynek = litera + "-" + cyfra
+	print('------------------------------------ ' + budynek)
+	try:
+		idB = models.Miejsce.objects.get(nazwa = budynek, kategoria = 1)
+		return idB.id
+	except:
+		nowy = models.Miejsce(kategoria_id=1, nazwa=budynek, adres="", godzinyOtwarcia="", telefon="", x="", y="")
+		nowy.save()
+		return nowy.id
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

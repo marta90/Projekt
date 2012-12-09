@@ -43,7 +43,10 @@ urlpatterns = patterns('',
     (r'^editEventDescription$', views.zmienOpis),
     (r'^importantShout$', views.oznaczWaznyShout),
     (r'^unimportantShout$', views.oznaczNiewaznyShout),
-                       
+    (r'^removeEvent/(.*)$', views.usunWydarzenie),
+    (r'^addTutorial$', views.dodajKonsultacje),
+    (r'^editTutorial$', views.edytujKonsultacje),
+    
     #PLAN POBIERANIE I ZAPISYWANIE NOTATEK
     (r'^getNotes/(.*)/(.*)$', views.getNotes),
     (r'^saveNotes$', views.saveNotes),
@@ -73,6 +76,8 @@ urlpatterns = patterns('',
     (r'^removeEventAndroid$', views.usunWydarzenieAND),
     (r'^importantMsgAndroid$', views.zaladujWazneWiadomosciAND),
     (r'^qr/(.*)$', views.zwrocKodQR),
+    (r'^notesAndroid$', views.notatkiAND),
+    (r'^saveNoteAndroid$', views.zapiszNotatkeAND),
     
     
     # MEDIA

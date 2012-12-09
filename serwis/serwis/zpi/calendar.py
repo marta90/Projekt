@@ -25,10 +25,17 @@ from serwis.zpi.mainFunctions import *
 # Zaladowanie strony calendar.html do diva na stronie glownej
 def zaladujKalendarz(request):
 	if jestSesja(request):
-		uzytkownik = uzSesja(request)
+		student = studSesja(request)
+		uzytkownik = student.uzytkownik
 		grupy = uzytkownik.grupa_set.all()
 		kalendarz = models.Kalendarz.objects.filter(uzytkownik = uzytkownik).order_by('wydarzenie__dataWydarzenia', 'wydarzenie__godzinaOd', 'wydarzenie__godzinaDo')
-		return render_to_response('calendar.html', {'grupy':grupy, 'kalendarz':kalendarz})
+		
+		wydarzenia = filtrujNoweWydarzenia(student) #zwraca wydarzenia odpowiednie tylko dla wybranego uzytkownika
+		wydarzeniaUz = uzytkownik.wydarzenie_set.all() #zbior wydarzen znajdujacych sie w kalendarzu uzytkownika
+		wydarzenia = wydarzenia.exclude(id__in=wydarzeniaUz) #pokazanie tylko tych wydarzen, ktorych nie ma w kalendarzu uzytkownika
+		wydarzenia = wydarzenia.filter(dataWydarzenia__gte = datetime.date.today())
+		wydarzenia = wydarzenia.order_by('-dataDodaniaWyd', '-godzinaOd')
+		return render_to_response('calendar.html', {'grupy':grupy, 'kalendarz':kalendarz, 'noweWydarzenia':wydarzenia})
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
@@ -48,9 +55,8 @@ def zmienOpis(request):
 
 
 # Usuwanie wydarzenie z kalendarza
-def usunWydarzenie(request):
+def usunWydarzenie(request, idWyd):
 	try:
-		idWyd = request.POST['evId']
 		uzytkownik = uzSesja(request)
 		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
 		kalendarz.delete()

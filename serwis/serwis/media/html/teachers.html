@@ -15,25 +15,34 @@
         $("#teachers-list").load("getTeachers/" + litera);
 
     }
-     function showTutorial(idA){
+     function showTutorial(idA, czyWysw){
         var idUrl = idA.id;
         var idDiv = "d" + idUrl;
 		var divAll = "all" + idUrl;
 		var idDiv2 = "p" + idUrl;
         
         var klasa = document.getElementById(divAll).className;
-        if(klasa == 'divinactive')
+        if(!czyWysw)
         {
-            $("#"+idDiv).load("getTutorial/" + idUrl , function(){
-            document.getElementById(divAll).className = 'divactive';
-            });
+            if(klasa == 'divinactive')
+            {
+                $("#"+idDiv).load("getTutorial/" + idUrl , function(){
+                document.getElementById(divAll).className = 'divactive';
+                });
+            }
+            else
+            {
+                $('#'+idDiv2).attr({'class':'divinactive'});
+                $('.wc-container').remove();
+                 document.getElementById(divAll).className = 'divinactive';
+            }
         }
         else
-		{
-		    $('#'+idDiv2).attr({'class':'divinactive'});
-			$('.wc-container').remove();
-             document.getElementById(divAll).className = 'divinactive';
-		}
+        {
+            $("#"+idDiv).load("getTutorial/" + idUrl , function(){
+                document.getElementById(divAll).className = 'divactive';
+                });
+        }
 
     }
     
@@ -56,7 +65,7 @@
 		var eventData = {
 			events : []
 		};
-		var idUrl = idA.id;
+		var idUrl = idA.name;
         var idDiv = "p" + idUrl;
 		var klasa = $('#'+idDiv).attr('class');
 		if(klasa == 'divinactive'){
@@ -161,7 +170,7 @@
 						<ul id="teachers-list">
 						{% for p in prowadzacy %}
 							<li>
-								<a href=# id= {{ p.id }} onclick="showTutorial(this)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
+								<a href=# id= {{ p.id }} onclick="showTutorial(this, false)"> <b>{{ p.nazwisko }} {{ p.imie }},</b> {{ p.tytul }}</a>
 								<div id = all{{p.id}} class="divinactive">
 									<div id = d{{p.id}}>
 										Tutaj są konsultacje<br />powyższego wykładowcy

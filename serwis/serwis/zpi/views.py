@@ -469,13 +469,23 @@ def wylogowanie(request):
 
 # Klasa do testow
 def test(request):
-	idWyd = '9'
-	uzytkownik = uz('marta')
-	kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
-	kalendarz.delete()
-	return HttpResponse('ok')
-
-
+		uzytkownik = models.Uzytkownik.objects.get(id = 8)
+		wykladowca = models.Prowadzacy.objects.get(id = 9)
+		godzinaOd = datetime.time(11, 15)
+		godzinaDo = datetime.time(11, 30)
+		kons = models.Konsultacje(prowadzacy = wykladowca,
+								  dzienTygodnia = 'pn',
+								  parzystosc = '',
+								  godzinaOd = godzinaOd,
+								  godzinaDo = godzinaDo,
+								  budynek_id = 32,
+								  sala = '234',
+								  inneInformacje = '',
+								  dataOstZmianyDanych = datetime.datetime.now(),
+								  ktoZmienilDane = uzytkownik)
+		kons.save()
+		return HttpResponse('Ok')	
+	
 
 def test2(request):
 	nick = 'ktosik'

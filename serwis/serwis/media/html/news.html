@@ -153,7 +153,7 @@
 					<div class="box-title">Ważne wiadomości</div>
 					<div id="portal-important-msgs-scroll">
 						
-						{% for r in rozmowy %}
+						{% for r in rozmowyWazne %}
 							{% if r.czyWazne %}
 						<div class="portal-text">
 							<div class="box-img-del"><a href="javascript:;" name = "{{ r.id }}" onclick= "markAsUnimportant(this);"><img src="media/html/img/blank.png" alt="" title="Usuń tę wiadomość z listy ważnych wiadomości" width="28" height="28" /></a></div>
@@ -167,7 +167,7 @@
 									{{ r.data|date:"SHORT_DATE_FORMAT" }}
 								{% endif %}
 								{% endif %}
-								
+		
 								{{ r.data|date:"G:i:s"  }}
 							</div>
 							<div class="box-text"><b>{{r.student.uzytkownik.nick}} : </b>{{r.tresc}} </div>
@@ -205,8 +205,12 @@
 					
 					{% for w in mojeWydarzenia %}
 						<div class="portal-event-text">
-							<div class="box-event-date">{{ w.dataWydarzenia|date:"SHORT_DATE_FORMAT" }} {{ w.godzinaOd|time:"H:i"  }} - {{ w.godzinaDo|time:"H:i"  }}</div>
-							<div class="box-event-text"><a href="#" title=""><b>{{ w.nazwa }}</b></a></div>
+							<div class="box-event-date">{{ w.dataWydarzenia|date:"SHORT_DATE_FORMAT" }}
+							{% if w.godzinaOd|time:"H:i"  != '00:00' %}
+								{{ w.godzinaOd|time:"H:i"  }} - {{ w.godzinaDo|time:"H:i"  }}
+							{% endif %}
+							</div>
+							<div class="box-event-text"><b>{{ w.nazwa }}</b></div>
 							<div class="box-event-where"> {{ w.opis }} </div>
 						</div>
 					{% endfor %}
@@ -237,10 +241,14 @@
 								{{ w.dataWydarzenia|date:"SHORT_DATE_FORMAT" }}
 								{% endif %}
 								
-								{{ w.godzinaOd|time:"H:i"  }} - {{ w.godzinaDo|time:"H:i"  }}</div>
-							<div class="box-event-text"><a href="#" title="">{{ w.nazwa }}</a></div>
+								{% if w.godzinaOd|time:"H:i"  != '00:00' %}
+									{{ w.godzinaOd|time:"H:i"  }} - {{ w.godzinaDo|time:"H:i"  }}
+								{% endif %}
+							
+							</div>
+							<div class="box-event-text"><b>{{ w.nazwa }}</b></div>
 							<div class="box-event-who">{{ w.dodal.uzytkownik.nick }}</div>
-							<div class="box-event-where-new"> &nbsp </div>
+							<div class="box-event-where-new"> {{ w.opis }} </div>
 						</div>
 					{% endfor %}	
 					</div>
