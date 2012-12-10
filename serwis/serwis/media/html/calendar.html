@@ -217,6 +217,10 @@ function showHours()
 
 function checkType()
 {
+    if(selectedOption('sbox_add_type') == '6')
+        $('#add_to_cal').css('display', 'none');
+    else
+         $('#add_to_cal').css('display', 'block');
     if(selectedOption('sbox_add_type') == "4")
     {
         document.getElementById("studentsClasses").style.display = "block";
@@ -236,7 +240,8 @@ function addEventFromCal()
 				activeEventFromCal.className = 'my_ev';
                 activeEventFromCal.color = 'green';
                 $('#add_ev').html('<a href="#" onclick="removeEvent();"><b>Usuń z kalendarza</b></a>')
-                $('#calendar-content').fullCalendar('updateEvent', activeEventFromCal); 
+                //$('#calendar-content').fullCalendar('updateEvent', activeEventFromCal);
+                $('#calendar-content').fullCalendar( 'render' )
 		   }
 		  }
 		);
@@ -252,7 +257,8 @@ function removeEvent()
             activeEventFromCal.className = 'not-my-event';
             activeEventFromCal.color = 'grey';
             $('#add_ev').html('<a href="#" onclick="removeEvent();"><b>Dodaj do kalendarza</b></a>')
-            $('#calendar-content').fullCalendar('updateEvent', activeEventFromCal);
+            //$('#calendar-content').fullCalendar('updateEvent', activeEventFromCal);
+             $('#calendar-content').fullCalendar( 'render' )
         }
     });  
 }
@@ -287,6 +293,18 @@ function addEvent()
         endH = selectedOption('sbox_add_time_to_h');
         endM = selectedOption('sbox_add_time_to_m');
     }
+    
+    if(startH> endH)
+	{
+		alert('Data rozpoczęcia musi być wcześniejsza od daty zakończenia');
+		return;
+	}
+	else if(startH == endH && startM>=endM)
+	{
+		alert('Data rozpoczęcia musi być wcześniejsza od daty zakończenia');
+		return;
+	}
+    
     var eventType = selectedOption('sbox_add_type');
     if(eventType =="4")
     {
@@ -379,6 +397,7 @@ function showOtherEvents()
             }
         }
         $('.not-my-event').css('display', 'none');
+        $('#calendar-content').fullCalendar( 'render' )
         $('#showOtherEvents').html('Pokaż wydarzenia');
     }
     else
@@ -401,6 +420,7 @@ function showOtherEvents()
             }
         }
         $('.not-my-event').css('display', 'block');
+        $('#calendar-content').fullCalendar( 'render' );
         $('#showOtherEvents').html('Ukryj wydarzenia');
     }
 }
@@ -441,11 +461,6 @@ $( "#datepicker" ).datepicker();
 
 </script>
 
-
-
-
-
-
 				<div id='calendar-content'>
 				</div>
                 <div class="calendar-add-event-button">
@@ -467,7 +482,7 @@ $( "#datepicker" ).datepicker();
                         <u><span id = "sp_time"></span></u><br />
                         <b><span id ="sp_event_name"></span></b> &nbsp <img src='media/html/img/qr.png' width="14" height="14" onclick='getQRCode();'/><br />
                         <span id ="sp_event_descr"></span> &nbsp <img src="media/html/img/edit.png" alt="Zmień nazwę" width="12" height="12" onClick = "showEditDescr();" /> <br />
-                        <span id = "edit_event" style="display: none"><input id = "fld_change_descr" class="calendar-input-smaller" type="text" value="" /> <img src="media/html/img/save.png" alt="zapisz" width="12" height="12" onClick = "editDescr();" /></span>
+                        <span id = "edit_event" style="display: none"><input id = "fld_change_descr" class="calendar-input-smaller" type="text" maxlength="250" value="" /> <img src="media/html/img/save.png" alt="zapisz" width="12" height="12" onClick = "editDescr();" /></span>
                         <div id='qrCode' style="display:none">
                         </div><br />
                         <div id = "add_ev">
@@ -481,11 +496,11 @@ $( "#datepicker" ).datepicker();
                         <table class="table-calendar">
                             <tr>
                                 <td class="table-left-side-calendar">Nazwa:</td>
-                                <td class="table-right-side"><input class="calendar-input" class="calendar-input" type="text" name="fld_add_name" id="fld_add_name" value=""/></td>
+                                <td class="table-right-side"><input class="calendar-input" maxlength="50" type="text" name="fld_add_name" id="fld_add_name" value=""/></td>
                             </tr>
                             <tr>
                                 <td class="table-left-side-calendar">Opis:</td>
-                                <td class="table-right-side"><input class="calendar-input" type="text" name="fld_add_description" id="fld_add_description" value=""></td>
+                                <td class="table-right-side"><input class="calendar-input" maxlength="250" type="text" name="fld_add_description" id="fld_add_description" value=""></td>
                             </tr>
                             <tr>
                                 <td class="table-left-side-calendar">Data:</td>
@@ -581,27 +596,26 @@ $( "#datepicker" ).datepicker();
                             <option value ='55'>55</option>
                         </select>
                         <br />
-                        Rodzaj:
+                        Współdziel z:
                         <select id="sbox_add_type" onchange="checkType();">
-                            <option value = "7">prywatno-pub</option>
-                            <option value = "6">prywatne</option>
-                            <option value = "5">rocznikowe</option>
-                            <option value = "4">grupa</option>
-                            <option value = "3">kierunek</option>
-                            <option value = "2">wydział</option>
-                            <option value = "1">uczelnia</option>
+                            <option value = "5" selected>rocznikiem</option>
+                            <option value = "4">grupą</option>
+                            <option value = "3">kierunekiem</option>
+                            <option value = "2">wydziałem</option>
+                            <option value = "1">uczelnią</option>
+                            <option value = "6">nie współdziel</option>
                         </select>
                         
                         <div id = "studentsClasses" style="display: none;">
                             <select id="sbox_add_class">
                             {% for g in grupy %}
-                                <option value = "{{g.id}}">{{g.kurs.nazwa}}, {{g.kurs.rodzaj}}</option>
+                                <option value = "{{g.id}}">{{g.kurs.nazwa}} ({{g.kurs.rodzaj}}), {{g.dzienTygodnia}} {{g.godzinaOd|time:"H:i"}}</option>
                             {% endfor %}
                             </select>
                         </div>
                         
                         <br />
-                        Dodaj do kalendarza <input type="checkbox" name="cbox_add" id="cbox_add" checked/><br />
+                        <div id='add_to_cal'><input type="checkbox" name="cbox_add" id="cbox_add" checked/> Dodaj do kalendarza <br /></div>
                         <p><input class="calendar-submit" type="button" name="btn_add_event" id="btn_add_event" value="Dodaj" onclick="addEvent();" /></p>
                     </div>
 

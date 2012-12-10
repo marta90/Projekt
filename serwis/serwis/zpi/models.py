@@ -130,7 +130,7 @@ class Wydarzenie(models.Model):
     godzinaOd = models.TimeField(null = True)
     godzinaDo = models.TimeField(null = True)
     dataDodaniaWyd = models.DateTimeField(auto_now_add = True)
-    rodzajWydarzenia = models.IntegerField()    #1 - Ogolnouczelniane, 2 - Wydzialowe, 3 - Kierunkowe, 4 - Zajeciowe, 5 - Rocznikowe, 6 - Prywatne, 7 - Prywatno-publiczne
+    rodzajWydarzenia = models.IntegerField()    #1 - Ogolnouczelniane, 2 - Wydzialowe, 3 - Kierunkowe, 4 - Zajeciowe, 5 - Rocznikowe, 6 - Prywatne
     grupa = models.ForeignKey(Grupa, blank=True, null=True, on_delete=models.SET_NULL)
     dodal = models.ForeignKey(Student, related_name = 'wydarzenie_dodal')
     uzytkownik = models.ManyToManyField(Uzytkownik, through = 'Kalendarz')
@@ -139,6 +139,7 @@ class Wydarzenie(models.Model):
     class Meta:
         db_table = u'Wydarzenie'
         verbose_name_plural = 'Wydarzenia'
+
 
 class Kalendarz(models.Model):
     uzytkownik = models.ForeignKey(Uzytkownik)
