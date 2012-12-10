@@ -1,5 +1,19 @@
-﻿
+﻿  <script type='text/javascript'>
+        function przejdzDoZaaw(){
+            loadContent("timetable2");
+        }
+
+  </script>
+
+<style type='text/css'>
+    #widokZaawansowany:hover{
+        color: #08BFFE;
+    }
+</style>
+
+<center>
 {% if czyJestPlan %}
+    <h2>Plan Zajeć</h2>
     <table border="1">
         <tr>
             <th BGCOLOR="#99CCFF">Dzień</th>
@@ -14,7 +28,7 @@
             {% if forloop.first %}
             <tr>
                 <td rowspan={{ pPn.count }} BGCOLOR="#99CCFF">Poniedziałek</td>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -23,7 +37,7 @@
             </tr>
             {% else %}
             <tr>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -37,7 +51,7 @@
             {% if forloop.first %}
             <tr>
                 <td rowspan={{ pWt.count }} BGCOLOR="#99CCFF">Wtorek</td>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -46,7 +60,7 @@
             </tr>
             {% else %}
             <tr>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -60,7 +74,7 @@
             {% if forloop.first %}
             <tr>
                 <td rowspan={{ pSr.count }} BGCOLOR="#99CCFF">Środa</td>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -69,7 +83,7 @@
             </tr>
             {% else %}
             <tr>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -83,7 +97,7 @@
             {% if forloop.first %}
             <tr>
                 <td rowspan={{ pCz.count }} BGCOLOR="#99CCFF">Czwartek</td>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -92,7 +106,7 @@
             </tr>
             {% else %}
             <tr>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -106,7 +120,7 @@
             {% if forloop.first %}
             <tr>
                 <td rowspan={{ pPi.count }} BGCOLOR="#99CCFF">Piątek</td>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -115,7 +129,7 @@
             </tr>
             {% else %}
             <tr>
-                <td>{{zajecia.grupa.godzinaOd}} - {{zajecia.grupa.godzinaDo}}</td>
+                <td>{{zajecia.grupa.godzinaOd|time:"H:i"}} - {{zajecia.grupa.godzinaDo|time:"H:i"}}</td>
                 <td>{{zajecia.grupa.parzystosc}}</td>
                 <td>{{zajecia.grupa.kurs.nazwa}}</td>
                 <td>{{zajecia.grupa.prowadzacy.tytul}} {{zajecia.grupa.prowadzacy.imie}} {{zajecia.grupa.prowadzacy.nazwisko}}</td>
@@ -125,6 +139,9 @@
             {% endif %}
         {% endfor %}
     </table>
+</center>
+    <h3><a id="widokZaawansowany" onclick="przejdzDoZaaw()" style="cursor: pointer">Widok zaawansowany</a></h3>
 {% else %}
     <div>Nie ma wczytanego planu.</div>
 {% endif %}
+</center>

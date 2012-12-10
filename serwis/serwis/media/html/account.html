@@ -404,15 +404,17 @@ function sendSpec(dane)
 		  url: '/generujPlan',
 		  data: { userPWR: $('#userPWR').val(), passPWR: $('#passPWR').val() },
 		  success : function(msg) {
-			if (msg=="no"){
-			  alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
-			} else if (msg =="problem") {
-			  alert("Sprawdz Edukacje!")
-			} else {
-			  loadContent("timetable2");
-			}
-			$('#load').remove();
-		  },
+                $('#load').remove();
+                if (msg=="no"){
+                  alert('Możliwość importowania zajęć dla studentów wielu kierunków, będzie możliwa w nowszej wersji.');
+                } else if (msg =="Bledne dane logowania") {
+                  alert("Podałeś zły login lub hasło!")
+                } else if (msg =="zalogowany w innej sesji"){
+                    alert("Użytkownik jest już zalogowany w innej sesji")
+                } else {
+                  loadContent("timetable2");
+                }
+              },
 		  error: function(error) {
 			  $('#load').remove();
 			  //$.ajax({

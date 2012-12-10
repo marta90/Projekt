@@ -28,6 +28,7 @@ def generujPlan(request):
         if (html == "Zalogowany w innej sesji"):
             return HttpResponse("Zalogowany w innej sesji")
         else:
+            usunZajecia(request)
             for h in html:
                 #html = open('C:\Projekt\serwis\pwrParser\zapis.htm').read()
                 parser = BeautifulSoup(''.join(h))
@@ -86,7 +87,11 @@ def pobierzPlan(user, password):
     control = None
     values = None
     select_options = None
-    control = commands.browser.get_form("1").find_control('ineSluId', type="select")
+    try:
+        control = commands.browser.get_form("1").find_control('ineSluId', type="select")
+    except:
+        print("Nie ma selecta.")
+    #control = commands.browser.get_form("1").find_control('ineSluId', type="select")
     
     if(control != None):                                    # Jesli na stronie jest select
         values = pobierzElementySelect(commands.show())     # Pobieram parserem wartosci selecta
@@ -248,7 +253,7 @@ def sprawdzCzyBledneLogowanie(html):
     
 def sprawdzCzyLogowanieWInnejSesji(html):
     parser = BeautifulSoup(''.join(html))
-    czyBlad = parser.findAll(text=[re.compile('zalogowany w innej sesji'), re.compile('Konieczne jest ponowne zalogowanie')])
+    czyBlad = parser.findAll(text=re.compile('zalogowany w innej sesji'))
     if (len(czyBlad) != 0):
         return True
     else:
@@ -332,7 +337,15 @@ def pobierzZajecia(commands):
         #print('PRZZEEEEEENIOSLEM')
         return("skreslony z kierunku")
 
+def usunZajecia(request):
+    uz = views.uzSesja(request)
+    try:
+        models.Plan.objects.filter(uzytkownik = uz).delete()
+    except:
+        print("Nie ma zadnych zajec. Czyste konto.")
+
 def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
+        print("dzialam")
         czyKursZapisany = None
         czyProwadzacyZapisany = None
         k = models.Kurs()          # obiekt bazy tabeli Kurs
@@ -526,6 +539,7 @@ def zapisyAdministracyjne(request, pierwszyTRZPlanem, pierwszyAZLinkiem):
                         czyJestGrupa.save()
         
             if not(czyKursZaoczny):
+                print("ZAAAAPISZ")
                 # ZAPISANIE TYCH GRUP DO STUDENTA
                 #student = models.Student.objects.get(uzytkownik = uz)
                 g = models.Grupa.objects.get(kodGrupy = kodGrupyTxt, dzienTygodnia = dzien)
