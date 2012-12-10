@@ -31,7 +31,7 @@ from serwis.zpi.news import *
 from serwis.zpi.map import *
 
 
-adresSerwera = "87.99.21.160:7272"
+adresSerwera = "127.0.0.1:8000"
 
 ############### STRONA GLOWNA #############################################################
 
@@ -469,16 +469,22 @@ def wylogowanie(request):
 
 # Klasa do testow
 def test(request):
-	male='abcdefghijklmnopqrstuvwxyz'
-	duze='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-	liczby = '0123456789'
-	import random
-	random = random.SystemRandom()
-	haslo = ''.join([random.choice(male) for i in range(3)])
-	haslo = haslo.join([random.choice(duze) for i in range(2)])
-	haslo = haslo.join([random.choice(liczby) for i in range(2)])
-	salt = ''.join([random.choice(male) for i in range(2)])
-	return (haslo + salt)
+		uzytkownik = models.Uzytkownik.objects.get(id = 8)
+		wykladowca = models.Prowadzacy.objects.get(id = 9)
+		godzinaOd = datetime.time(11, 15)
+		godzinaDo = datetime.time(11, 30)
+		kons = models.Konsultacje(prowadzacy = wykladowca,
+								  dzienTygodnia = 'pn',
+								  parzystosc = '',
+								  godzinaOd = godzinaOd,
+								  godzinaDo = godzinaDo,
+								  budynek_id = 32,
+								  sala = '234',
+								  inneInformacje = '',
+								  dataOstZmianyDanych = datetime.datetime.now(),
+								  ktoZmienilDane = uzytkownik)
+		kons.save()
+		return HttpResponse('Ok')	
 	
 
 def test2(request):

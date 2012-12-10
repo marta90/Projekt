@@ -448,6 +448,12 @@ function sendSpec(dane)
 		// }
 		// });
 	});
+    $(document).keydown(function(event){
+      var keycode = (event.keyCode ? event.keyCode : event.which);
+      if(keycode == '13' & ($('#passPWR').is(':focus') | $('#userPWR').is(':focus'))){  //Jesli wystapi klikniecie enter i focus jest na input
+        $('#subPlanButt').trigger('click');	
+      }
+    });
 });
 
 /* TUTAJ TRZEBA ROZWAZYC W JAKIM DIVIE JEST!!!
@@ -469,9 +475,7 @@ getSpecializations(document.getElementById('select_faculty'));
 							<li><a href='javascript:;' id="acc-settings" onclick = 'showChoice(this);'>Profil użytkownika</a></li>
 							<li><a href='javascript:;' id="acc-timetable" onclick = 'showChoice(this);'>Plan zajęć</a></li>
 							<li><a href='javascript:;' id="acc-specs" onclick = 'showChoice(this);'>Kierunki studiów</a></li>
-							{% if uzytkownik.poziomDostpeu == 5 %}
-							<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li>
-							{% endif %}
+							<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li> 
 						</ul>
 					</div>
 				</div>

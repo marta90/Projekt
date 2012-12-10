@@ -75,11 +75,51 @@
 				height: function($calendar){
 				  return 503;
 				},
+				//eventRender : function(calEvent, $event) {
+				//	if(calEvent.end.getTime() < new Date().getTime()) {
+				//		$event.css("backgroundColor", "#aaa");
+				//		$event.find(".time").css({"backgroundColor": "#999", "border":"1px solid #888"});
+				//	}
+				//},
 				eventRender : function(calEvent, $event) {
-					if(calEvent.end.getTime() < new Date().getTime()) {
-						$event.css("backgroundColor", "#aaa");
-						$event.find(".time").css({"backgroundColor": "#999", "border":"1px solid #888"});
-					}
+                    if(calEvent.end.getTime() < new Date().getTime()) {
+                      $event.css("backgroundColor", "#aaa");
+                      $event.find(".time").css({"backgroundColor": "#999", "border":"1px solid #888"});
+                      if(calEvent.id == "wol"){
+                        calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Dzień wolny od zajęć!</center></b></div>";
+                      } else if (calEvent.id == "ses"){
+                        calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Sesja.</center></b></div>";
+                      }
+                    } else{
+                      switch(calEvent.title.substr(0,3)){
+                        case '(W)':
+                          $event.css("backgroundColor", "#B7202B");
+                          break;
+                        case '(L)':
+                          $event.css("backgroundColor", "#047D2E");
+                          break;
+                        case '(S)':
+                          $event.css("backgroundColor", "#EFB93A");
+                          break;
+                        case '(P)':
+                          $event.css("backgroundColor", "#1D7E84");
+                          break;
+                        case '(Ć)':
+                          $event.css("backgroundColor", "#046B79");
+                          break;
+                        default:
+                          $event.css("cursor", "default");
+                          if(calEvent.id == "wol"){
+                            $event.css({"backgroundColor": "#FF966A", "color": "#211718"});
+                            calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Dzień wolny od zajęć</center></b></div>";
+                          } else if (calEvent.id == "ses"){
+                            $event.css({"backgroundColor": "#08BFFE", "color": "#211718"});
+                            calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Sesja</center></b></div>";
+                          }
+                      }
+                    }
+
+                    
 				},
 				data: function(start, end, callback){
 				  request = createRequest();

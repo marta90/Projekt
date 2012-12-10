@@ -164,7 +164,7 @@ def tworzenieZajecProw(i, nowaData, grupy, output):      # tworze json i dodaje 
     event = {"id": str(i),
                     "start": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(grupy[i].godzinaOd.hour) + ":" + str(grupy[i].godzinaOd.minute),
                     "end": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":" + str(grupy[i].godzinaDo.hour) + ":" + str(grupy[i].godzinaDo.minute),
-                    "title": "(" + grupy[i].kurs.rodzaj + ") " +  grupy[i].kurs.nazwa + "<br>" + grupy[i].miejsce + "<br>" + grupy[i].godzinaOd.strftime('%H:%M') + "-" + grupy[i].godzinaDo.strftime('%H:%M')
+                    "title": "(" + grupy[i].kurs.rodzaj + ") " +  grupy[i].kurs.nazwa + "<br>" + grupy[i].miejsce + ", " + grupy[i].godzinaOd.strftime('%H:%M') + "-" + grupy[i].godzinaDo.strftime('%H:%M')
                     }
     output.get("events").append(event)
 

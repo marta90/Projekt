@@ -129,7 +129,7 @@ $.widget( "ui.iviewer", $.ui.mouse, {
         * start zoom value for image, not used now
         * may be equal to "fit" to fit image into container or scale in %
         **/
-        zoom: 65,
+        zoom: 66,
         /**
         * base value to scale image
         **/

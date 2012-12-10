@@ -45,14 +45,11 @@ def zmienOpis(request):
 	try:
 		idWyd = request.POST['evId']
 		opis = request.POST['description']
-		if sprOpisWyd(opis):
-			uzytkownik = uzSesja(request)
-			kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
-			kalendarz.opis = opis
-			kalendarz.save()
-			return HttpResponse('Ok')
-		else:
-			return HttpResponse('Fail')
+		uzytkownik = uzSesja(request)
+		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+		kalendarz.opis = opis
+		kalendarz.save()
+		return HttpResponse('Ok')
 	except:
 		return HttpResponse('Fail')
 
@@ -166,12 +163,11 @@ def dodajWydarzenie(request):
 									   dodal_id = student.id)
 		wydarzenie.save()
 		
-
-		if rodzaj == '6' or dane['add'] == 'yes':
+		print(dane['add'])
+		if dane['add'] == 'yes':
 			print('dodaje do kalnedarza')
 			kalendarz = models.Kalendarz(uzytkownik = uzytkownik, wydarzenie = wydarzenie, opis = opis)
 			kalendarz.save()
-			
 			
 		return HttpResponse('Ok')
 	else:

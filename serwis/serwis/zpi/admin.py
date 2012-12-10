@@ -9,7 +9,6 @@ from serwis.zpi.models import Kurs
 from serwis.zpi.models import Plan
 from serwis.zpi.models import Shoutbox
 from serwis.zpi.models import Wydarzenie
-from serwis.zpi.models import AktualneWydarzenie
 from serwis.zpi.models import Kalendarz
 from serwis.zpi.models import KategoriaMiejsca
 from serwis.zpi.models import Miejsce

@@ -1,11 +1,26 @@
 
-
+<script type="text/javascript" src='media/js/tooltips/tooltipsy.min.js'></script>
 <script type="text/javascript">	
 	var ajax;
 	var firstSpec = false;
 	var firstSem = false;
 	getSpecializations(document.getElementById('select_faculty'));
-	
+	$('.hastip').tooltipsy({
+		offset: [10, 0],
+		css: {
+			'padding': '10px',
+			'max-width': '200px',
+			'color': '#303030',
+			'background-color': '#f5f5b5',
+			'font-size': '12px',
+			'border': '1px solid #deca7e',
+			'-moz-box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+			'-webkit-box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+			'box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+			'text-shadow': 'none',
+			'text-align': 'left'
+		}
+	});
 </script>
 						
 				<div id="reg-form">
@@ -26,37 +41,26 @@
 								<td class="table-left-side">Imię:</td>
 								<td class="table-right-side"><input class="portal-input" type="text" onblur='updateNameR();' name="fld_name" id="fld_name"/></td>
 								<td> &nbsp
-									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Imię musi składać się z co najmniej 2 znaków.<br /> &nbsp &nbsp - Dopuszczalne znaki specjalne to \' \' oraz \'-\'.' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">
-										<img src="media/html/img/i.png" width="18" height="18"/>
-									</a>
+									<img class="hastip" src="media/html/img/i.png" width="18" height="18" title='Imię musi składać się z co najmniej 2 znaków:<br /> - Dopuszczalne znaki specjalne to " " oraz \'/>
 								</td>
 							</tr>
 							<tr>
 								<td class="table-left-side">Nazwisko:</d>
 								<td class="table-right-side"><input class="portal-input" type="text" onblur='updateLastNameR();' name="fld_lastName" id="fld_lastName"/></td>
 								<td> &nbsp
-									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Nazwisko musi składać się z co najmniej 2 znaków.<br /> &nbsp &nbsp - Dopuszczalne znaki specjalne to \' \' oraz \'-\'.' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">		
-										<img src="media/html/img/i.png" width="18" height="18"/>
-									</a>
+									<img class="hastip" src="media/html/img/i.png" width="18" height="18" title='Nazwisko musi składać się z co najmniej 2 znaków:<br /> - Dopuszczalne znaki specjalne to " " oraz \'/>
 								</td>
 							</tr>
 							<tr>
 								<td class="table-left-side">Hasło:</td>
 								<td class="table-right-side"><input class="portal-input" type="password" onblur='updatePassR();' name="fld_passF" id="fld_passF" minlength="3"/></td>
 								<td> &nbsp
-									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Hasło musi mieścić się w przedziale od 8 do 20 znaków.<br /> &nbsp &nbsp - Hasło musi zawierać (minimum 3 z podanych):<br /> &nbsp &nbsp &nbsp ~  małe litery<br /> &nbsp &nbsp &nbsp ~  wielkie litery<br /> &nbsp &nbsp &nbsp ~  cyfry<br /> &nbsp &nbsp &nbsp ~  znaki specjalne' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">		
-										<img src="media/html/img/i.png" width="18" height="18"/>
-									</a>
+									<img class="hastip" src="media/html/img/i.png" width="18" height="18" title="Hasło musi mieścić się w przedziale od 8 do 20 znaków. Musi zawierać (minimum 3 z podanych):<br /> - małe litery<br /> - wielkie litery<br /> - cyfry<br /> - znaki specjalne"/>
 								</td>
 							</tr>
 							<tr>
 								<td class="table-left-side">Powtórz hasło:</td>
 								<td class="table-right-side"><input class="portal-input" type="password" onblur='updatePass2R();' name="fld_passRepeat" id="fld_passRepeat" minlength="3"/></td>
-								<td> &nbsp
-									<a href="javascript:void(0);" onmouseover="return overlib(' &nbsp &nbsp - Hasło musi mieścić się w przedziale od 8 do 20 znaków.<br /> &nbsp &nbsp - Hasło musi zawierać (minimum 3 z podanych):<br /> &nbsp &nbsp &nbsp ~  małe litery<br /> &nbsp &nbsp &nbsp ~  wielkie litery<br /> &nbsp &nbsp &nbsp ~  cyfry<br /> &nbsp &nbsp &nbsp ~  znaki specjalne' , OFFSETX, 10, OFFSETY, 5, WIDTH, 350, STICKY, MOUSEOFF, TIMEOUT, 5000);" onmouseout="return nd();">		
-										<img src="media/html/img/i.png" width="18" height="18"/>
-									</a>
-								</td>
 							</tr>
 							<tr>
 								<td class="table-left-side">Wydział:</td>
