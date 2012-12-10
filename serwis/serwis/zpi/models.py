@@ -212,7 +212,7 @@ class Tydzien(models.Model):
 class ZmianaDat(models.Model):
     data = models.DateField()
     tydzien = models.ForeignKey(Tydzien)
-    nowyDzien = models.IntegerField()   #8-wolne, 9-sesja
+    nowyDzien = models.IntegerField()   #8-wolne, 9-sesja, 10-kolejny semestr
     parzystosc = models.CharField(max_length = 2)
     class Meta:
         db_table = u'ZmianaDat'

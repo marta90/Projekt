@@ -649,8 +649,18 @@ border-color: #555;
 	width: 200px;
 	height: 479px;
 	margin-top: 22px;
+<<<<<<< HEAD
 	background-color: #def4d4;
 	border: 1px solid #3f811e;
+=======
+	background-color: #FFFEC5;
+	border: 1px solid #6A9D95;
+	-webkit-border-radius: 10px; /* Safari, Chrome */
+	-khtml-border-radius: 10px;	/* Konqueror */
+	-moz-border-radius: 10px; /* Firefox */
+	border-radius: 10px;
+	opacity: 0.94;
+>>>>>>> origin/Nowa-galaz
 }
 
 #right-box {
@@ -667,6 +677,7 @@ border-color: #555;
 	padding-top: 5px;
 	padding-left: 5px;
 	text-align: left;
+	
 }
  
 #timetable-notes {
@@ -679,7 +690,7 @@ border-color: #555;
 }
  
 .timetable-note {
-	border-bottom: 1px solid #aaaaaa;
+	border-bottom: 1px solid #6A9D95;
 }
  
 .timetable-input {

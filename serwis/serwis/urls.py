@@ -51,6 +51,9 @@ urlpatterns = patterns('',
     (r'^getNotes/(.*)/(.*)$', views.getNotes),
     (r'^saveNotes$', views.saveNotes),
     
+    #USUWANIE GRUPY
+    (r'^usunGrupe$', views.usunGrupe),
+    
     #ANDROID
     (r'^test$', views.test),                                                        #klasa do testow
     (r'^getEventsAndroid$', views.mojeWydarzeniaAND),                               #przeslanie do And. zblizajacych sie wydarzen
@@ -86,6 +89,7 @@ urlpatterns = patterns('',
     (r'^media/html/shoutbox.html$', views.zaladujShoutbox),
     (r'^media/html/importantMsg.html$', views.zaladujWazneWiadomosci),
     (r'^media/html/timetable2.html$', views.zaladujPlan),
+    (r'^media/html/timetable.html$', views.zaladujPlanPodst),
     (r'^media/html/calendar.html$', views.zaladujKalendarz),
     (r'^media/html/teachers.html$', views.zaladujWykladowcow), 
     (r'^media/html/map.html$', views.zaladujMape),

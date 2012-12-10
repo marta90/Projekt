@@ -705,6 +705,7 @@
                 calendarNavHtml += '<button class=\"wc-prev\">' + options.buttonText.lastWeek + '</button>';
                 calendarNavHtml += '<button class=\"wc-today\">' + options.buttonText.today + '</button>';
                 calendarNavHtml += '<button class=\"wc-next\">' + options.buttonText.nextWeek + '</button>';
+		calendarNavHtml += '<button id=\"wc-other-time-table\" onclick="pokazProstyPlan()">Widok podstawowy</button>';
               calendarNavHtml += '</div>';
               calendarNavHtml += '<h1 class=\"wc-title\"></h1>';
             calendarNavHtml += '</div>';

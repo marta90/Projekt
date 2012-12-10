@@ -111,6 +111,7 @@
     $(document).ready(function() {
       // Funkcja obslugujaca dodawania notatek
       $('#btn_send_note').click(function(){
+<<<<<<< HEAD
 		if($('#fld_note').val() != "")
 		{
 		  $.ajax({
@@ -137,16 +138,46 @@
 			},
 		  });
 		}
+=======
+        if(/^\s+/.test($('#fld_note').val()) == true){
+          alert("Notatka nie może zaczynać się od znaków spacji lub tabulatora.");
+        } else {
+          $.ajax({
+            type: 'POST',
+            url: '/saveNotes',
+            data: { fld_note: $('#fld_note').val(), grupaId: $('#btn_send_note').attr('name'), start: '' + startDate.getFullYear() + '-' + startDate.getMonth() + '-' + startDate.getDate()},
+            success : function(msg) {
+              if (msg=="ok"){
+                pobierzNotatki($('#btn_send_note').attr('name'));
+                $('#fld_note').val('');
+              }
+              if(msg=="errorSave"){
+                alert("Błąd przy zapisie do bazy danych! Spróbuj ponownie.");
+              }
+              if(msg=="errorPost"){
+                alert("Dane nie zostały wysłane.");
+              }
+              if(msg=="errorLogin"){
+                alert("Nie jesteś zalogowany.");
+              }
+            },
+            error: function(error) {
+              alert("Wystąpił błąd w połączniu z bazą. Proszę spróbuj ponownie, lub skontaktuj się z administratorem.");
+            },
+          });
+        }
+>>>>>>> origin/Nowa-galaz
       });
       $( "#left-box-draggable-timetable" ).draggable({ axis: "x", containment: "#main-content" });  //Jezdzace menu
       //$.support.cssTransitions = false;
       $('#timetable-scheme2').weekCalendar({
-			//height: function($calendar){
-			//	return $(window).height() - $("h1").outerHeight();
-			//},
+        //height: function($calendar){
+        //	return $(window).height() - $("h1").outerHeight();
+        //},
             height: function($calendar){
               return 503;
             },
+<<<<<<< HEAD
 			eventRender : function(calEvent, $event) {
 				if(calEvent.end.getTime() < new Date().getTime()) {
 					$event.css("backgroundColor", "#aaa");
@@ -220,17 +251,132 @@
 
                     //$('#timetable-scroll-time').html(zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));
                     $('#timetable-scroll-place').html(obiekt.events[i].miejsce);
+=======
+            eventRender : function(calEvent, $event) {
+                    if(calEvent.end.getTime() < new Date().getTime()) {
+                      $event.css("backgroundColor", "#aaa");
+                      $event.find(".time").css({"backgroundColor": "#999", "border":"1px solid #888"});
+                      if(calEvent.id == "wol"){
+                        calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Dzień wolny od zajęć!</center></b></div>";
+                      } else if (calEvent.id == "ses"){
+                        calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Sesja.</center></b></div>";
+                      }
+                    } else{
+                      switch(calEvent.title.substr(0,3)){
+                        case '(W)':
+                          $event.css("backgroundColor", "#B7202B");
+                          break;
+                        case '(L)':
+                          $event.css("backgroundColor", "#047D2E");
+                          break;
+                        case '(S)':
+                          $event.css("backgroundColor", "#EFB93A");
+                          break;
+                        case '(P)':
+                          $event.css("backgroundColor", "#1D7E84");
+                          break;
+                        case '(Ć)':
+                          $event.css("backgroundColor", "#046B79");
+                          break;
+                        default:
+                          $event.css("cursor", "default");
+                          if(calEvent.id == "wol"){
+                            $event.css({"backgroundColor": "#FF966A", "color": "#211718"});
+                            calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Dzień wolny od zajęć</center></b></div>";
+                          } else if (calEvent.id == "ses"){
+                            $event.css({"backgroundColor": "#08BFFE", "color": "#211718"});
+                            calEvent.title = "<div style='font-size:15px;opacity:1.0;'><b><br><center>Sesja</center></b></div>";
+                          }
+                      }
+                    }
+>>>>>>> origin/Nowa-galaz
                     
-                    $('#btn_send_note').attr('name', obiekt.events[i].id);
-                    $('#fld_note').attr('value', '');
-                    pobierzNotatki(obiekt.events[i].id);
+            },
+	    eventClick : function(calEvent, $event) {
+              if(calEvent.id !="wol" && calEvent.id != "ses"){
+              for(var i=0; i<obiekt.events.length; i++){
+                if(obiekt.events[i].id == calEvent.id){
+                  $('#timetable-scroll-title').html('<b>'+obiekt.events[i].nazwa+'</b>');
+                  var rodzaj = '';
+                  switch (obiekt.events[i].rodzaj) { 
+                    case 'W': 
+                      rodzaj = "Wykład";
+                      break;
+                    case 'L': 
+                      rodzaj = "Laboratorium";
+                      break;
+                    case 'S': 
+                      rodzaj = "Seminarium";
+                      break;      
+                    case 'P': 
+                      rodzaj = "Projekt";
+                      break;
+                    case 'Ć':
+                      rodzaj = "Ćwiczenia";
+                      break;
+                    default:
+                      rodzaj = "Niezdefiniowany";
                   }
+                  $('#timetable-scroll-type').html('<b>'+rodzaj+'</b>');
+                  $('#timetable-scroll-code').html(obiekt.events[i].kodKursu + ', ' + obiekt.events[i].kodGrupy);
+                  $('#timetable-scroll-teacher').html(obiekt.events[i].tytulProw + ' ' + obiekt.events[i].imieProw + ' ' + obiekt.events[i].nazwiskoProw);
+                  var dzien = '';
+                  switch (obiekt.events[i].dzien) { 
+                    case 'pn': 
+                      dzien = "Poniedziałek";
+                      break;
+                    case 'wt': 
+                      dzien = "Wtorek";
+                      break;
+                    case 'śr': 
+                      dzien = "Środa";
+                      break;      
+                    case 'cz': 
+                      dzien = "Czwartek";
+                      break;
+                    case 'pt':
+                      dzien = "Piątek";
+                      break;
+                    default:
+                      dzien = "Niezdefiniowany";
+                  }
+                  var parz = "";
+                  switch (obiekt.events[i].parz) { 
+                    case 'TP': 
+                      parz = "parzysty";
+                      break;
+                    case 'TN': 
+                      parz = "nieparzysty";
+                      break;
+                    default:
+                      parz = "";
+                  }
+                  if(parz == ''){$('#timetable-scroll-day').html(dzien);}
+                  else {$('#timetable-scroll-day').html(dzien + ' (' + parz + ')');}
+                  var start = obiekt.events[i].start.split(":");
+                  var end = obiekt.events[i].end.split(":");
+                  $('#timetable-scroll-time').html("Godzina:<br>" + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));
+                  $('#timetable-scroll-place').html("Miejsce:<br>" + obiekt.events[i].miejsce);
+                  
+                  $('#btn_send_note').attr('name', obiekt.events[i].id);
+                  $('#fld_note').attr('value', '');
+                  pobierzNotatki(obiekt.events[i].id);
                 }
+<<<<<<< HEAD
 			showDetailsDiv();
 			},
 			noEvents : function() {
 				displayMessage("There are no events for this week");
 			},
+=======
+              }
+              }
+            },
+            noEvents : function() {
+                    displayMessage("There are no events for this week");
+                    alert("nie ma eventow");
+            },
+>>>>>>> origin/Nowa-galaz
             data: function(start, end, callback){
               request = createRequest();
               if (request == null)
@@ -242,21 +388,28 @@
                 request.onreadystatechange = function(){
                   if (request.readyState == 4) {
                     if (request.status == 200) {
-                      obiekt = JSON.parse(request.responseText)
-                      for (var i=0;i<obiekt.events.length;i++){
-                        var event = obiekt.events[i];
-                        var start = event.start.split(":");
-                        var end = event.end.split(":");
-                        var j = {
-                          'id': event.id,
-                          'start': new Date(start[0], start[1], start[2], start[3], start[4]),
-                          'end': new Date(end[0], end[1], end[2], end[3], end[4]),
-                          'title': '(' + event.rodzaj + ') ' + event.nazwa + '<br>' + event.tytulProw + ' ' + event.imieProw + ' ' + event.nazwiskoProw + '<br>' + event.miejsce + ', ' +
-                                event.godzOd + '-' + event.godzDo,
+                      if (request.responseText == "nieMaTygodnia"){
+                        //alert("blalbla");
+                      } else {
+                        obiekt = JSON.parse(request.responseText)
+                        eventData = {
+                          events : []
+                        };
+                        for (var i=0;i<obiekt.events.length;i++){
+                          var event = obiekt.events[i];
+                          var start = event.start.split(":");
+                          var end = event.end.split(":");
+                          var j = {
+                            'id': event.id,
+                            'start': new Date(start[0], start[1], start[2], start[3], start[4]),
+                            'end': new Date(end[0], end[1], end[2], end[3], end[4]),
+                            'title': '(' + event.rodzaj + ') ' + event.nazwa + '<br>' + event.tytulProw + ' ' + event.imieProw + ' ' + event.nazwiskoProw + '<br>' + event.miejsce + ', ' +
+                                  event.godzOd + '-' + event.godzDo,
+                          }
+                          eventData.events.push(j);
                         }
-                        eventData.events.push(j);
+                        callback(eventData);
                       }
-                      callback(eventData);
                     }
                   }
                 };
@@ -264,7 +417,11 @@
                 request.send(null);
               }
             }
-		});
+      });
+      //alert($('.wc-cal-event').each(function(){).children().filter('.wc-title').html());
+      //$('.wc-title').each(function(){
+      //  alert($(this).html());
+      //});
     });
     
     // Funckja pobierajaca notatki na podstawie id grupy
@@ -299,6 +456,7 @@
         $('#btn_send_note').trigger('click');	
       }
     });
+<<<<<<< HEAD
 
 	function showDetailsDiv()
 	{
@@ -309,6 +467,42 @@
 	  $('#left-box-draggable-timetable').css('display', 'none');
 	}
 
+=======
+    $('#btn_clear').click(function(){
+      var answer = confirm("Czy napewno chcesz usunąć wybraną grupę z kalendarza?")
+      if (answer){
+        $.ajax({
+          type: 'POST',
+          url: '/usunGrupe',
+          data: { grupaId: $('#btn_send_note').attr('name')},
+          success : function(msg) {
+            if (msg=="ok"){
+              alert("Grupa została usunięta pomyślnie");
+              loadContent("timetable2");
+            }
+            if(msg=="errorDelete"){
+              alert("Błąd przy usuwaniu grupy z bazy danych! Spróbuj ponownie.");
+            }
+            if(msg=="errorPost"){
+              alert("Dane nie zostały wysłane.");
+            }
+            if(msg=="errorLogin"){
+              alert("Nie jesteś zalogowany.");
+            }
+          },
+          error: function(error) {
+            alert("Wystąpił błąd w połączniu z serwerem. Proszę spróbuj ponownie, lub skontaktuj się z administratorem.");
+          },
+        });
+      }
+      else{
+        
+      }
+    });
+    function pokazProstyPlan(){
+      loadContent('timetable');
+    }
+>>>>>>> origin/Nowa-galaz
   </script>
   
   
@@ -339,7 +533,7 @@
       <br />-->
 	   <u>Miejsce:</u>
       <div id="timetable-scroll-place">[B-4/409]</div>
-      <br /><br /><br />
+      <br />
       <b>Notatki:</b>
       <br /><br />
       <div id="timetable-notes">
@@ -353,9 +547,14 @@
       <br />
       <input class="timetable-input" type="text" name="fld_note" id="fld_note" value="" />
       <input class="timetable-submit" type="submit" name="btn_send_note" id="btn_send_note" value="Zapisz" />
+      <input class="timetable-submit" type="submit" name="btn_clear" id="btn_clear" value="Usuń grupę" />
     </div>
   </div>
   
 {% else %}
     <div>Nie ma wczytanego planu.</div>
 {% endif %}
+
+<script type='text/javascript'>
+  
+</script>

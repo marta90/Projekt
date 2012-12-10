@@ -44,6 +44,24 @@ def zaladujPlan(request):
 		return render_to_response('timetable2.html', {'czyJestPlan':czy, 'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
 	else:
 		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
+	
+def zaladujPlanPodst(request):
+	if jestSesja(request):
+		st = studSesja(request)
+		uz = st.uzytkownik
+		planPn = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'pn').order_by('grupa__godzinaOd')
+		planWt = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'wt').order_by('grupa__godzinaOd')
+		planSr = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'śr').order_by('grupa__godzinaOd')
+		planCzw = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'cz').order_by('grupa__godzinaOd')
+		planPi = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = 'pt').order_by('grupa__godzinaOd')
+		czy = False
+		if(len(planPn) != 0 or len(planWt) != 0 or len(planSr) != 0 or len(planCzw) != 0 or len(planPi) != 0):
+			czy = True
+		#return HttpResponse()
+		 #and planWt.count==0 and planSr.count==0 and planCzw.count==0 and planPi.count==0
+		return render_to_response('timetable.html', {'czyJestPlan':czy, 'pPn':planPn, 'pWt':planWt, 'pSr':planSr, 'pCz':planCzw, 'pPi':planPi})
+	else:
+		return HttpResponse("\nDostęp do wybranej treści możliwy jest jedynie po zalogowaniu do serwisu.")
 
 #def pobierzZajecia(request, start, end):
 #    if jestSesja(request):
@@ -93,32 +111,59 @@ def pobierzZajecia(request, start, end):
 		startDate = datetime.date(int(start[0]),(int(start[1])+1),int(start[2]))  # tworze date jako obiekt datetime.date
 		endDate = datetime.date(int(end[0]),(int(end[1])+1),int(end[2]))
 		czyParzysty = czyParzystyTydzien(startDate) 	# sprawdzam czy tydzien jest tygodniem parzystym
+		
 		#print("start: " + str(startDate.month))
 		#tydzien = models.Tydzien.objects.get(dataOd = startDate)
 		#print(tydzien.nrTygodnia)
-
+		
+		tydzien = None
+		try:
+			tydzien = models.Tydzien.objects.get(dataOd = startDate)
+		except ObjectDoesNotExist:
+			print("Tydzien nie istnieje w bazie")
+		
 		#zmianyTygodni = models.ZmianaDat.objects.filter(tydzien = tydzien)
+		if (tydzien != None):
+			for i in range(0, 5):       # petla od 0 do 4 
+				nowaData = startDate + datetime.timedelta(days=i)   # dodaje do daty poczatkowej okreslona ilosc dni, aby odnalezc wszystkie dni tygodnia
+				czyJestData = None
+				try:
+					czyJestData = models.ZmianaDat.objects.get(data = nowaData)
+				except ObjectDoesNotExist:
+					print("Data nie podlega zmianie.")
+				if (czyJestData == None):
+					dzienInt = nowaData.strftime("%w")							# ktory dzien do zmiany
+					dzien = zamienIntNaDzien(int(dzienInt))
+					plan = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = dzien).order_by('grupa__godzinaOd')   # pobieram z bazy zajecia
+					utworzZajecia(plan, output, nowaData, czyParzysty, wynik)     # utworzenie zajec z poniedzialku
+				else:
+					czyParzysty = czyParzZBazy(czyJestData.parzystosc)
+					nowyDzien = czyJestData.nowyDzien											# na jaki dzien zmieniamy
+					dzienDoZmiany = czyJestData.data.strftime("%w")							# ktory dzien do zmiany
+					dzien = zamienIntNaDzien(nowyDzien)
+					if((dzien != 'wol') & (dzien != 'ses') & (dzien != 'ksem')):
+						plan = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = dzien).order_by('grupa__godzinaOd')   # pobieram z bazy zajecia
+						utworzZajecia(plan, output, czyJestData.data, czyParzysty, wynik)
+					if(dzien == 'wol'):
+						event = {"id": 'wol', "start": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":07:10",
+							"end": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":08:40",
+							"kodGrupy": "", "kodKursu": "", "rodzaj": "", "nazwa": "", "tytulProw": "",
+							"imieProw": "", "nazwiskoProw": "", "miejsce": "", "godzOd": "",
+							"godzDo": "", "dzien": "", 'parz': ""
+						}
+						output.get("events").append(event)
+					if(dzien == 'ses'):
+						event = {"id": 'ses', "start": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":07:10",
+							"end": "" + str(nowaData.year) + ":" + str(nowaData.month -1) + ":" + str(nowaData.day) + ":08:40",
+							"kodGrupy": "", "kodKursu": "", "rodzaj": "", "nazwa": "", "tytulProw": "",
+							"imieProw": "", "nazwiskoProw": "", "miejsce": "", "godzOd": "",
+							"godzDo": "", "dzien": "", 'parz': ""
+						}
+						output.get("events").append(event)
+			return HttpResponse(simplejson.dumps(output), mimetype="application/json")
+		else:
+			return HttpResponse("nieMaTygodnia")
 
-		for i in range(0, 5):       # petla od 0 do 4 
-			nowaData = startDate + datetime.timedelta(days=i)   # dodaje do daty poczatkowej okreslona ilosc dni, aby odnalezc wszystkie dni tygodnia
-			czyJestData = None
-			try:
-				czyJestData = models.ZmianaDat.objects.get(data = nowaData)
-			except ObjectDoesNotExist:
-				print("Data nie podlega zmianie.")
-			if (czyJestData == None):
-				dzienInt = nowaData.strftime("%w")							# ktory dzien do zmiany
-				dzien = zamienIntNaDzien(int(dzienInt))
-				plan = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = dzien).order_by('grupa__godzinaOd')   # pobieram z bazy zajecia
-				utworzZajecia(plan, output, nowaData, czyParzysty, wynik)     # utworzenie zajec z poniedzialku
-			else:
-				czyParzysty = czyParzZBazy(czyJestData.parzystosc)
-				nowyDzien = czyJestData.nowyDzien											# na jaki dzien zmieniamy
-				dzienDoZmiany = czyJestData.data.strftime("%w")							# ktory dzien do zmiany
-				dzien = zamienIntNaDzien(nowyDzien)
-				plan = models.Plan.objects.filter(uzytkownik = uz.id, grupa__dzienTygodnia = dzien).order_by('grupa__godzinaOd')   # pobieram z bazy zajecia
-				utworzZajecia(plan, output, czyJestData.data, czyParzysty, wynik)
-				
 		#if(zmianyTygodni.exists()):
 		#	for z in zmianyTygodni:
 		#		czyParzysty = czyParzZBazy(z.parzystosc)
@@ -150,7 +195,7 @@ def pobierzZajecia(request, start, end):
 		#		utworzZajecia(planPi, output, nowaData, czyParzysty, wynik)
 		
 		#return HttpResponse(wynik)
-		return HttpResponse(simplejson.dumps(output), mimetype="application/json")
+		#return HttpResponse(simplejson.dumps(output), mimetype="application/json")
 
 def utworzZajecia(plan, output, nowaData, czyParzysty, wynik):
     for i in range(0, len(plan)):       # przechodze po liscie zajec
@@ -227,6 +272,24 @@ def saveNotes(request):
 	else:
 		HttpResponse("errorLogin")
 	
+def usunGrupe(request):
+	if jestSesja(request):
+		st = studSesja(request)
+		uz = st.uzytkownik
+		if post(request):
+			grupaId = 'grupaId' in request.POST.keys()
+			if grupaId:
+				grupaId = request.POST['grupaId']
+				grupa = models.Plan.objects.get(grupa = int(grupaId), uzytkownik = uz)
+				try:
+					grupa.delete()
+				except:
+					HttpResponse("errorDelete")
+				return HttpResponse("ok")
+		else:
+			HttpResponse("errorPost")
+	else:
+		HttpResponse("errorLogin")
 
 def zamienIntNaDzien(i):
 	dzien = {    # Switch
@@ -235,6 +298,11 @@ def zamienIntNaDzien(i):
 		3: 'śr',
 		4: 'cz',
 		5: 'pt',
+		6: 'sb',
+		7: 'nd',
+		8: 'wol',
+		9: 'ses',
+		10: 'ksem',
 	}[i]           # Co sprawdzamy w Case
 	return dzien
 
