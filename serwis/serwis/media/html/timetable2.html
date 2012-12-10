@@ -351,11 +351,16 @@
 
 	function showDetailsDiv()
 	{
-	  document.getElementById('left-box-draggable-timetable').style.display='block';
+	  //document.getElementById('left-box-draggable-timetable').style.display='block';
+          $('#left-box-draggable-timetable').fadeIn('slow', function() {
+          });
+        // Animation complete
+
 	}
 	function hideDetailsDiv()
 	{
-	  $('#left-box-draggable-timetable').css('display', 'none');
+	  $('#left-box-draggable-timetable').fadeOut('slow', function() {
+          });
 	}
 
 

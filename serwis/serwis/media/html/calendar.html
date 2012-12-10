@@ -123,7 +123,7 @@ function showAddBox()
 {
     $( "#calendar-event-details" ).css('display', 'none');
     $( "#calendar-add-event" ).css('display', 'block');
-    $( "#left-box-draggable" ).css('display', 'block'); 
+    $( "#left-box-draggable" ).fadeIn('slow');
 }
 
 function showDescrAddBox()
@@ -131,7 +131,7 @@ function showDescrAddBox()
     $('#add_ev').html('<a href="#" onclick="addEventFromCal();"><b>Dodaj do kalendarza</b></a>')
     $( "#calendar-add-event" ).css('display', 'none');
     $( "#calendar-event-details" ).css('display', 'block');
-    $( "#left-box-draggable" ).css('display', 'block'); 
+    $( "#left-box-draggable" ).fadeIn('slow');
 }
 
 function showDescrRemBox()
@@ -139,14 +139,16 @@ function showDescrRemBox()
     $('#add_ev').html('<a href="#" onclick="removeEvent();"><b>Usuń z kalendarza</b></a>')
     $( "#calendar-add-event" ).css('display', 'none');
     $( "#calendar-event-details" ).css('display', 'block');
-    $( "#left-box-draggable" ).css('display', 'block'); 
+    $( "#left-box-draggable" ).fadeIn('slow');
 }
 
 function hideDragBox()
 {
-    $( "#calendar-add-event" ).css('display', 'none');
-    $( "#calendar-event-details" ).css('display', 'none');
-    $( "#left-box-draggable" ).css('display', 'none'); 
+    $( "#left-box-draggable" ).fadeOut('slow', function(){
+        $( "#calendar-add-event" ).css('display', 'none');
+        $( "#calendar-event-details" ).css('display', 'none');
+    });
+
 }
 
 function addZero(num)
@@ -451,7 +453,7 @@ $( "#datepicker" ).datepicker();
                     <span><a href="#" onclick="showClearAddBox();" id='showDragDiv'>Dodaj wydarzenie</a></span>
                 </div>
 				
-				<div id="left-box-draggable" style='background-color: white; display: none; text-align: left;'>
+				<div id="left-box-draggable" style='display: none; text-align: left;'>
                     <div class="flying-close-button">
                         <a href="#" onclick="hideDragBox();">
                             <img src="img/del.png" alt="" width="15" height="15" />

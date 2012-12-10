@@ -630,6 +630,12 @@ border-color: #555;
 	height: 473px;
 	margin-top: 27px;
 	border: 1px solid #3f811e;
+	background-color: #FFFEC5;
+	-webkit-border-radius: 10px; /* Safari, Chrome */
+	-khtml-border-radius: 10px;	/* Konqueror */
+	-moz-border-radius: 10px; /* Firefox */
+	border-radius: 10px;
+	opacity: 0.94;
 }
 
 #left-box-draggable ul, ul li {
