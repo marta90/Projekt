@@ -649,10 +649,6 @@ border-color: #555;
 	width: 200px;
 	height: 479px;
 	margin-top: 22px;
-<<<<<<< HEAD
-	background-color: #def4d4;
-	border: 1px solid #3f811e;
-=======
 	background-color: #FFFEC5;
 	border: 1px solid #6A9D95;
 	-webkit-border-radius: 10px; /* Safari, Chrome */
@@ -660,7 +656,7 @@ border-color: #555;
 	-moz-border-radius: 10px; /* Firefox */
 	border-radius: 10px;
 	opacity: 0.94;
->>>>>>> origin/Nowa-galaz
+
 }
 
 #right-box {
