@@ -469,7 +469,9 @@ getSpecializations(document.getElementById('select_faculty'));
 							<li><a href='javascript:;' id="acc-settings" onclick = 'showChoice(this);'>Profil użytkownika</a></li>
 							<li><a href='javascript:;' id="acc-timetable" onclick = 'showChoice(this);'>Plan zajęć</a></li>
 							<li><a href='javascript:;' id="acc-specs" onclick = 'showChoice(this);'>Kierunki studiów</a></li>
-							<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li> 
+							{% if uzytkownik.poziomDostpeu == 5 %}
+							<li><a href='javascript:;' id="acc-admin" onclick = 'showChoice(this);'>Administracja</a></li>
+							{% endif %}
 						</ul>
 					</div>
 				</div>

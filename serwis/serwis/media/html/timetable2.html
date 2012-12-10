@@ -110,10 +110,14 @@
     
     $(document).ready(function() {
       // Funkcja obslugujaca dodawania notatek
-      $('#btn_send_note').click(function(){
-        if(/^\s+/.test($('#fld_note').val()) == true){
+	  $('#btn_send_note').click(function(){
+		if(/^\s+/.test($('#fld_note').val()) == true){
           alert("Notatka nie może zaczynać się od znaków spacji lub tabulatora.");
-        } else {
+        } else if($('#fld_note').val() == ""){
+		  return;
+		}
+		else
+		{
           $.ajax({
             type: 'POST',
             url: '/saveNotes',
@@ -249,7 +253,21 @@
                   }
                   if(parz == ''){$('#timetable-scroll-day').html(dzien);}
                   else {$('#timetable-scroll-day').html(dzien + ' (' + parz + ')');}
-                  var start = obiekt.events[i].start.split(":");
+                
+					var start = obiekt.events[i].start.split(":");
+                    var end = obiekt.events[i].end.split(":");
+                    if(parz == ''){$('#timetable-scroll-day').html(dzien + ', ' + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));}
+
+                    else {$('#timetable-scroll-day').html(dzien + ' (' + parz + ')' + ', ' + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));}
+
+                    //$('#timetable-scroll-time').html(zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));
+                    $('#timetable-scroll-place').html(obiekt.events[i].miejsce);
+                    
+                    $('#btn_send_note').attr('name', obiekt.events[i].id);
+                    $('#fld_note').attr('value', '');
+                    pobierzNotatki(obiekt.events[i].id);
+				/*
+				  var start = obiekt.events[i].start.split(":");
                   var end = obiekt.events[i].end.split(":");
                   $('#timetable-scroll-time').html("Godzina:<br>" + zrobGodzine(start[3], start[4]) + '-' + zrobGodzine(end[3], end[4]));
                   $('#timetable-scroll-place').html("Miejsce:<br>" + obiekt.events[i].miejsce);
@@ -257,10 +275,12 @@
                   $('#btn_send_note').attr('name', obiekt.events[i].id);
                   $('#fld_note').attr('value', '');
                   pobierzNotatki(obiekt.events[i].id);
+                  */
                 }
               }
-              }
-		showDetailsDiv();
+			  }
+			  
+		  showDetailsDiv();
 	      },
 
             noEvents : function() {

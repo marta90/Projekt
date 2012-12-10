@@ -79,7 +79,7 @@ def pasuje(wzorzec, tekst):
         
 # Wysyłanie maila do admina
 def wyslijEmail(request):
-	if post(request):
+	try:
 		do = "pwrtracker@gmail.com"
 		od = "pwrtracker@gmail.com"
 		mailZwrotny = request.POST['fld_email'].encode('utf-8')
@@ -91,7 +91,9 @@ def wyslijEmail(request):
 				  od,
 				  [mailZwrotny],
 				  fail_silently=False)
-		return HttpResponse('Wysłano wiadomości')
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
 	
 # Do zmiany hasła - czy stare hasło się zgadza oraz czy nowe spełnia ograniczenia
 def sprHasloZeStarym(haslo, haslo2, stareHaslo, hasloUz):
@@ -164,7 +166,6 @@ def filtrujNoweWydarzenia(st):
 	wydzStudenta = student.kierunek.wydzial
 	semStudenta = student.semestr
 	rodzStudenta = student.rodzajStudiow
-	# Tutaj są źle te prywatne + dochodzą prywtano-publiczne
 	wydarzenia = models.Wydarzenie.objects.filter((Q(dodal__kierunek = kierStudenta) & Q(rodzajWydarzenia = 3)) | (Q(dodal__kierunek__wydzial = wydzStudenta) & Q(rodzajWydarzenia = 2)) |
 													(Q(rodzajWydarzenia = 1)) | (Q(grupa__uzytkownik = uzytkownik) & Q(rodzajWydarzenia = 4)) |
 													(Q(dodal__semestr = semStudenta) & Q(dodal__rodzajStudiow = rodzStudenta) & Q(dodal__kierunek = kierStudenta)& Q(rodzajWydarzenia = 5)) )
@@ -188,14 +189,14 @@ def wyslijPotwierdzenie(uzytkownik):
 
 # Czy nazwa wydarzenia spełnia ograniczenia
 def sprNazweWyd(nazwa):
-	if len(nazwa) >0 and len(nazwa)<21:
+	if len(nazwa) >0 and len(nazwa)<51:
 		return True
 	else:
 		return False
 
 # Czy opis wydarzenia spełnia ograniczenia	
 def sprOpisWyd(opis):
-	if len(opis) >0 and len(opis)<101:
+	if len(opis) >0 and len(opis)<251:
 		return True
 	else:
 		return False
@@ -218,7 +219,7 @@ def sprMinute(minuta):
 	
 # Czy wydarzenie ma odpowiedni rodzaj
 def sprRodzaj(rodzaj):
-	if rodzaj == "1" or rodzaj == "2" or rodzaj == "3" or rodzaj == "4" or rodzaj == "5" or rodzaj == "6" or rodzaj == "7":
+	if rodzaj == "1" or rodzaj == "2" or rodzaj == "3" or rodzaj == "4" or rodzaj == "5" or rodzaj == "6":
 		return True
 	else:
 		return False
@@ -253,6 +254,9 @@ def usunSesje(request):
 	except KeyError:
 		pass
 	
+def kontakt(request):
+	admini = models.Student.objects.filter(uprawnienia = 1).order_by('kierunek', 'uzytkownik__nick')
+	return render_to_response('contact.html', {'admini':admini})
 
 '''
 def saWPoscie(request, dane):

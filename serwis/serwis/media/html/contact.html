@@ -1,17 +1,50 @@
-<br /><br />KONTAKT (contact.html)<br /><br />
-				
-				<form method="post" action="/contact" id ="form_contact">
+<script type='text/javascript'>
+function sendEmail()
+{
+	var email = $('#fld_email').val();
+	var topic = $('#fld_topic').val();
+	var text = $('#fld_text').val();
+	if(email == "" || topic == "" || text == "")
+	{
+		alert('Nie podałeś wszystkich danych.');
+		return;
+	}
+	dane = {};
+    dane['fld_email'] = email;
+    dane['fld_topic'] = topic;
+	dane['fld_text'] = text;
+	
+	$('#answer').val('');
+	$('#answer').append('<span id="load">Trwa wysyłanie...<img src="img/ajax-loader.gif"></img></span>');
+    $.post("sendEmail", dane, function(data)
+	{
+		if (data == 'Fail')
+		{
+			
+			$('#load').remove();
+			$('#answer').html('Podcza wysyłania wiadomości wystąpił błąd. Spróbuj ponownie później.');
+		}
+		else if(data == 'Ok')
+		{
+			$('#load').remove();
+			$('#answer').html('Twoja wiadomość została wysłana do administratora.');
+			var email = $('#fld_email').val("");
+			var topic = $('#fld_topic').val("");
+			var text = $('#fld_text').val("");
+		}        
+	});
+}
+</script>
 					<div class="CLASS">
-						E-mail<input class="CLASS" type="text" name="fld_email" id="fld_email" />
+						E-mail: <input class="CLASS" type="text" name="fld_email" id="fld_email" />
 						<br />
-						Temat<input class="CLASS" type="text" name="fld_topic" id="fld_topic" />
+						Temat: <input class="CLASS" type="text" name="fld_topic" id="fld_topic" />
 						<br />
 						<textarea class="CLASS" name="fld_text" id="fld_text" rows="2" cols="10"></textarea>
 						<br />
-						Weryfikacja<input class="CLASS" type="text" name="fld_antibot" id="fld_antibot" />
-						<br />
-						<input class="CLASS" type="submit" name="btn_submit" id="btn_submit" value="Wy�lij" />
+						<input class="CLASS" type="button" name="btn_submit" id="btn_submit" value="Wyślij" onclick="sendEmail();"/>
 					</div>
-				</form>
+					<br />
+					<span id="answer" style="color: red"> &nbsp </span>
 				
 				<!-- po wyslaniu formularza wraca na index.html z portal.html w srodku -->

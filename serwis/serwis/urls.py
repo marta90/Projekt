@@ -81,6 +81,7 @@ urlpatterns = patterns('',
     (r'^qr/(.*)$', views.zwrocKodQR),
     (r'^notesAndroid$', views.notatkiAND),
     (r'^saveNoteAndroid$', views.zapiszNotatkeAND),
+    (r'^rememberPassAndroid$', views.przypomnijHasloAND),
     
     
     # MEDIA
@@ -96,7 +97,7 @@ urlpatterns = patterns('',
     (r'^media/html/account.html$', views.zaladujKonto),
     (r'^media/html/registration.html$', views.zaladujRejestracje),
     (r'^media/html/changePassword.html$', views.zaladujZmianeHasla),
-   
+
     
     # ADMIN
     (r'^admin/', include(admin.site.urls)),
@@ -105,4 +106,6 @@ urlpatterns = patterns('',
     (r'^css/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/css')}),
     (r'^img/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html/img')}),
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media')}),
+    
+    (r'^(.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'media/html')}),
 )

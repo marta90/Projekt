@@ -84,7 +84,7 @@ def planAND(request):
 			wykladowcy = models.Prowadzacy.objects.filter(id__in = idWykl)
 			kursy = models.Kurs.objects.filter(id__in = idKurs)
 			tygodnie = models.Tydzien.objects.all()
-			zmianyDat = models.ZmianaData.objects.all()
+			zmianyDat = models.ZmianaDat.objects.all()
 			lista = list(grupy) + list(kursy) + list(wykladowcy) + list(tygodnie) + list(zmianyDat)
 			json_serializer = serializers.get_serializer("json")()
 			wynik = json_serializer.serialize(lista, ensure_ascii=False, fields = ('prowadzacy',
@@ -200,23 +200,57 @@ def ostatnieWydarzeniaAND(request):
 def zmienOpisAND(request):
 	try:
 		idWyd = request.POST['evId']
-		print('1')
 		opis = request.POST['description']
-		print('2')
-		student = studPost(request)
-		print('3')
-		uzytkownik = student.uzytkownik
-		print('4')
-		kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
-		print('5')
-		kalendarz.opis = opis
-		print('6')
-		kalendarz.save()
-		print('7')
-		return HttpResponse('Ok')
+		if sprOpisWyd(opis):
+			student = studPost(request)
+			uzytkownik = student.uzytkownik
+			kalendarz = models.Kalendarz.objects.get(uzytkownik = uzytkownik, wydarzenie_id = idWyd)
+			kalendarz.opis = opis
+			kalendarz.save()
+			return HttpResponse('Ok')
+		else:
+			return HttpResponse('Fail')
 	except:
 		return HttpResponse('Fail')
 
+
+def przypomnijHasloAND(request):
+	try:
+		for k in request.POST.keys():
+			print k
+		nick = request.POST['login']
+		print(nick)
+		uzytkownik = models.Uzytkownik.objects.get(nick = nick)
+		haslo = generujHaslo()
+		print(haslo)
+		uzytkownik.haslo = sha256_crypt.encrypt(haslo)
+		uzytkownik.save()
+		print('zapisalo')
+		do = uzytkownik.mail
+		print(do)
+		od = "pwrtracker@gmail.com"
+		tytul = 'PwrTracker - przypomnienia hasła'
+		tresc = 'Twoje nowe hasło do serwisu to ' + haslo.encode('utf-8')
+		print('wysle maila')
+		send_mail(tytul, tresc, od, [do], fail_silently=False)
+		return HttpResponse('Ok')
+	except:
+		return HttpResponse('Fail')
+		
+		
+
+
+def generujHaslo():
+	male='abcdefghijklmnopqrstuvwxyz'
+	duze='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	liczby = '0123456789'
+	import random
+	random = random.SystemRandom()
+	haslo = ''.join([random.choice(male) for i in range(3)])
+	haslo = haslo.join([random.choice(duze) for i in range(2)])
+	haslo = haslo.join([random.choice(liczby) for i in range(2)])
+	salt = ''.join([random.choice(male) for i in range(2)])
+	return (haslo + salt)
 
 def oznaczWaznyShoutAND(request):
 	try:
